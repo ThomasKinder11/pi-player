@@ -1,0 +1,28 @@
+{
+    "nt": {
+        "audio": {
+            "rootdir": "audios",
+            "types": "mp3, wav"
+        },
+        "video": {
+            "rootdir": "C:\\tmp\\ishaPi2\\videos",
+            "types": "mp4"
+        },
+        "tmpdir":"C\\tmp\\"
+    },
+    "posix": {
+        "audio": {
+            "rootdir": "./audios",
+            "types": "mp3, wav"
+        },
+        "video": {
+            "rootdir": "./videos",
+            "types": "mp4"
+        },
+        "tmpdir":"/tmp"
+    },
+    "settings": {
+        "osdTime": 5,
+        "screensaverTime": 5
+    }
+}
