@@ -103,6 +103,9 @@ class SelectLabel(Label, Select):
 class SelectButton(Button, Select):
     btnType = None
 
+    def on_press(self):
+        pass
+
     def enable(self):
         self.selected = True
 
@@ -153,7 +156,7 @@ class SelectButton(Button, Select):
         #     Color(1, 0, 0, 1)
         #     Rectangle(pos=self.pos, size=self.size)
 
-class SelectableSlider(Select, GridLayout):
+class SelectSlider(Select, GridLayout):
     label = None
     slider = None
     valLabel = None
@@ -209,7 +212,7 @@ class SelectableSlider(Select, GridLayout):
         text = kwargs.pop('text', "!!!Empty Name in slider!!!")
 
         #call super only after additional arguments have been popped
-        super(SelectableSlider, self).__init__(**kwargs)
+        super(SelectSlider, self).__init__(**kwargs)
 
         self.label = Label(text=text, size_hint=(None,None), width=200, height=50)
         self.slider = Slider(min=-0, max=20, value=self.value,  size_hint=(None,None), width=200, height=50)
@@ -218,7 +221,7 @@ class SelectableSlider(Select, GridLayout):
         self.valLabel = Label(text=str(val)+'s', size_hint=(None,None), width=10, height=50)
 
         self.selected = False
-        self.type = "selectableslider"
+        self.type = "selectslider"
         self.defaultColor = self.label.color
 
         self.rows = 1
@@ -228,3 +231,5 @@ class SelectableSlider(Select, GridLayout):
         self.add_widget(self.label)
         self.add_widget(self.slider)
         self.add_widget(self.valLabel)
+
+        

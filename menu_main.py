@@ -1,4 +1,5 @@
 from isha_pi_kivy import *
+from screensaver import ScreenSaver
 from menu_settings import MenuSettings
 from menu_video import FileList
 import logging
@@ -51,6 +52,7 @@ class Menu(StackLayout, TabbedPanel):
     curId = 100
     nextId = None
     root = None
+    screenSaver = None
 
 
     def _keyboard_closed(self):
@@ -64,7 +66,7 @@ class Menu(StackLayout, TabbedPanel):
     Callback function for keyboard events. All key handling is done here.
     """
     def _keyDown(self, keyboard, keycode, text, modifiers):
-
+        self.screenSaver.resetTime()
         logging.info("Menu: Key Pressed [{}] on element with curId = {}".format(keycode, self.curId))
 
         #map button b to enable/disable screensaver"
@@ -209,8 +211,6 @@ class Menu(StackLayout, TabbedPanel):
         )
 
         self.selectableWidgets[1].content = self.selectableWidgets[20000]
-        logging.info("Video--------------: LEN {}".format(len(self.selectableWidgets[20000].children[0].children)))
-        logging.info("Audio--------------: {}".format(self.selectableWidgets[20000].widgets))
 
 
         #Setup Audio menu
@@ -224,14 +224,6 @@ class Menu(StackLayout, TabbedPanel):
             supportedTypes=globals.config[os.name]['audio']['types'],
             screenmanager=self.root
         )
-        logging.info("Audio--------------: LEN {}".format(len(self.selectableWidgets[30000].children[0].children)))
-
-        # for item in self.selectableWidgets[30000].children[0].children:
-        #     logging.info("Audio--------------: {}".format(item.text))
-        logging.info("Audio--------------: {}".format(self.selectableWidgets[30000].widgets))
-
-        for item in self.selectableWidgets[30000].widgets:
-            logging.info("Audio--------------: {}".format(item.text))
 
         self.selectableWidgets[2].content = self.selectableWidgets[30000]
 
@@ -246,3 +238,6 @@ class Menu(StackLayout, TabbedPanel):
             self.selectableWidgets[self.curId].enable()
         except:
             logging.error("Menu: cannot find default widget...")
+
+        self.screenSaver = ScreenSaver(self.root, "screensaver", "main_menu")
+        

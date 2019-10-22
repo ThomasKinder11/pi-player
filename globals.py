@@ -14,6 +14,7 @@ with open(cfgPath) as config_file:
     config = json.load(config_file)
 
 def writeConfig():
+    logging.info("ConfigGLobals: write file ................................ ")
     f = open(cfgPath, "w")
     f.write(json.dumps(config, sort_keys=True, indent=4))
     f.close()

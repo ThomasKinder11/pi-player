@@ -78,16 +78,16 @@ controlTree = {
         "left":[{'func':'decrement', 'id':101}],
         "right":[{'func':'increment', 'id':101}],
         "up": [{'func':'enable','id':100}, {'func':'disable','id':101}, {'nextid':100}],
-        "down":None,
+        "down":[{'func':'enable','id':102}, {'func':'disable','id':101}, {'nextid':102}],
         "type":"slider",
       },
-
-    103:{
+    102:{
         "left":None,
         "right":None,
-        "up":[{'func':'enable','id':100}, {'func':'disable','id':103}, {'nextid':100}],
+        "up":[{'func':'enable','id':101}, {'func':'disable','id':102}, {'nextid':101}],
         "down":None,
-        "type":"label",
+        "enter":[{'func':'on_press', 'id':102},{'nextid':102}],
+        "type":"button:store_config",
         },
     20000:{
         "left":  [{'func':'switch','id':0}, {'func':'enable','id':0}, {'func':'disable','id':1}, {'nextid':0}],
