@@ -1,8 +1,8 @@
 {
     "nt": {
         "audio": {
-            "rootdir": "audios",
-            "types": "mp3, wav"
+            "rootdir": "C:\\tmp\\ishaPi2\\audios",
+            "types": "mp3,wav"
         },
         "video": {
             "rootdir": "C:\\tmp\\ishaPi2\\videos",

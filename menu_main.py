@@ -1,6 +1,6 @@
 from isha_pi_kivy import *
 from menu_settings import MenuSettings
-from menu_video import MenuVideo
+from menu_video import FileList
 import logging
 import json, os
 import control_tree
@@ -197,7 +197,7 @@ class Menu(StackLayout, TabbedPanel):
         #self.selectableWidgets[20000] = SelectListView(id="20000", enaColor=[0.5,0.5,1,1], bar_width=10, size_hint=(1, None), size=(Window.width, Window.height))#MenuVideo()
 
         #Setup Video menu
-        self.selectableWidgets[20000] = MenuVideo(
+        self.selectableWidgets[20000] = FileList(
             id="20000",
             rootdir=globals.config[os.name]['video']['rootdir'],
             enaColor=[0.5,0.5,1,1],
@@ -209,10 +209,36 @@ class Menu(StackLayout, TabbedPanel):
         )
 
         self.selectableWidgets[1].content = self.selectableWidgets[20000]
+        logging.info("Video--------------: LEN {}".format(len(self.selectableWidgets[20000].children[0].children)))
+        logging.info("Audio--------------: {}".format(self.selectableWidgets[20000].widgets))
+
+
+        #Setup Audio menu
+        self.selectableWidgets[30000] = FileList(
+            id="30000",
+            rootdir=globals.config[os.name]['audio']['rootdir'],
+            enaColor=[0.5,0.5,1,1],
+            bar_width=10,
+            size_hint=(1, None),
+            size=(Window.width, Window.height),
+            supportedTypes=globals.config[os.name]['audio']['types'],
+            screenmanager=self.root
+        )
+        logging.info("Audio--------------: LEN {}".format(len(self.selectableWidgets[30000].children[0].children)))
+
+        # for item in self.selectableWidgets[30000].children[0].children:
+        #     logging.info("Audio--------------: {}".format(item.text))
+        logging.info("Audio--------------: {}".format(self.selectableWidgets[30000].widgets))
+
+        for item in self.selectableWidgets[30000].widgets:
+            logging.info("Audio--------------: {}".format(item.text))
+
+        self.selectableWidgets[2].content = self.selectableWidgets[30000]
 
         #Find all the children which are selectble and can be controlled by keyboard
         self._findSelectableChildren(self.selectableWidgets[0].content.children)
         self._findSelectableChildren(self.selectableWidgets[1].content.children)
+        self._findSelectableChildren(self.selectableWidgets[2].content.children)
 
         self.controlTree = control_tree.controlTree
         self.curId = 0 # set start id

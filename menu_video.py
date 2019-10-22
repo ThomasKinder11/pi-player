@@ -1,11 +1,12 @@
-from isha_pi_kivy import *
+
+from select_listview import *
 import logging
 import os, sys, time
 from subprocess import threading
 from globals import player
 
-class MenuVideo(SelectListView):
-    widget = None
+
+class FileList(SelectListView):
     rootdir = ""
     dirTree = []
     supportedTypes = None# ('.mp4')
@@ -17,7 +18,6 @@ class MenuVideo(SelectListView):
         while player.process.poll() == None:
             time.sleep(1)
 
-
         self.screenmanager.current = "main_menu"
         self.running = False
 
@@ -26,19 +26,9 @@ class MenuVideo(SelectListView):
 
         for item in self.dirTree:
             tmp = item[0]
-
-            #remove "..." if selected name is a directory entry
-            if item[0].endswith("...") and len(item[0]) > 3:
-                tmp = item[0].replace('...', '')
-
             path = os.path.join(path, tmp)
 
-        if self.widgets[self.wId].text.endswith("...") and len(self.widgets[self.wId].text) > 3:
-            tmp = self.widgets[self.wId].text.replace("...", "")
-            path = os.path.join(path, tmp)
-
-        else:
-            path = os.path.join(path, self.widgets[self.wId].text)
+        path = os.path.join(path, self.widgets[self.wId].text)
 
         logging.info("VideoMenu: start playing file = {}".format(path))
         if self.widgets[self.wId].text == "...": #jump to previous directory
@@ -74,7 +64,7 @@ class MenuVideo(SelectListView):
     def _addFile(self, path, isSubdir, wId):
 
         if isSubdir:
-            self.add("...")
+            self.add("...", True)
 
         files = os.listdir(path)
 
@@ -82,13 +72,13 @@ class MenuVideo(SelectListView):
         for item in files:
             tmpPath = os.path.join(path, item)
             if os.path.isdir(tmpPath):
-                self.add(item.strip() + "...")
+                self.add(item.strip(), isDir=True)
 
         #then add all the files
         for item in files:
 
             if item.lower().endswith(self.supportedTypes):
-                self.add(item.strip())
+                self.add(item.strip(), False)
 
         if len(self.widgets) > 0:
             if wId:
@@ -115,12 +105,13 @@ class MenuVideo(SelectListView):
             logging.error("MenuVideo: supported files types for video player not set")
             return
 
+        self.supportedTypes = tuple(self.supportedTypes.split(','))
         self.screenmanager = kwargs.pop('screenmanager', None)
 
         if not self.screenmanager:
             logging.error("MenuVideo: screenmanager not set")
             return
 
-        super(MenuVideo, self).__init__(**kwargs)
-
+        super(FileList, self).__init__(**kwargs)
+        self.widgets = []
         self._addFile(self.rootdir, False, None)

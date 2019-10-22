@@ -2,6 +2,7 @@ from kivy.graphics import Rectangle, Color, Line
 import kivy
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.widget import Widget
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.button import Button

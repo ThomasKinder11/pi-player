@@ -50,6 +50,12 @@ controlTree = {
     2:{
         "left":  [{'func':'switch','id':1}, {'func':'enable','id':1}, {'func':'disable','id':2}, {'nextid':1}],
         "right": [{'func':'switch','id':3}, {'func':'enable','id':3}, {'func':'disable','id':2}, {'nextid':3}],
+        "up": [{
+                'func':'disable',
+                'id':30000
+                },
+                {'nextid':30000}
+        ],
         "down": [{'func':'enable','id':30000}, {'nextid':30000}],
         "enter":[{'func':'enter', 'id':30000},{'nextid':30000}],
         "type":"tab",
@@ -107,8 +113,8 @@ controlTree = {
             'id':30000,
             'true':{
                 'func':'enable',
-                'id':1,
-                'nextid':1
+                'id':2,
+                'nextid':2
                 }
             }],
         "down":[{'func':'enable','id':30000}],
