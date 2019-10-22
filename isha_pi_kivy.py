@@ -130,9 +130,7 @@ class SelectListView(Select, ScrollView):
         else:
             bg = (0.5,0.5,0.5,1)
 
-        logging.error("Thomas: window height = {} / width = {}".format(Window.height, Window.width))
         self.widgets.append(SelectButton(
-
                                             background_color=bg,
                                             text_size=(Window.width-30,15),
                                             halign="left",
@@ -142,14 +140,9 @@ class SelectListView(Select, ScrollView):
                                             height=30,
                                             id=id)
                                         )
-        #Check if we have enough space to make it visible right away
-        # if self.height - (self.lastWidId * 30) >= 60:
-        #     self.layout.add_widget(self.widgets[-1])
-        #     self.lastWidId = self.lastWidId + 1
 
         self.layout.add_widget(self.widgets[-1])
-        #self.lastWidId = self.lastWidId + 1
-
+        
 
 
 

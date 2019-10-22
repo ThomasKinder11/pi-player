@@ -25,11 +25,23 @@ class MenuVideo(SelectListView):
         path = self.rootdir
 
         for item in self.dirTree:
-            path = os.path.join(path, item[0])
+            tmp = item[0]
 
-        path = os.path.join(path, self.widgets[self.wId].text)
+            #remove "..." if selected name is a directory entry
+            if item[0].endswith("...") and len(item[0]) > 3:
+                tmp = item[0].replace('...', '')
 
-        if self.widgets[self.wId].text == "...":
+            path = os.path.join(path, tmp)
+
+        if self.widgets[self.wId].text.endswith("...") and len(self.widgets[self.wId].text) > 3:
+            tmp = self.widgets[self.wId].text.replace("...", "")
+            path = os.path.join(path, tmp)
+
+        else:
+            path = os.path.join(path, self.widgets[self.wId].text)
+
+        logging.info("VideoMenu: start playing file = {}".format(path))
+        if self.widgets[self.wId].text == "...": #jump to previous directory
             tmp = self.dirTree.pop(len(self.dirTree)-1)
             path = self.rootdir
 
@@ -65,12 +77,18 @@ class MenuVideo(SelectListView):
             self.add("...")
 
         files = os.listdir(path)
+
+        #add all directories first
         for item in files:
             tmpPath = os.path.join(path, item)
+            if os.path.isdir(tmpPath):
+                self.add(item.strip() + "...")
 
-            if os.path.isdir(tmpPath) or item.lower().endswith(self.supportedTypes):
+        #then add all the files
+        for item in files:
+
+            if item.lower().endswith(self.supportedTypes):
                 self.add(item.strip())
-
 
         if len(self.widgets) > 0:
             if wId:
