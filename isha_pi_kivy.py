@@ -22,6 +22,7 @@ class Select():
     enaColor =  ObjectProperty()
     defaultColor = None
     isSelectable = True
+    onEnter = None
 
     # selectableWidgets = {}
 

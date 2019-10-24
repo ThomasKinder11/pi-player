@@ -140,16 +140,9 @@ class Menu(StackLayout, TabbedPanel):
         self.screenSaver.disable()
         self.root.current = "osd"
 
-        #switch menu controll to osd...
-
-        #Wait until current pressed button commands are execute completely
-        # while self.keyProcessing:
-        #     continue# = True
-
         self.lastId = self.curId
         self.curId = 200
-        #self.nextId = 200
-
+    
         self.playbackFirst = True
         path = args.pop("path", None)
         player.play(path)

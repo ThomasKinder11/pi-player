@@ -31,6 +31,26 @@ class MenuOSD(StackLayout, Select):
     widgets = []
     isSelectable = True
 
+    """
+    These are the callback functions which are triggered when a button on the OSD
+    is activated. Here we can implemente the player control.
+    """
+    def _onEnterPlay(self):
+        logging.debug("MenuOSD: _onEnterPlay")
+        pass
+    def _onEnterPause(self):
+        logging.debug("MenuOSD: _onEnterPause")
+        pass
+    def _onEnterPrevious(self):
+        logging.debug("MenuOSD: _onEnterPrevious")
+        pass
+    def _onEnterNext(self):
+        logging.debug("MenuOSD: _onEnterNext")
+        pass
+    def _onEnterStop(self):
+        logging.debug("MenuOSD: _onEnterStop")
+        pass
+    
 
     def _worker(self):
         logging.debug("MenuOSD: thread called...")
@@ -104,6 +124,10 @@ class MenuOSD(StackLayout, Select):
         pass#self.ctrlQueue.put({'cmd':'hide'})
 
 
+
+    def enter(self, args):
+        self.widgets[self.wId-1].onEnter()
+
     def changeSize(self, widget, value):
         self.gap.width = Window.width-(6*50)-10
 
@@ -151,8 +175,10 @@ class MenuOSD(StackLayout, Select):
             size_hint_x=None,
             height=50,
             width=50,
-            id=str(1)
+            id=str(1),
+
         )
+
 
         self.btnPause = SelectButton(
             imgPath= "./resources/img/pause",
@@ -191,6 +217,12 @@ class MenuOSD(StackLayout, Select):
             width=Window.width-(6*50)-10,
             id=str(3)
         )
+
+        self.btnPlay.onEnter = self._onEnterPlay
+        self.btnPause.onEnter = self._onEnterPause
+        self.btnStop.onEnter = self._onEnterStop
+        self.btnNext.onEnter = self._onEnterNext
+        self.btnPrevious.onEnter = self._onEnterPrevious
 
         self.widgets.append(self.btnPause)
         self.widgets.append(self.btnPlay)
