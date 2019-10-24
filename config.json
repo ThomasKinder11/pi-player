@@ -4,6 +4,10 @@
             "rootdir": "C:\\tmp\\ishaPi2\\audios",
             "types": "mp3,wav"
         },
+        "playlist": {
+            "rootdir": "C:\\tmp\\ishaPi2\\playlists",
+            "types": "json"
+        },
         "tmpdir": "C\\tmp\\",
         "video": {
             "rootdir": "C:\\tmp\\ishaPi2\\videos",
@@ -15,6 +19,10 @@
             "rootdir": "./audios",
             "types": "mp3, wav"
         },
+        "playlist": {
+            "rootdir": "./playlists",
+            "types": "mp4,mp3,wav"
+        },
         "tmpdir": "/tmp",
         "video": {
             "rootdir": "./videos",
@@ -23,6 +31,6 @@
     },
     "settings": {
         "osdTime": 3,
-        "screensaverTime": 5
+        "screensaverTime": 10
     }
 }

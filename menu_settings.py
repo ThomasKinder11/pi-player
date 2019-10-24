@@ -9,7 +9,7 @@ import globals
 class MenuSettings(GridLayout):
     widgets = []
     widName = []
-    def save_settings(self):
+    def save_settings(self, args):
         globals.config['settings']['screensaverTime'] = self.widgets[0].slider.value
         globals.config['settings']['osdTime'] = self.widgets[1].slider.value
         globals.writeConfig()

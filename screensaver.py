@@ -13,6 +13,7 @@ class ScreenSaver():
     idleCounter = 0
     timeStep = 0.25
     saverTimeout = 5
+    active = None
 
     def _worker(self):
         logging.info("ScreenSaver: thread called...")
@@ -25,6 +26,7 @@ class ScreenSaver():
             if self.idleCounter > globals.config['settings']['screensaverTime']:
                 self.idleCounter = globals.config['settings']['screensaverTime']
                 self.screenManager.current = self.blackScreenName
+                self.active = True
 
             if not self.ctrlQueue.empty():
                 cmd = self.ctrlQueue.get()
@@ -32,10 +34,12 @@ class ScreenSaver():
                 if cmd['cmd'] == 'reset':
                     self.idleCounter = 0
                     self.screenManager.current=self.menuName
+                    self.active = False
                 elif cmd['cmd'] == 'stop':
                     logging.info("ScreenSaver: thread stopped...")
                     break;
 
+    
     def resetTime(self):
         self.ctrlQueue.put({'cmd':'reset'})
 
@@ -49,6 +53,7 @@ class ScreenSaver():
         self.idleCounter = 0
         self.blackScreenName = blackScreenName
         self.menuName = menuName
+        self.active = False
 
 
         self.thread.start()

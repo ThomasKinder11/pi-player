@@ -49,7 +49,7 @@ controlTree = {
       },
     2:{
         "left":  [{'func':'switch','id':1}, {'func':'enable','id':1}, {'func':'disable','id':2}, {'nextid':1}],
-        "right": [{'func':'switch','id':3}, {'func':'enable','id':3}, {'func':'disable','id':2}, {'nextid':3}],
+        "right": [{'func':'switch','id':3}, {'func':'enable','id':3}, {'func':'disable','id':2}, {'nextid':40000}],
         "up": [{
                 'func':'disable',
                 'id':30000
@@ -62,9 +62,14 @@ controlTree = {
       },
     3:{
         "left":  [{'func':'switch','id':2}, {'func':'enable','id':2}, {'func':'disable','id':3}, {'nextid':2}],
-        "right": None,
-        "up": None,
-        "down":None,
+        # "right": [
+        #         {'func':'enable','id':45000, 'args':{'mode':0}},
+        #         {'nextid':45000}],
+        "up": [{'func':'disable','id':40000}, {'nextid':40000}],
+        "down":[
+                {'func':'enable','id':40000},
+                # {'func':'updateList','id':45000},
+                {'nextid':40000}],
         "type":"tab",
       },
     100:{
@@ -95,11 +100,11 @@ controlTree = {
         "up":[{
             'func':'disable',
             'id':20000,
-            'true':{
+            'true':[{
                 'func':'enable',
                 'id':1,
                 'nextid':1
-                }
+                }]
             }],
         "down":[{'func':'enable','id':20000}],
         "enter":[{'func':'enter', 'id':20000},{'nextid':20000}],
@@ -111,14 +116,54 @@ controlTree = {
         "up":[{
             'func':'disable',
             'id':30000,
-            'true':{
+            'true':[{
                 'func':'enable',
                 'id':2,
                 'nextid':2
-                }
+                }]
             }],
         "down":[{'func':'enable','id':30000}],
         "enter":[{'func':'enter', 'id':30000},{'nextid':30000}],
         "type":"123",
         },
+    40000:{
+        "left":  [
+            {'func':'left','id':40000,
+                "true":[
+                    {'func':'switch','id':2},
+                    {'func':'enable','id':2},
+                    {'func':'disable','id':3},
+                    {'nextid':2}
+                ],
+            },
+            #{'nextid':40000}
+        ],
+        "down": [{'func':'enable', 'id':40000},{'nextid':40000}],
+        "up": [{'func':'disable', 'id':40000},{'nextid':40000}],
+        "right": [{'func':'right', 'id':40000},{'nextid':40000}],
+        # "right": [{'func':'enable','id':45000, 'args':{'mode':0, 'rst':1}},
+        #           {'func':'enable','id':40000, 'args':{'mode':0}},
+        #           {'nextid':45000}],
+        # "up":[{
+        #     'func':'disable',
+        #     'id':40000,
+        #     'true':{
+        #         'func':'enable',
+        #         'id':3,
+        #         'nextid':3
+        #         }
+        #     },
+        #     {'func':'updateList','id':45000},
+        #     {'nextid':40000}
+        #
+        #     ],
+        # "down":[
+        #     {'func':'enable','id':40000},
+        #     {'func':'updateList','id':45000},
+        #     {'nextid':40000}
+        # ],
+        "type":"playlists",
+        },
+
+
 }

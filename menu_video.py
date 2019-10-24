@@ -13,6 +13,7 @@ class FileList(SelectListView):
     screenmanager = None
     playerProcess = None
     running = False
+    
 
     def __waitForPlayerEnd(self):
         while player.process.poll() == None:
@@ -21,7 +22,7 @@ class FileList(SelectListView):
         self.screenmanager.current = "main_menu"
         self.running = False
 
-    def enter(self):
+    def enter(self, args):
         path = self.rootdir
 
         for item in self.dirTree:
@@ -87,7 +88,7 @@ class FileList(SelectListView):
             else:
                 self.wId = 0
 
-            self.widgets[self.wId].enable()
+            self.widgets[self.wId].enable(None)
 
     def __init__(self, **kwargs):
         if not 'rootdir' in kwargs:

@@ -11,6 +11,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
+from kivy.properties import ObjectProperty
 
 import logging
 from kivy.graphics import Color, Rectangle
@@ -18,7 +19,7 @@ from kivy.graphics import Color, Rectangle
 class Select():
     selected = None
     type = None
-    enaColor = None
+    enaColor =  ObjectProperty()
     defaultColor = None
     isSelectable = True
 
@@ -36,10 +37,10 @@ class Select():
     #         except:
     #             pass
 
-    def enable(self):
+    def enable(self, args):
         raise NotImplementedError("enable function of Select class not implemented")
 
-    def disable(self):
+    def disable(self, args):
         raise NotImplementedError("disable function of Select class not implemented")
 
 
@@ -48,12 +49,12 @@ class Select():
 
 
 class SelectableTabbedPanelHeader(Select, TabbedPanelHeader):
-    def enable(self):
+    def enable(self, args):
         self.selected = True
         self.background_color = self.enaColor
         return True
 
-    def disable(self):
+    def disable(self, args):
         self.selected = False
         self.background_color = self.defaultColor
         return True
@@ -74,12 +75,12 @@ class SelectableTabbedPanelHeader(Select, TabbedPanelHeader):
 
 
 class SelectLabel(Label, Select):
-    def enable(self):
+    def enable(self, args):
         self.selected = True
         self.color = self.enaColor
         return True
 
-    def disable(self):
+    def disable(self, args):
         self.selected = False
         self.color = self.defaultColor
         return True
@@ -106,7 +107,7 @@ class SelectButton(Button, Select):
     def on_press(self):
         pass
 
-    def enable(self):
+    def enable(self, args):
         self.selected = True
 
         if self.btnType == "text":
@@ -117,7 +118,7 @@ class SelectButton(Button, Select):
 
         return True
 
-    def disable(self):
+    def disable(self, args):
         self.selected = False
 
         if self.btnType == "text":
@@ -161,17 +162,17 @@ class SelectSlider(Select, GridLayout):
     slider = None
     valLabel = None
 
-    def enable(self):
+    def enable(self, args):
         self.selected = True
         self.label.color = self.enaColor
         return True
 
-    def disable(self):
+    def disable(self, args):
         self.selected = False
         self.label.color = self.defaultColor
         return True
 
-    def increment(self):
+    def increment(self, args):
         val = self.slider.value
 
         if val == self.slider.max:
@@ -182,7 +183,7 @@ class SelectSlider(Select, GridLayout):
         self.slider.value = val
         self.valLabel.text = str(val)+"s"
 
-    def decrement(self):
+    def decrement(self, args):
         val = self.slider.value
 
         if val == self.slider.min:
@@ -231,5 +232,3 @@ class SelectSlider(Select, GridLayout):
         self.add_widget(self.label)
         self.add_widget(self.slider)
         self.add_widget(self.valLabel)
-
-        

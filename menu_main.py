@@ -7,6 +7,7 @@ import json, os
 import control_tree
 import globals
 from menu_osd import *
+from menu_playlist import *
 
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.stacklayout import StackLayout
@@ -54,32 +55,7 @@ class Menu(StackLayout, TabbedPanel):
     root = None
     screenSaver = None
 
-
-    def _keyboard_closed(self):
-        self._keyboard.unbind(on_key_down=self._keyDown)
-        self._keyboard = None
-
-    def _clearIdleTimer(self):
-        pass
-
-    """
-    Callback function for keyboard events. All key handling is done here.
-    """
-    def _keyDown(self, keyboard, keycode, text, modifiers):
-        self.screenSaver.resetTime()
-        logging.info("Menu: Key Pressed [{}] on element with curId = {}".format(keycode, self.curId))
-
-        #map button b to enable/disable screensaver"
-        if keycode[1] == 'b':
-            if self.root.current != 'screensaver':
-                self.root.current = "screensaver"
-            else:
-                self.root.current = "main_menu"
-            return
-
-        #-----------------------------------------------------------------------
-        # Execute selectable widget specific keymappings
-        #-----------------------------------------------------------------------
+    def _globalKeyHandler(self, keycode):
 
         #map key o to switch to OSD - this is only needed for debugging and can be removed
         if keycode[1] == 'o':
@@ -99,69 +75,77 @@ class Menu(StackLayout, TabbedPanel):
             self.root.menuOSD.muteToggle()
             return
 
+    _keyHandledMextId = False
+    def _keyHanlder(self, cmdList):
+        #cmdList is a list of dictonaries containing the command being executed
+        #cmdList can be specified as None in control tree which means nothing to do
+        if cmdList == None:
+            return 0
 
-        #-----------------------------------------------------------------------
-        # Execute selectable widget specific keymappings
-        #-----------------------------------------------------------------------
+        for cmd in cmdList:
+            logging.debug("_keyHandler: process cmd = {}".format(cmd))
+            #Check if cmd is also a list, if so recursively we will execute
+            if isinstance(cmd,list):
+                logging.debug("_keyHandler: cmd is a list...")
+                self._keyHanlder(cmd)
+                continue
 
-        #get the controll tree entry for the currently selected item for execution
-        tmp = None
-        try:
-            tmp = self.controlTree[self.curId][keycode[1]]
-            if tmp == None: #do not do anything if None is specified
-                return
-        except:
-            logging.error("Menu: ControlTree has no element with id = {} / or element did not specify keycode = {}".format(self.curId, keycode[1]))
+            if 'nextid' in cmd and self._keyHandledMextId == False: #last entry, this will stop execution
+                self._keyHandledMextId = True
+                self.curId = cmd['nextid']
+                logging.debug("_keyHandler: nextid has been processed...")
+                return 0
+
+            if not (all(k in cmd for k in ("id","func"))):
+                logging.error("_keyHandler: You did not specify id/func for tree elemnt with id = {} ".format(self.curId))
+                return -1
+
+            logging.debug("_keyHandler: get key/attributes...")
+            id = cmd['id']
+            func = cmd['func']
+
+            #args attribute is optional, can be used when we want to pass something to callback
+            args = None
+            if 'args' in cmd:
+                args = cmd['args']
+
+            #Execute build in fucntions/object functions
+            if func == "switch":#build-in-switch-tabpannel
+                self.switch_to(self.selectableWidgets[id], False)
+            else:
+                ret = getattr(self.selectableWidgets[id], func)(args)
+
+                if ret and 'true' in cmd: #execute ret functions if specified
+                    self._keyHanlder(cmd['true'])
+
+
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._keyDown)
+        self._keyboard = None
+
+
+    """
+    Callback function for keyboard events. All key handling is done here.
+    """
+    def _keyDown(self, keyboard, keycode, text, modifiers):
+        if self.screenSaver.active:
+            self.screenSaver.resetTime()
             return
 
-        #process the comands defined in control tree
-        tmpId = -1
-        ret =  False
-        tmpNextId = None
+        self.screenSaver.resetTime()
+        logging.info("Menu: Key Pressed [{}] on element with curId = {}".format(keycode, self.curId))
 
-        if len(tmp) > 0:
-            if "nextid" in tmp[-1]:
-                self.nextId = tmp[-1]['nextid']
+        self._globalKeyHandler(keycode)
+
+        if keycode[1] in self.controlTree[self.curId]:
+            self._keyHandledMextId = False #prepare keyHandler function
+            self._keyHanlder(self.controlTree[self.curId][keycode[1]])
+            return 0
         else:
-            logging.warning("menu_main: the controlTree entry 'nextid' is not set...")
-            return
+            logging.debug("Menu: keyDown: keycode not defined for current elemnt")
+            return -1
 
-        for item in tmp:
-            logging.info("Menu: execute comand = {}".format(item))
-
-            if ('id' in item) and ('func' in item):
-                if item['func'] == "switch":
-                    tmpId = item['id']
-                    self.switch_to(self.selectableWidgets[tmpId], False)
-                else:
-                    try:
-                        tmpId = item['id']
-                        ret = getattr(self.selectableWidgets[tmpId], item['func'])()
-                    except:
-                        logging.error("Menu: id = {} not in tree or widget list...".format(tmpId))
-
-
-                    if ret:
-                        self.curId = self.nextId
-                        try:
-                            tr = item['true']
-                            tmpId = item['id']
-                            self.nextId = tr['nextid']
-                            getattr(self.selectableWidgets[tr['id']], tr['func'])()
-
-                        except:
-                            logging.debug("Menu: no true action defined...")
-
-                    else:
-                        logging.info("Menu: execute false return value...")
-                        self.curId = self.nextId
-                        try:
-                            tr = item['false']
-                            tmpId = item['id']
-                            getattr(self.selectableWidgets[tr['id']], tr['func'])()
-
-                        except:
-                            logging.debug("Menu: no false action defined...")
 
 
     def _findSelectableChildren(self, children):
@@ -227,11 +211,18 @@ class Menu(StackLayout, TabbedPanel):
 
         self.selectableWidgets[2].content = self.selectableWidgets[30000]
 
+        #Setup Playlist menu
+        self.selectableWidgets[40000] = MenuPlaylist(
+            id="40000",
+            screenmanager=self.root
+        )
+
+        self.selectableWidgets[3].content = self.selectableWidgets[40000]
+
         #Find all the children which are selectble and can be controlled by keyboard
         self._findSelectableChildren(self.selectableWidgets[0].content.children)
         self._findSelectableChildren(self.selectableWidgets[1].content.children)
-        self._findSelectableChildren(self.selectableWidgets[2].content.children)
-
+        
         self.controlTree = control_tree.controlTree
         self.curId = 0 # set start id
         try:
@@ -240,4 +231,3 @@ class Menu(StackLayout, TabbedPanel):
             logging.error("Menu: cannot find default widget...")
 
         self.screenSaver = ScreenSaver(self.root, "screensaver", "main_menu")
-        
