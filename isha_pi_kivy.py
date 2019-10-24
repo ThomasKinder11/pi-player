@@ -38,11 +38,10 @@ class Select():
     #             pass
 
     def enable(self, args):
-        raise NotImplementedError("enable function of Select class not implemented")
-
+        logging.warning("I AM NOT IMPLEMENTED self = {}".format(self))
     def disable(self, args):
-        raise NotImplementedError("disable function of Select class not implemented")
-
+        #raise NotImplementedError("disable function of Select class not implemented")
+        logging.warning("I AM NOT IMPLEMENTED self = {}".format(self))
 
 
 

@@ -7,7 +7,9 @@ from kivy.core.window import Window
 
 class Main(App):
     def build(self):
-        return IshaPiScreens()
+        tmp = IshaPiScreens()
+        tmp.current = "main_menu"
+        return tmp
 
 if __name__ == "__main__":
     Main().run()

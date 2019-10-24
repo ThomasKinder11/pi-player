@@ -1,10 +1,12 @@
 from player import *
+from screensaver import *
 import os
 import logging
 import json
 
 #Media player instance we can use in all modules
 player = Player()
+
 
 #configuration file
 syspath = os.path.realpath(__file__)
@@ -18,3 +20,6 @@ def writeConfig():
     f = open(cfgPath, "w")
     f.write(json.dumps(config, sort_keys=True, indent=4))
     f.close()
+
+#Global instance of screen saver
+screenSaver = None #will be initialized by main-menu

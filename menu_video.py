@@ -1,4 +1,3 @@
-
 from select_listview import *
 import logging
 import os, sys, time
@@ -12,15 +11,18 @@ class FileList(SelectListView):
     supportedTypes = None# ('.mp4')
     screenmanager = None
     playerProcess = None
-    running = False
-    
+    #running = False
 
-    def __waitForPlayerEnd(self):
-        while player.process.poll() == None:
-            time.sleep(1)
+    #
+    # def __waitForPlayerEnd(self):
+    #     while player.process.poll() == None:
+    #         time.sleep(1)
+    #
+    #     #self.screenmanager.current = "main_menu"
+    #     #self.running = False
 
-        self.screenmanager.current = "main_menu"
-        self.running = False
+    def _onEnterPlayer(self,args):
+        pass
 
     def enter(self, args):
         path = self.rootdir
@@ -46,14 +48,17 @@ class FileList(SelectListView):
             self._addFile(path, isSubdir, tmp[1])
 
         elif os.path.isfile(path): #We hit enter on a video file so play it
+            #self.running = True
+            if args == None:
+                args = {}
+                
+            args['path'] = path
+            self._onEnterPlayer(args)
+            #player.play(path)
+            #time.sleep(1)
 
-            self.screenmanager.current = "osd" #TODO: Switch to black screen
-            self.running = True
-            player.play(path)
-            time.sleep(1)
-
-            self.playerProcess = threading.Thread(target = self.__waitForPlayerEnd)
-            self.playerProcess.start()
+            #self.playerProcess = threading.Thread(target = self.__waitForPlayerEnd)
+            #self.playerProcess.start()
 
         elif os.path.isdir(path):
             self.layout.clear_widgets()

@@ -94,6 +94,12 @@ controlTree = {
         "enter":[{'func':'on_press', 'id':102},{'nextid':102}],
         "type":"button:store_config",
         },
+    200:{
+        "left": [{'func':'left','id':200}],
+        "right":[{'func':'right','id':200}],
+        "enter":[{'func':'enter', 'id':200}],
+        "type":"osd:control",
+        },
     20000:{
         "left":  [{'func':'switch','id':0}, {'func':'enable','id':0}, {'func':'disable','id':1}, {'nextid':0}],
         "right": [{'func':'switch','id':2}, {'func':'enable','id':2}, {'func':'disable','id':1}, {'nextid':2}],
@@ -107,7 +113,7 @@ controlTree = {
                 }]
             }],
         "down":[{'func':'enable','id':20000}],
-        "enter":[{'func':'enter', 'id':20000},{'nextid':20000}],
+        "enter":[{'func':'enter', 'id':20000}],
         "type":"123",
         },
     30000:{

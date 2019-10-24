@@ -31,20 +31,23 @@ class IshaPiScreens(ScreenManager):
         super(IshaPiScreens, self).__init__(**kwargs)
 
         self.transition=NoTransition()
+
+
+        self.menuScreenSaver = Screen(name="screensaver")
+
+        self.menuOSDScreen = Screen(name="osd")
+        self.menuOSD = MenuOSD(id="200")
+        self.menuOSDScreen.add_widget(self.menuOSD)
+
+        self.add_widget(self.menuOSDScreen)
+
         self.menuScreen = Screen(name="main_menu")
         self.menuScreen.add_widget(Menu(root=self))
         self.add_widget(self.menuScreen)
 
-        self.menuScreenSaver = Screen(name="screensaver")
         self.add_widget(self.menuScreenSaver)
+        self.current = "main_menu"
 
-        self.menuOSDScreen = Screen(name="osd")
-        #osdLayout = StackLayout(orientation='lr-bt')
-        #osdLayout.add_widget(Button(text="This is the osd", size_hint_y=None, height=50))
-        #menuOSD.add_widget(osdLayout)
-        self.menuOSD = MenuOSD(id="0")
-        self.menuOSDScreen.add_widget(self.menuOSD)
-        self.add_widget(self.menuOSDScreen)
 
 
 class Menu(StackLayout, TabbedPanel):
@@ -52,8 +55,12 @@ class Menu(StackLayout, TabbedPanel):
     tbHeads = []
     curId = 100
     nextId = None
+    lastId = None
     root = None
     screenSaver = None
+    menuOSD = None
+    keyProcessing = False
+    playbackFirst = True
 
     def _globalKeyHandler(self, keycode):
 
@@ -83,10 +90,8 @@ class Menu(StackLayout, TabbedPanel):
             return 0
 
         for cmd in cmdList:
-            logging.debug("_keyHandler: process cmd = {}".format(cmd))
             #Check if cmd is also a list, if so recursively we will execute
             if isinstance(cmd,list):
-                logging.debug("_keyHandler: cmd is a list...")
                 self._keyHanlder(cmd)
                 continue
 
@@ -100,7 +105,6 @@ class Menu(StackLayout, TabbedPanel):
                 logging.error("_keyHandler: You did not specify id/func for tree elemnt with id = {} ".format(self.curId))
                 return -1
 
-            logging.debug("_keyHandler: get key/attributes...")
             id = cmd['id']
             func = cmd['func']
 
@@ -118,19 +122,49 @@ class Menu(StackLayout, TabbedPanel):
                 if ret and 'true' in cmd: #execute ret functions if specified
                     self._keyHanlder(cmd['true'])
 
-
-
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._keyDown)
         self._keyboard = None
+
+    """
+    _onPlayEnd : callback which is called by player after playback has been
+                 finished. This can be used to control playlist etc.
+    """
+    def _onPlayEnd(self):
+        self.root.current = "main_menu"
+        self.screenSaver.enable()
+        self.curId  = self.lastId
+
+    def _onEnterPlayer(self, args):
+        logging.info("_onEnterPlayer: start playing the file...")
+        self.screenSaver.disable()
+        self.root.current = "osd"
+
+        #switch menu controll to osd...
+
+        #Wait until current pressed button commands are execute completely
+        # while self.keyProcessing:
+        #     continue# = True
+
+        self.lastId = self.curId
+        self.curId = 200
+        #self.nextId = 200
+
+        self.playbackFirst = True
+        path = args.pop("path", None)
+        player.play(path)
 
 
     """
     Callback function for keyboard events. All key handling is done here.
     """
     def _keyDown(self, keyboard, keycode, text, modifiers):
-        if self.screenSaver.active:
+    #do not process key strokes when player is playing something
+        self.keyProcessing = True
+
+        if self.screenSaver.active and self.screenSaver.ena:
             self.screenSaver.resetTime()
+            self.keyProcessing = False
             return
 
         self.screenSaver.resetTime()
@@ -141,12 +175,12 @@ class Menu(StackLayout, TabbedPanel):
         if keycode[1] in self.controlTree[self.curId]:
             self._keyHandledMextId = False #prepare keyHandler function
             self._keyHanlder(self.controlTree[self.curId][keycode[1]])
+            self.keyProcessing = False
+
             return 0
         else:
-            logging.debug("Menu: keyDown: keycode not defined for current elemnt")
+            self.keyProcessing = False
             return -1
-
-
 
     def _findSelectableChildren(self, children):
         if not children:
@@ -161,7 +195,9 @@ class Menu(StackLayout, TabbedPanel):
                 pass
 
     def __init__(self, **kwargs):
-        self.root = kwargs.pop('root', None)
+        self.root = kwargs.pop('root', "None")
+        #self.menuOSD = kwargs.pop('osd', "None")
+
         kwargs["do_default_tab"] = False #always disable the default tab
         super(Menu, self).__init__(**kwargs)
 
@@ -178,9 +214,7 @@ class Menu(StackLayout, TabbedPanel):
         for i in range(len(self.selectableWidgets)):
             self.add_widget(self.selectableWidgets[i])
 
-
         self.selectableWidgets[0].content = MenuSettings()
-        #self.selectableWidgets[20000] = SelectListView(id="20000", enaColor=[0.5,0.5,1,1], bar_width=10, size_hint=(1, None), size=(Window.width, Window.height))#MenuVideo()
 
         #Setup Video menu
         self.selectableWidgets[20000] = FileList(
@@ -193,9 +227,8 @@ class Menu(StackLayout, TabbedPanel):
             supportedTypes=globals.config[os.name]['video']['types'],
             screenmanager=self.root
         )
-
+        self.selectableWidgets[20000]._onEnterPlayer = self._onEnterPlayer
         self.selectableWidgets[1].content = self.selectableWidgets[20000]
-
 
         #Setup Audio menu
         self.selectableWidgets[30000] = FileList(
@@ -219,15 +252,25 @@ class Menu(StackLayout, TabbedPanel):
 
         self.selectableWidgets[3].content = self.selectableWidgets[40000]
 
+
         #Find all the children which are selectble and can be controlled by keyboard
         self._findSelectableChildren(self.selectableWidgets[0].content.children)
         self._findSelectableChildren(self.selectableWidgets[1].content.children)
-        
+        self.selectableWidgets[200] = self.root.menuOSD
+
+
         self.controlTree = control_tree.controlTree
         self.curId = 0 # set start id
+        self.lastId = self.curId
+
         try:
-            self.selectableWidgets[self.curId].enable()
+            self.selectableWidgets[self.curId].enable(None)
         except:
             logging.error("Menu: cannot find default widget...")
 
+        #setup the screen saver and also make it available as global object
         self.screenSaver = ScreenSaver(self.root, "screensaver", "main_menu")
+        globals.screenSaver = self.screenSaver
+
+        #set player
+        player.onPlayEnd = self._onPlayEnd

@@ -30,7 +30,7 @@
         }
     },
     "settings": {
-        "osdTime": 3,
-        "screensaverTime": 10
+        "osdTime": 5,
+        "screensaverTime": 5
     }
 }
