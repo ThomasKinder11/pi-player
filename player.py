@@ -37,6 +37,7 @@ class Player():
 
         if not os.path.isfile(path):
             logging.error("Player: file not found")
+            return
 
         mediaInfo = MediaInfo.parse(path)
 
@@ -45,25 +46,30 @@ class Player():
             if track.track_type == 'Video':
                 videoWidth, videoHeight = track.width, track.height
 
-        osdHeight = 200
-        playerHeight = videoHeight - osdHeight
+        osdHeight = 50
+        playerHeight = Window.height - (2*osdHeight)#videoHeight - osdHeight
         playerWidth = int(playerHeight * (videoWidth / videoHeight))
 
 
-        posx = int((videoWidth - playerWidth) / 2)
-        posy = 0
+        posx = int((Window.width - playerWidth) / 2)
+        posy = int((Window.height - playerHeight) / 2)
 
-        #logging.error("Player: start media player...")
+        logging.error("Player: playerWidth: {} / playerHeight: {} / videoWidth: {} / videoHeight: {} / posx: {} / posy: {}".format(
+            playerWidth, playerHeight, videoWidth, videoHeight, posx, posy))
+
+
+
         self.isPlaying = True
         self.process = Popen([self.supportedPlayers[os.name],
-                        "--geometry={}x{}+{}+{}".format(playerWidth, playerHeight, posx, posy),
+                        "--geometry={}+{}+{}".format(playerWidth, posx, posy),
+                        #"--geometry=1244+98+0",
                         "--no-border",
                         "--no-input-default-bindings",
                         path,
                         #"--really-quiet",
                         #"--no-osc",
                         "--ontop",
-                        "--input-ipc-server=C:\\tmp\\socket"
+                        "--input-ipc-server={}".format(os.path.join(globals.config[os.name]['tmpdir'],"socket"))
 
                         ])
 

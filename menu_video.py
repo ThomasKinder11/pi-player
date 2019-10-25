@@ -51,7 +51,7 @@ class FileList(SelectListView):
             #self.running = True
             if args == None:
                 args = {}
-                
+
             args['path'] = path
             self._onEnterPlayer(args)
             #player.play(path)
@@ -69,7 +69,7 @@ class FileList(SelectListView):
 
     def _addFile(self, path, isSubdir, wId):
 
-        if isSubdir:
+        if isSubdir and self.showDirs:
             self.add("...", True)
 
         files = os.listdir(path)
@@ -105,6 +105,12 @@ class FileList(SelectListView):
             return
 
         self.rootdir = kwargs.pop('rootdir')
+
+        self.showDirs = True
+        if 'showDirs' in kwargs:
+            self.showDirs = kwargs['showDirs']
+
+
 
         self.supportedTypes = kwargs.pop('supportedTypes', None)
         if not self.supportedTypes:

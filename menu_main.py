@@ -142,7 +142,7 @@ class Menu(StackLayout, TabbedPanel):
 
         self.lastId = self.curId
         self.curId = 200
-    
+
         self.playbackFirst = True
         path = args.pop("path", None)
         player.play(path)
@@ -187,6 +187,32 @@ class Menu(StackLayout, TabbedPanel):
             except:
                 pass
 
+    def onPress(self, key):
+        scancodes = {}
+        if os.name == "nt":
+            scancodes[77] = "right"
+            scancodes[75] = "left"
+            scancodes[72] = "up"
+            scancodes[80] = "down"
+        elif os.name == "posix":
+            scancodes[106] = "right"
+            scancodes[105] = "left"
+            scancodes[103] = "up"
+            scancodes[108] = "down"
+
+        scancodes[28] = "enter"
+        scancodes[27] = "+"
+        scancodes[53] = "-"
+        scancodes[50] = "m"
+
+        logging.error("ooooooooooooooooooo: {}".format(key.to_json()))
+        id = key.scan_code
+
+        if id in scancodes:
+            keycode = [id, scancodes[id]]
+            self._keyDown(None, keycode, None, None)
+
+
     def __init__(self, **kwargs):
         self.root = kwargs.pop('root', "None")
         #self.menuOSD = kwargs.pop('osd', "None")
@@ -196,7 +222,16 @@ class Menu(StackLayout, TabbedPanel):
 
         #Keyboard binding
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
-        self._keyboard.bind(on_key_down=self._keyDown)
+        #self._keyboard.bind(on_key_down=self._keyDown)
+
+        logging.error("oooooooooooooo: before pynput")
+
+        import keyboard
+        keyboard.on_press(self.onPress)
+
+        logging.error("oooooooooooooo: after pynput")
+
+
 
         #Setup tabview for main menu
         self.selectableWidgets[0]=SelectableTabbedPanelHeader(text="Settings", id="000", enaColor=[0.5,0.5,1,1])

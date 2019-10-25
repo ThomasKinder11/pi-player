@@ -5,10 +5,10 @@
             "types": "mp3,wav"
         },
         "playlist": {
-            "rootdir": "C:\\tmp\\ishaPi2\\playlists",
+            "rootdir": "C:\\tmp\\ishaPi2\\playlists\\test",
             "types": "json"
         },
-        "tmpdir": "C\\tmp\\",
+        "tmpdir": "C:\\tmp\\",
         "video": {
             "rootdir": "C:\\tmp\\ishaPi2\\videos",
             "types": "mp4"
@@ -16,16 +16,16 @@
     },
     "posix": {
         "audio": {
-            "rootdir": "./audios",
+            "rootdir": "/home/thomas/tmp",
             "types": "mp3, wav"
         },
         "playlist": {
-            "rootdir": "./playlists",
-            "types": "mp4,mp3,wav"
+            "rootdir": "/home/thomas/tmp",
+            "types": "json"
         },
-        "tmpdir": "/tmp",
+        "tmpdir": "/home/thomas/tmp",
         "video": {
-            "rootdir": "./videos",
+            "rootdir": "/home/thomas/tmp",
             "types": "mp4"
         }
     },

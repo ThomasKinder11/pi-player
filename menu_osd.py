@@ -5,6 +5,7 @@ from volume_widget import VolumeIndicator
 import queue
 import threading
 import time
+import os
 
 
 from kivy.uix.stacklayout import StackLayout
@@ -36,21 +37,39 @@ class MenuOSD(StackLayout, Select):
     is activated. Here we can implemente the player control.
     """
     def _onEnterPlay(self):
-        logging.debug("MenuOSD: _onEnterPlay")
-        pass
+        logging.error("MenuOSD: _onEnterPlay")
+        if os.name == "posix":
+            logging.error("MenuOSD: for linux _onEnterPlay")
+            cmd = 'echo \'{ "command": ["set_property", "pause", false] }\''
+            cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
+            #logging.error("MenuOSD: for linux _onEnterPlay cmd = {}".format(cmd))
+            ret = os.system(cmd)
+            logging.error("MenuOSD: executed os.system call... {}".format(ret))
+
     def _onEnterPause(self):
-        logging.debug("MenuOSD: _onEnterPause")
-        pass
+        logging.error("MenuOSD: _onEnterPause")
+        if os.name == "posix":
+            cmd = 'echo \'{ "command": ["set_property", "pause", true] }\''
+            cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
+            #os.system('echo \'{ "command": ["set_property", "pause", true] }\' | sudo socat - /home/thomas/tmp/socket')
+            os.system(cmd)
+
     def _onEnterPrevious(self):
-        logging.debug("MenuOSD: _onEnterPrevious")
-        pass
+        logging.error("MenuOSD: _onEnterPrevious")
+
+
     def _onEnterNext(self):
-        logging.debug("MenuOSD: _onEnterNext")
-        pass
+        logging.error("MenuOSD: _onEnterNext")
+
     def _onEnterStop(self):
-        logging.debug("MenuOSD: _onEnterStop")
-        pass
-    
+        logging.error("MenuOSD: _onEnterStop")
+        if os.name == "posix":
+            #os.system('echo \'{ "command": ["quit"] }\' | sudo socat - ~/tmp/socket')
+            cmd = 'echo \'{ "command": ["quit"] }\''
+            cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
+            os.system(cmd)
+            # os.system('echo \'{ "command": ["quit"] }\' | sudo socat - ~/tmp/socket')
+
 
     def _worker(self):
         logging.debug("MenuOSD: thread called...")

@@ -20,7 +20,7 @@ class MenuPlaylist(StackLayout, Select):
     def enable(self, args):#down
 
 
-        if self.mode == self._FILE_LIST:
+        if self.mode == self._FILE_LIST  and len(self.fileList.widgets) > 0:
             logging.info("enable/down")
 
             id = self.fileList.wId + 1
@@ -41,12 +41,13 @@ class MenuPlaylist(StackLayout, Select):
 
     def disable(self,args):#up
 
-        if self.mode == self._FILE_LIST:
+        if self.mode == self._FILE_LIST and len(self.fileList.widgets) > 0:
             logging.info("disable/up")
 
             id = self.fileList.wId - 1
             if id < 0:
                 id = 0
+
 
             self.updateJsonFiles(self.fileList.widgets[id].text)
             self.fileList.disable(None)
@@ -77,7 +78,7 @@ class MenuPlaylist(StackLayout, Select):
     def right(self,args):
         logging.info("rigth")
         #self.fileList.widgets[0].enaColor = [1,0,0,1]
-        if self.mode == self._FILE_LIST:
+        if self.mode == self._FILE_LIST and len(self.fileList.widgets) > 0:
             self.mode = self._JSON_LIST
             self.files.enable({'inc':False})
 
@@ -92,6 +93,10 @@ class MenuPlaylist(StackLayout, Select):
 
     def updateJsonFiles(self, text):
         path = os.path.join(globals.config[os.name]['playlist']['rootdir'], text)
+
+        if os.path.isdir(path):
+            return
+
         with open(path) as playFile:
             data = json.load(playFile)
 
@@ -119,7 +124,7 @@ class MenuPlaylist(StackLayout, Select):
 
         headerColor0 = hexColor('#5a5560')#
         headerColor1 = hexColor('#2d4159')#(0.5,0.5,0,1)
-        
+
         enaColor0 = [0.5,0.5,1,1]
         enaColor1 = [1,0.5,0.2,1]
 
@@ -166,10 +171,10 @@ class MenuPlaylist(StackLayout, Select):
             supportedTypes=globals.config[os.name]['playlist']['types'],
             screenmanager=self.screenmanager,
             fillerColor=headerColor0,
-
+            showDirs=False
         )
 
-        self.files = SelectListView(
+        self.files = PlaylistJsonList(
             id=str(int(self.id) + 5000),
             enaColor=enaColor1,
             bar_width=10,
@@ -179,6 +184,9 @@ class MenuPlaylist(StackLayout, Select):
         )
 
 
+        #TODO: This code make a problem if directory does not contain any json files.
+        #FileView also lising other files it seems....... Check this out why.
+
 
         self.add_widget(self.fileList)
         self.add_widget(self.files)
@@ -186,5 +194,11 @@ class MenuPlaylist(StackLayout, Select):
         self.mode = self._FILE_LIST
 
         #Fill the select List View with elements from the first json file
-        if self.fileList.widgets[0]:
-            self.updateJsonFiles(self.fileList.widgets[0].text)
+        for item in self.fileList.widgets:
+            if "..." in item.text:
+                continue
+            elif item.text.endswith('.json'): #TODO this is not nicely implemented,
+                self.updateJsonFiles(item.text)
+
+        # if len(self.fileList.widgets) > 0:
+        #     self.updateJsonFiles(self.fileList.widgets[0].text)

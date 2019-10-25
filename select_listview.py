@@ -195,29 +195,6 @@ class SelectListView(Select, ScrollView):
     headerText = None
     header = None
 
-    def updateList(self, args):
-
-        if args == None:
-            logging.error("Thomas:----------- args =  %s" % str(args))
-            return
-
-        if "currentWidget" in args:
-            tmp = args['currentWidget']
-            text = tmp.widgets[tmp.wId].text
-            logging.error("Thomas:----------- text = %s" % text)
-
-
-            path = os.path.join(globals.config[os.name]['playlist']['rootdir'], text)
-            with open(path) as playFile:
-                data = json.load(playFile)
-
-            self.layout.clear_widgets()
-            self.wId = 0
-            self.widgets = []
-
-            for item in data:
-                 self.add(data[item]['name'], False)
-
 
     def enter(self, args):
         logging.info("SelectListView: enter callback triggered")
@@ -269,6 +246,9 @@ class SelectListView(Select, ScrollView):
 
     def add(self, text, isDir):
         id = str(len(self.widgets) + self.startId)
+        #logging.info("----------TExt = {} / isDir = {}".format(text,isDir))
+        if not self.showDirs:
+            return
 
         source = None # source="./resources/img/empty.png"
         if isDir:
@@ -321,6 +301,7 @@ class SelectListView(Select, ScrollView):
         self.widthParent =  kwargs.pop('widthParent', None)
         self.fillerColor =  kwargs.pop('fillerColor', None)
         self.headerText =  kwargs.pop('headerText', None)
+        self.showDirs =  kwargs.pop('showDirs', True)
 
         self.itemColor0 = kwargs.pop('itemColor0', (0.2,0.2,0.2,1))
         self.itemColor1 = kwargs.pop('itemColor1', (0.1,0.1,0.1,1))
@@ -340,6 +321,32 @@ class SelectListView(Select, ScrollView):
 
     def changeColor(self, wid, value):
         self.widgets[self.wId].label.color = value
+
+
+
+class PlaylistJsonList(SelectListView):
+    def updateList(self, args):
+
+        if args == None:
+            logging.error("Thomas:----------- args =  %s" % str(args))
+            return
+
+        if "currentWidget" in args:
+            tmp = args['currentWidget']
+            text = tmp.widgets[tmp.wId].text
+            logging.error("Thomas:----------- text = %s" % text)
+
+
+            path = os.path.join(globals.config[os.name]['playlist']['rootdir'], text)
+            with open(path) as playFile:
+                data = json.load(playFile)
+
+            self.layout.clear_widgets()
+            self.wId = 0
+            self.widgets = []
+
+            for item in data:
+                 self.add(data[item]['name'], False)
 
 
 if __name__ == "__main__":
