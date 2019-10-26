@@ -41,9 +41,8 @@ class VolumeIndicator(RelativeLayout):
                 cmd = self.ctrlQueue.get(False)
 
                 if cmd['cmd'] == "reset":
-                    logging.debug("VolumeThread: execute reset cmd")
                     cnt = 0
-                    #self.enable()
+
                 elif cmd['cmd'] == "stop":
                     cnt = 0
                     self._disable()

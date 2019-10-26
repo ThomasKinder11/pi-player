@@ -33,7 +33,6 @@ class ScreenSaver():
                 cmd = self.ctrlQueue.get()
 
                 if cmd['cmd'] == 'reset':
-                    logging.info("Screensaver: reset ")
                     self.idleCounter = 0
                     self.screenManager.current=self.menuName
                     self.active = False
@@ -47,13 +46,11 @@ class ScreenSaver():
                     self.screenManager.current=self.menuName
                     self.idleCounter = 0
                     self.active = False
-                    logging.info("Screensaver: disabled")
 
                 elif cmd['cmd'] == 'enable':
                     self.ena = True
                     self.idleCounter = 0
                     self.active = True
-                    logging.info("Screensaver: enabled")
                     self.screenManager.current=self.menuName
 
 

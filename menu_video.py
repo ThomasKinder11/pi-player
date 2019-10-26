@@ -11,15 +11,12 @@ class FileList(SelectListView):
     supportedTypes = None# ('.mp4')
     screenmanager = None
     playerProcess = None
-    #running = False
 
-    #
-    # def __waitForPlayerEnd(self):
-    #     while player.process.poll() == None:
-    #         time.sleep(1)
-    #
-    #     #self.screenmanager.current = "main_menu"
-    #     #self.running = False
+    def resize(self, widget, value):
+
+        for item in self.widgets:
+            logging.info("Widgets: {}".format(item))
+            item.widht = value
 
     def _onEnterPlayer(self,args):
         pass
@@ -127,3 +124,5 @@ class FileList(SelectListView):
         super(FileList, self).__init__(**kwargs)
         self.widgets = []
         self._addFile(self.rootdir, False, None)
+
+        self.bind(width=self.resize)

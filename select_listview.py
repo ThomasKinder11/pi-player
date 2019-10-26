@@ -75,12 +75,10 @@ class SelectListViewItem(StackLayout, Select):
     label = None
     filler = None
 
-    # def updateBg(self, widget, value):
-    #     self.label.background_color = self.background_color
-
-    def changeSize(self, widget, value):
-        self.label.width = Window.width-self.imgWidth
-        self.label.text_size = (self.label.width-20,self.imgHeigth)
+    def resize(self, widget, value):
+        self.label.width = Window.width-self.imgWidth-self.filler.width
+        self.label.text_size = (self.label.width-20,self.imgHeight)
+        pass
 
     def enable(self, args):
         self.label.enable(args)
@@ -90,22 +88,17 @@ class SelectListViewItem(StackLayout, Select):
 
     def __init__(self, **kwargs):
         self.source = kwargs.pop('source', None)
-        # if not self.source:
-        #     logging.error("SelectListViewItem: image not defined...")
-        #     return -1
-
         self.enaColor = kwargs.pop('enaColor', (0,1,0,1))
         self.padding_top = kwargs.pop('padding_top', 0)
         self.background_color = kwargs.pop('background_color', (1,0,0,1))
         self.text = kwargs.pop('text', "undefined text")
         self.id = kwargs.pop('id', "undefined id")
         self.imgWidth = kwargs.pop('imgWidth', 100)
-        self.imgHeigth = kwargs.pop('imgHeigth', 100)
+        self.imgHeight = kwargs.pop('imgHeight', 100)
         self.widthParent = kwargs.pop('widthParent', None)
 
-
         #set the layout hight to fit the image height
-        self.height = self.imgHeigth + 2*self.padding_top
+        self.height = self.imgHeight + 2*self.padding_top
         self.size_hint_y= None
 
         super(SelectListViewItem, self).__init__(**kwargs)
@@ -114,7 +107,7 @@ class SelectListViewItem(StackLayout, Select):
             size_hint_x = None,
             width=10,
             size_hint_y=None,
-            height=self.imgHeigth,
+            height=self.imgHeight,
             id="-1",
             text_size = (0,0),
             background_color=self.fillerColor
@@ -126,62 +119,34 @@ class SelectListViewItem(StackLayout, Select):
                 background_color=self.background_color,
                 width=self.imgWidth,
                 size_hint= (None, None),
-                height=self.imgHeigth,
+                height=self.imgHeight,
                 source=self.source
             )
-
             self.add_widget(self.image)
 
 
+        logging.error("MANFRED: {} {} {}".format(self.imgWidth, self.widthParent, self.filler.width))
+
         labelWidth = self.widthParent-self.imgWidth-self.filler.width
+        logging.error("MANFRED: {} {} {} {}".format(self.imgWidth, self.widthParent, self.filler.width, labelWidth))
         # labelWidth = Window.width-self.imgWidth-self.filler.width
         self.label = SelectLabelBg(
             background_color = self.background_color,
-            text_size=(labelWidth-20,self.imgHeigth),
+            text_size=(labelWidth-20,self.imgHeight),
             enaColor=self.enaColor,
             text=self.text,
             halign="left",
             valign="middle",
             size_hint_y=None,
-            height=self.imgHeigth,
+            height=self.imgHeight,
             size_hint_x=None,
             width=labelWidth,
             id=self.id
         )
 
-        # self.bind(background_color=self.updateBg)
 
         self.add_widget(self.label)
-
-#
-# class SelectViewHeader(StackLayout):
-#     label = None
-#     text = None
-#     background_color = None
-#     def __init__(self, **kwargs):
-#         self.text = kwawrgs.pop('text', "Header Text Undefined")
-#         self.background_color = kwawrgs.pop('text', "Header Text Undefined")
-#         ret = super(SelectViewHeader, self).__init__(**kwargs)
-#
-#         self.size_hint = (None, None)
-#         if not 'width' in kwargs and not 'height' in kwargs:
-#             logging.error("SelectViewHeader: width/height of header is not defined...")
-#             return -1
-#
-#         self.label = SelectLabelBg(
-#             background_color = self.background_color,
-#             text_size=(labelWidth-20,self.imgHeigth),
-#             enaColor=self.enaColor,
-#             text=self.text,
-#             halign="center",
-#             valign="middle",
-#             size_hint_y=None,
-#             height=self.height,
-#             size_hint_x=None,
-#             width=self.width,
-#             id="-1"
-#         )
-
+        self.bind(width=self.resize)
 
 
 class SelectListView(Select, ScrollView):
@@ -246,13 +211,15 @@ class SelectListView(Select, ScrollView):
 
     def add(self, text, isDir):
         id = str(len(self.widgets) + self.startId)
-        #logging.info("----------TExt = {} / isDir = {}".format(text,isDir))
+        imgWidth, imgHeight = 0, 46 #image height defines the hight of the element
+
         if not self.showDirs:
             return
 
         source = None # source="./resources/img/empty.png"
         if isDir:
             source="./resources/img/dir.png"
+            imgWidth, imgHeight = 46, 46
 
 
         bg = None
@@ -270,8 +237,8 @@ class SelectListView(Select, ScrollView):
             background_color=bg,
             text=text,
             id=id,
-            imgWidth=46,
-            imgHeigth=46,
+            imgWidth=imgWidth,
+            imgHeight=imgHeight,
             widthParent=self.width,
             fillerColor=self.fillerColor
             )
