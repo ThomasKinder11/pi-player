@@ -14,6 +14,27 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
+class IshaGui(StackLayout):
+    osd = None
+    def resize(self, widget, value):
+        self.screens.height = Window.height - self.osd.height
+
+    def __init__(self, **kwargs):
+        super(IshaGui, self).__init__(**kwargs)
+
+        self.osd = MenuOSD(id="200")
+        self.screens = IshaPiScreens(osd=self.osd)
+
+        self.osd.size_hint_y= None
+        self.osd.height = 50
+
+        self.screens.size_hint_y=None
+        self.screens.height = Window.height - self.osd.height
+
+        self.add_widget(self.screens)
+        self.add_widget(self.osd)
+
+        self.bind(height=self.resize)
 """
 The screen manager allows us to swith between multiple defined scrrens.
 This feature is used to implement:
@@ -26,23 +47,25 @@ class IshaPiScreens(ScreenManager):
     menuScreen = None
     menuScreenSaver = None
     menuOSDScreen = None
+    osd = None
 
     def __init__(self, **kwargs):
+        self.osd = kwargs.pop('osd', None)
         super(IshaPiScreens, self).__init__(**kwargs)
 
         self.transition=NoTransition()
 
 
-        self.menuScreenSaver = Screen(name="screensaver")
+        self.menuScreenSaver = Screen(name="blackscreen")
 
-        self.menuOSDScreen = Screen(name="osd")
-        self.menuOSD = MenuOSD(id="200")
-        self.menuOSDScreen.add_widget(self.menuOSD)
+        # self.menuOSDScreen = Screen(name="osd")
+        # self.menuOSD = MenuOSD(id="200")
+        # self.menuOSDScreen.add_widget(self.menuOSD)
 
-        self.add_widget(self.menuOSDScreen)
+        #self.add_widget(self.menuOSDScreen)
 
         self.menuScreen = Screen(name="main_menu")
-        self.menuScreen.add_widget(Menu(root=self))
+        self.menuScreen.add_widget(Menu(root=self, osd=self.osd))
         self.add_widget(self.menuScreen)
 
         self.add_widget(self.menuScreenSaver)
@@ -64,22 +87,17 @@ class Menu(StackLayout, TabbedPanel):
 
     def _globalKeyHandler(self, keycode):
 
-        #map key o to switch to OSD - this is only needed for debugging and can be removed
-        if keycode[1] == 'o':
-            self.root.current = "osd"
-            return
-
         #volume control
         if keycode[1] == "+":
-            self.root.menuOSD.volumeUp()
+            self.osd.volumeUp()
             return
 
         if keycode[1] == "-":
-            self.root.menuOSD.volumeDown()
+            self.osd.volumeDown()
             return
 
         if keycode[1] == "m":
-            self.root.menuOSD.muteToggle()
+            self.osd.muteToggle()
             return
 
     _keyHandledMextId = False
@@ -138,7 +156,7 @@ class Menu(StackLayout, TabbedPanel):
     def _onEnterPlayer(self, args):
         logging.info("_onEnterPlayer: start playing the file...")
         self.screenSaver.disable()
-        self.root.current = "osd"
+        self.root.current = "blackscreen"
 
         self.lastId = self.curId
         self.curId = 200
@@ -205,7 +223,7 @@ class Menu(StackLayout, TabbedPanel):
         scancodes[53] = "-"
         scancodes[50] = "m"
 
-        logging.error("ooooooooooooooooooo: {}".format(key.to_json()))
+        #logging.error("ooooooooooooooooooo: {}".format(key.to_json()))
         id = key.scan_code
 
         if id in scancodes:
@@ -215,6 +233,7 @@ class Menu(StackLayout, TabbedPanel):
 
     def __init__(self, **kwargs):
         self.root = kwargs.pop('root', "None")
+        self.osd = kwargs.pop('osd', "None")
         #self.menuOSD = kwargs.pop('osd', "None")
 
         kwargs["do_default_tab"] = False #always disable the default tab
@@ -284,7 +303,7 @@ class Menu(StackLayout, TabbedPanel):
         #Find all the children which are selectble and can be controlled by keyboard
         self._findSelectableChildren(self.selectableWidgets[0].content.children)
         self._findSelectableChildren(self.selectableWidgets[1].content.children)
-        self.selectableWidgets[200] = self.root.menuOSD
+        self.selectableWidgets[200] = self.osd
 
 
         self.controlTree = control_tree.controlTree
@@ -297,7 +316,7 @@ class Menu(StackLayout, TabbedPanel):
             logging.error("Menu: cannot find default widget...")
 
         #setup the screen saver and also make it available as global object
-        self.screenSaver = ScreenSaver(self.root, "screensaver", "main_menu")
+        self.screenSaver = ScreenSaver(self.root, "blackscreen", "main_menu")
         globals.screenSaver = self.screenSaver
 
         #set player

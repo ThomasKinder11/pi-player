@@ -254,7 +254,7 @@ class MenuOSD(StackLayout, Select):
 
         for wid in reversed(self.widgets):
             self.add_widget(wid)
-            wid.opacity = 0.0
+            wid.opacity = 0
 
         self.gap.width = Window.width - 10
         self.height = 50
