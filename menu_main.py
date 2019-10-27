@@ -65,11 +65,23 @@ class IshaPiScreens(ScreenManager):
         #self.add_widget(self.menuOSDScreen)
 
         self.menuScreen = Screen(name="main_menu")
-        self.menuScreen.add_widget(Menu(root=self, osd=self.osd))
+
+        self.mainMenu = Menu(root=self, osd=self.osd)
+        self.menuScreen.add_widget(self.mainMenu)
         self.add_widget(self.menuScreen)
 
         self.add_widget(self.menuScreenSaver)
         self.current = "main_menu"
+
+        #Todo: This would start the player directly after reboot if something
+        #went wrong, but as we need to unlock files it might be better
+        #to add a new entry on top of the video file list, which shows the
+        #name and time of last played file, so we can restart it anytime
+
+        #how to add this extra element to the beginning of the video menu?
+        # if globals.db['runtime'] > 0:
+        #     logging.error("We did not stop video properly....")
+        #     self.mainMenu._onEnterPlayer({'path':globals.db['mediaPath'], 'tSeek':globals.db['runtime']})
 
 
 
@@ -82,8 +94,8 @@ class Menu(StackLayout, TabbedPanel):
     root = None
     screenSaver = None
     menuOSD = None
-    keyProcessing = False
-    playbackFirst = True
+    keyProcessing = False #TODO: check out if this is really needed
+
 
     def _globalKeyHandler(self, keycode):
 
@@ -98,6 +110,7 @@ class Menu(StackLayout, TabbedPanel):
 
         if keycode[1] == "m":
             self.osd.muteToggle()
+            self.selectableWidgets[40000].ctrlQueue.put({'cmd':'end'})
             return
 
     _keyHandledMextId = False
@@ -109,6 +122,7 @@ class Menu(StackLayout, TabbedPanel):
 
         for cmd in cmdList:
             #Check if cmd is also a list, if so recursively we will execute
+            logging.debug("_keyHandler: going to execute command = {}".format(cmd))
             if isinstance(cmd,list):
                 self._keyHanlder(cmd)
                 continue
@@ -127,17 +141,26 @@ class Menu(StackLayout, TabbedPanel):
             func = cmd['func']
 
             #args attribute is optional, can be used when we want to pass something to callback
-            args = None
+            args = {}
             if 'args' in cmd:
                 args = cmd['args']
+
+            #add user defined arguments of selectable widget to args passed to callback
+            if self.selectableWidgets[id].user != None:
+                logging.error("TOOOOOOOOOOOO: user of selectable = {}".format(self.selectableWidgets[id].user) )
+                for item in self.selectableWidgets[id].user:
+                    args[item]=self.selectableWidgets[id].user[item]
+
 
             #Execute build in fucntions/object functions
             if func == "switch":#build-in-switch-tabpannel
                 self.switch_to(self.selectableWidgets[id], False)
             else:
+                logging.debug("_keyHandler: execute calback...")
                 ret = getattr(self.selectableWidgets[id], func)(args)
 
                 if ret and 'true' in cmd: #execute ret functions if specified
+                    logging.debug("_keyHandler: going to execute the [true] command = {}".format(cmd['true']))
                     self._keyHanlder(cmd['true'])
 
     def _keyboard_closed(self):
@@ -149,21 +172,29 @@ class Menu(StackLayout, TabbedPanel):
                  finished. This can be used to control playlist etc.
     """
     def _onPlayEnd(self):
+        self.selectableWidgets[40000].onPlayerEnd(None)
+
+
         self.root.current = "main_menu"
         self.screenSaver.enable()
         self.curId  = self.lastId
 
+
+
     def _onEnterPlayer(self, args):
+
         logging.info("_onEnterPlayer: start playing the file...")
         self.screenSaver.disable()
         self.root.current = "blackscreen"
 
         self.lastId = self.curId
         self.curId = 200
+        self.nextId = 200
 
-        self.playbackFirst = True
+
         path = args.pop("path", None)
-        player.play(path)
+        tSeek = args.pop("tSeek", 0)
+        player.play(path, tSeek)
 
 
     """
@@ -173,7 +204,13 @@ class Menu(StackLayout, TabbedPanel):
     #do not process key strokes when player is playing something
         self.keyProcessing = True
 
+
+        # if globals.db['runtime'] > 0:
+        #     logging.error("We did not stop video properly....")
+        #     self._onEnterPlayer({'path':globals.db['mediaPath']})
+
         if self.screenSaver.active and self.screenSaver.ena:
+            logging.debug("_keyDown: screen saver active = {} / screenSaver ena = {}...".format(self.screenSaver.active, self.screenSaver.ena))
             self.screenSaver.resetTime()
             self.keyProcessing = False
             return
@@ -230,6 +267,9 @@ class Menu(StackLayout, TabbedPanel):
             keycode = [id, scancodes[id]]
             self._keyDown(None, keycode, None, None)
 
+    def _onUpdateRunTime(self, value):
+        self.osd.runtime.text = value
+
 
     def __init__(self, **kwargs):
         self.root = kwargs.pop('root', "None")
@@ -253,13 +293,24 @@ class Menu(StackLayout, TabbedPanel):
 
 
         #Setup tabview for main menu
+        self.tab_width = 100
+        self.tab_height = 40
+
         self.selectableWidgets[0]=SelectableTabbedPanelHeader(text="Settings", id="000", enaColor=[0.5,0.5,1,1])
         self.selectableWidgets[1]=SelectableTabbedPanelHeader(text="Video", id="001", enaColor=[0.5,0.5,1,1])
         self.selectableWidgets[2]=SelectableTabbedPanelHeader(text="Music", id="002", enaColor=[0.5,0.5,1,1])
         self.selectableWidgets[3]=SelectableTabbedPanelHeader(text="Playlist", id="003", enaColor=[0.5,0.5,1,1])
+        self.selectableWidgets[4]=SelectableTabbedPanelHeader(id="004")
+        self.selectableWidgets[4].background_normal ="./resources/img/power.png"
+        self.selectableWidgets[4].background_down ="./resources/img/power_select.png"
 
-        for i in range(len(self.selectableWidgets)):
-            self.add_widget(self.selectableWidgets[i])
+
+        #for i in range(len(self.selectableWidgets)):
+        self.add_widget(self.selectableWidgets[4])
+        self.add_widget(self.selectableWidgets[0])
+        self.add_widget(self.selectableWidgets[1])
+        self.add_widget(self.selectableWidgets[2])
+        self.add_widget(self.selectableWidgets[3])
 
         self.selectableWidgets[0].content = MenuSettings()
 
@@ -272,7 +323,9 @@ class Menu(StackLayout, TabbedPanel):
             size_hint=(1, None),
             size=(Window.width, Window.height),
             supportedTypes=globals.config[os.name]['video']['types'],
-            screenmanager=self.root
+            screenmanager=self.root,
+            selectFirst=False,
+            type="video"
         )
         self.selectableWidgets[20000]._onEnterPlayer = self._onEnterPlayer
         self.selectableWidgets[1].content = self.selectableWidgets[20000]
@@ -286,9 +339,10 @@ class Menu(StackLayout, TabbedPanel):
             size_hint=(1, None),
             size=(Window.width, Window.height),
             supportedTypes=globals.config[os.name]['audio']['types'],
-            screenmanager=self.root
+            screenmanager=self.root,
+            selectFirst=False
         )
-
+        self.selectableWidgets[30000]._onEnterPlayer = self._onEnterPlayer
         self.selectableWidgets[2].content = self.selectableWidgets[30000]
 
         #Setup Playlist menu
@@ -307,7 +361,7 @@ class Menu(StackLayout, TabbedPanel):
 
 
         self.controlTree = control_tree.controlTree
-        self.curId = 0 # set start id
+        self.curId = 4 # set start id
         self.lastId = self.curId
 
         try:
@@ -321,3 +375,9 @@ class Menu(StackLayout, TabbedPanel):
 
         #set player
         player.onPlayEnd = self._onPlayEnd
+        player._onUpdateRunTime = self._onUpdateRunTime
+
+        #check if last playback was interrupted and if so add entry in video list
+        # if globals.db['runtime'] > 0:
+        #     user = {'tSeek':globals.db['runtime'], 'isRerun':True}
+        #     self.selectableWidgets[20000].addTopText(globals.db['mediaPath'], user)

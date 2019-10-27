@@ -6,6 +6,7 @@ from kivy.core.window import Window
 import time
 import globals
 from  pymediainfo import MediaInfo
+import vlc
 
 
 """
@@ -20,60 +21,115 @@ class Player():
     screensaver = None
     screenManager = None
     isPlaying = False
+    path = None
+    runtime = 0
+    vlcPl = None
 
     def onPlayEnd(self):
         return
 
-    def _playWorkThread(self):
+    def _onUpdateRunTime(self, val):
+        pass
+
+    def _playWorkThread(self, mode):
+        logging.debug("Thread mode = {}.....".format(mode))
+
+        # if mode == 'audio':
+        #     while self.vlcPl.is_playing():
+        #         time.sleep(1)
+        #         logging.debug("Wait for VLC to stop.....")
+        #
+        # elif mode == 'video':
         self.isPlaying = True
+        if self.process == None:
+            self.isPlaying = False
+            self.onPlayEnd()
+            return
+
+
         while self.process.poll() == None:
             time.sleep(1)
+
+            self.runtime = self.runtime + 1
+            self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
+
+            if self.runtime % globals.config['settings']['runtimeInterval'] == 0:
+                globals.db['runtime'] = self.runtime
+                globals.db['mediaPath'] = self.path
+                globals.writeDb()
+
+        #-------------- End of playback ------------
         self.isPlaying = False
+        globals.db['runtime'] = 0
+        globals.db['mediaPath'] = ""
+        globals.writeDb()
+
         self.onPlayEnd()
 
 
-    def play(self, path):
+    def play(self, path, tSeek):
         logging.info("Player: start playing file... path = {}".format(path))
+        self.path = path
 
         if not os.path.isfile(path):
             logging.error("Player: file not found")
             return
 
-        mediaInfo = MediaInfo.parse(path)
+        videoFormats =  tuple(globals.config[os.name]['video']['types'].split(','))
+        audioFormats = tuple(globals.config[os.name]['audio']['types'].split(','))
 
-        videoWidth, videoHeight = 0, 0
-        for track in mediaInfo.tracks:
-            if track.track_type == 'Video':
-                videoWidth, videoHeight = track.width, track.height
+        logging.debug("Player: videoFormats = {} / audioFormats = {}".format(videoFormats, audioFormats))
+        mode = "nothing"
+        if path.lower().endswith(videoFormats):
+            mode = "video"
+            mediaInfo = MediaInfo.parse(path)
 
-        osdHeight = 50
-        playerHeight = Window.height - (2*osdHeight)#videoHeight - osdHeight
-        playerWidth = int(playerHeight * (videoWidth / videoHeight))
+            videoWidth, videoHeight = 0, 0
+            for track in mediaInfo.tracks:
+                if track.track_type == 'Video':
+                    videoWidth, videoHeight = track.width, track.height
 
-
-        posx = int((Window.width - playerWidth) / 2)
-        posy = int((Window.height - playerHeight) / 2)
-
-        logging.error("Player: playerWidth: {} / playerHeight: {} / videoWidth: {} / videoHeight: {} / posx: {} / posy: {}".format(
-            playerWidth, playerHeight, videoWidth, videoHeight, posx, posy))
-
+            osdHeight = 50
+            playerHeight = Window.height - (2*osdHeight)#videoHeight - osdHeight
+            playerWidth = int(playerHeight * (videoWidth / videoHeight))
 
 
-        self.isPlaying = True
-        self.process = Popen([self.supportedPlayers[os.name],
-                        "--geometry={}+{}+{}".format(playerWidth, posx, posy),
-                        #"--geometry=1244+98+0",
-                        "--no-border",
-                        "--no-input-default-bindings",
-                        path,
-                        #"--really-quiet",
-                        #"--no-osc",
-                        "--ontop",
-                        "--input-ipc-server={}".format(os.path.join(globals.config[os.name]['tmpdir'],"socket"))
+            posx = int((Window.width - playerWidth) / 2)
+            posy = int((Window.height - playerHeight) / 2)
 
-                        ])
+            logging.error("Player: playerWidth: {} / playerHeight: {} / videoWidth: {} / videoHeight: {} / posx: {} / posy: {}".format(
+                playerWidth, playerHeight, videoWidth, videoHeight, posx, posy))
 
-        self.playThread = threading.Thread(target = self._playWorkThread)
+
+            self.isPlaying = True
+            self.runtime = tSeek
+            self.process = Popen([self.supportedPlayers[os.name],
+                            "--geometry={}+{}+{}".format(playerWidth, posx, posy),
+                            #"--geometry=1244+98+0",
+                            "--start=+{}".format(tSeek),
+                            "--no-border",
+                            "--no-input-default-bindings",
+                            path,
+                            #"--really-quiet",
+                            #"--no-osc",
+                            "--ontop",
+                            "--input-ipc-server={}".format(os.path.join(globals.config[os.name]['tmpdir'],"socket"))
+
+                            ])
+
+        elif path.lower().endswith(audioFormats):
+            self.isPlaying = True
+            mode = "audio"
+            logging.debug("Player: start playing audio with vlc...")
+
+            #self.vlcPl = vlc.MediaPlayer(path)
+            #self.vlcPl.play()
+            self.process = Popen(['vlc', path, "-I dummy --dummy-quiet"])
+        else:
+            logging.debug("Player: no video nor audio file... {}".format(path))
+
+        # Start player thread
+        self.playThread = threading.Thread(target = self._playWorkThread, args=(mode,))
         self.playThread.setDaemon(True)
         self.playThread.start()
 #"--really-quiet",

@@ -11,12 +11,29 @@ class FileList(SelectListView):
     supportedTypes = None# ('.mp4')
     screenmanager = None
     playerProcess = None
+    topTextVisible = False
+
+
+    def delTopText(self):
+        if not self.topTextVisible:
+            return
+
+        super(FileList, self).delTopText()
+        self.topTextVisible = False
+
+    def addTopText(self, text, user):
+        #if self.topTextVisible:
+        #    return
+
+        super(FileList, self).addTopText(text,user, (0.8,0.2,0.2,0.3))
+        #self.topTextVisible = True
+
 
     def resize(self, widget, value):
-
-        for item in self.widgets:
-            logging.info("Widgets: {}".format(item))
-            item.widht = value
+        logging.error("ßßßßßßßßßßßßßßßßß---------: VideoMenu [resize]  value = {} / self.width = {}".format(value, self.width) )
+        # for item in self.widgets:
+        #     logging.info("Widgets: {}".format(item))
+        #     item.width = self.width
 
     def _onEnterPlayer(self,args):
         pass
@@ -43,6 +60,7 @@ class FileList(SelectListView):
 
             isSubdir = len(self.dirTree) > 0
             self._addFile(path, isSubdir, tmp[1])
+            self.widgets[self.wId].enable(None)
 
         elif os.path.isfile(path): #We hit enter on a video file so play it
             #self.running = True
@@ -50,12 +68,16 @@ class FileList(SelectListView):
                 args = {}
 
             args['path'] = path
-            self._onEnterPlayer(args)
-            #player.play(path)
-            #time.sleep(1)
 
-            #self.playerProcess = threading.Thread(target = self.__waitForPlayerEnd)
-            #self.playerProcess.start()
+            if self.widgets[self.wId].user:
+                for item in self.widgets[self.wId].user:
+                    args[item]=self.widgets[self.wId].user[item]
+
+            self._onEnterPlayer(args)
+
+            if 'isRerun' in args:
+                if args['isRerun']:
+                    self.delTopText()
 
         elif os.path.isdir(path):
             self.layout.clear_widgets()
@@ -64,33 +86,46 @@ class FileList(SelectListView):
             self.widgets = []
             self._addFile(path, True, None)
 
+            if len(self.widgets) > 0:
+                self.widgets[0].enable(None)
+
     def _addFile(self, path, isSubdir, wId):
+
+
+
 
         if isSubdir and self.showDirs:
             self.add("...", True)
 
         files = os.listdir(path)
 
+
         #add all directories first
         for item in files:
             tmpPath = os.path.join(path, item)
+            #logging.error("THOMAS-------------: root dir = {} /files = {} / tmppath  = {}".format(self.rootdir, files, tmpPath ))
             if os.path.isdir(tmpPath):
                 self.add(item.strip(), isDir=True)
 
         #then add all the files
         for item in files:
-
             if item.lower().endswith(self.supportedTypes):
                 self.add(item.strip(), False)
 
         if len(self.widgets) > 0:
             if wId:
                 self.wId = wId
+
                 self.scroll_to(self.widgets[self.wId], animate=False)
             else:
                 self.wId = 0
 
-            self.widgets[self.wId].enable(None)
+            if self.selectFirst or isSubdir:
+                self.widgets[self.wId].enable(None)
+
+        if globals.db['runtime'] > 0 and self.type == "video":
+             user = {'tSeek':globals.db['runtime'], 'isRerun':True}
+             self.addTopText(globals.db['mediaPath'], user)
 
     def __init__(self, **kwargs):
         if not 'rootdir' in kwargs:
@@ -103,6 +138,12 @@ class FileList(SelectListView):
 
         self.rootdir = kwargs.pop('rootdir')
 
+        if 'selectFirst' in kwargs:
+            self.selectFirst = kwargs['selectFirst']
+
+        else:
+            self.selectFirst = True
+
         self.showDirs = True
         if 'showDirs' in kwargs:
             self.showDirs = kwargs['showDirs']
@@ -114,8 +155,12 @@ class FileList(SelectListView):
             logging.error("MenuVideo: supported files types for video player not set")
             return
 
+
+
         self.supportedTypes = tuple(self.supportedTypes.split(','))
+        logging.error("ßßßßßßßßßßßßßßßßßßßßßß  - MenuVideo: {}".format(self.supportedTypes))
         self.screenmanager = kwargs.pop('screenmanager', None)
+        self.type = kwargs.pop('type', "unknown")
 
         if not self.screenmanager:
             logging.error("MenuVideo: screenmanager not set")
@@ -123,6 +168,10 @@ class FileList(SelectListView):
 
         super(FileList, self).__init__(**kwargs)
         self.widgets = []
+
+
         self._addFile(self.rootdir, False, None)
+
+        self.wId = -1
 
         self.bind(width=self.resize)

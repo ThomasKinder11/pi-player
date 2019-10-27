@@ -50,7 +50,7 @@ class ScreenSaver():
                 elif cmd['cmd'] == 'enable':
                     self.ena = True
                     self.idleCounter = 0
-                    self.active = True
+                    self.active = False
                     self.screenManager.current=self.menuName
 
 

@@ -300,12 +300,8 @@ if __name__ == "__main__":
             App.get_running_app().stop()
 
 
-
-
         def build(self):
-            #self.indicator = CirularIndicator(size_hint=(None, None), width=50, height=50, radius=15, bgColor=(0.4,0.4,0.4,1), color=(0, 0, 1, 0.5), value=0)
             self.volume = VolumeIndicator(incVal=1, size_hint=(None, None), width=50, height=50, radius=15, bgColor=(0.4,0.4,0.4,1), color=(0, 0, 1, 0.5), value=0)
-            #self.indicator.bgColor=(0.4,0.4,0.4,1)
 
             layout = StackLayout()
             layout.add_widget(self.volume)

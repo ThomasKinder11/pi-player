@@ -1,4 +1,5 @@
 from isha_pi_kivy import *
+from select_listview import *
 import logging
 import globals
 from volume_widget import VolumeIndicator
@@ -86,6 +87,7 @@ class MenuOSD(StackLayout, Select):
                 for wid in self.widgets:
                     wid.opacity = 0
                     wid.disable(None)
+                self.runtime.opacity = 0
 
 
             if not self.ctrlQueue.empty():
@@ -98,6 +100,8 @@ class MenuOSD(StackLayout, Select):
 
                     for wid in self.widgets:
                         wid.opacity = 1.0
+
+                    self.runtime.opacity = 1.0
 
                     self.enableDone = True
 
@@ -142,13 +146,16 @@ class MenuOSD(StackLayout, Select):
     def disable(self, args):
         pass#self.ctrlQueue.put({'cmd':'hide'})
 
-
-
     def enter(self, args):
         self.widgets[self.wId-1].onEnter()
 
     def changeSize(self, widget, value):
-        self.gap.width = Window.width-(6*50)-10
+        winCenter= int(Window.width / 2)
+        winBoundaryLeft = winCenter - int(self.runtime.width / 2)
+        winBoundaryRight = winCenter + int(self.runtime.width / 2)
+
+        self.gap0.width = winBoundaryLeft-(5*50)
+        self.gap.width = Window.width-winBoundaryRight-60
 
     def volumeUp(self):
         self.volume.volumeUp()
@@ -217,6 +224,38 @@ class MenuOSD(StackLayout, Select):
             id=str(3)
         )
 
+
+        self.runtime = SelectLabel(
+            size_hint_y=None,
+            size_hint_x=None,
+            height=50,
+            width=200,
+            id=str(3),
+            text="00:00:23"
+        )
+
+        winCenter= int(Window.width / 2)
+        winBoundaryLeft = winCenter - int(self.runtime.width / 2)
+        winBoundaryRight = winCenter + int(self.runtime.width / 2)
+
+
+        self.gap0 = Label(
+            size_hint_y=None,
+            size_hint_x=None,
+            height=50,
+            width=winBoundaryLeft-(5*50),
+            #background_color=(1,0,1,0.5)
+        )
+
+        self.gap = Label(
+            size_hint_y=None,
+            size_hint_x=None,
+            height=50,
+            #background_color=(0,1,1,0.5),
+            width=Window.width-winBoundaryRight-60
+        )
+
+
         self.volume = VolumeIndicator(
             incVal=1,
             size_hint=(None, None),
@@ -226,15 +265,6 @@ class MenuOSD(StackLayout, Select):
             bgColor=(0.4,0.4,0.4,1),
             color=(0, 0, 1, 0.5),
             value=0
-        )
-
-        self.gap = Label(
-            size_hint_y=None,
-            size_hint_x=None,
-            padding_x=200,
-            height=50,
-            width=Window.width-(6*50)-10,
-            id=str(3)
         )
 
         self.btnPlay.onEnter = self._onEnterPlay
@@ -249,17 +279,22 @@ class MenuOSD(StackLayout, Select):
         self.widgets.append(self.btnPrevious)
         self.widgets.append(self.btnNext)
 
-        self.add_widget(self.volume)
-        self.add_widget(self.gap)
 
-        for wid in reversed(self.widgets):
+        for wid in self.widgets:
             self.add_widget(wid)
             wid.opacity = 0
 
-        self.gap.width = Window.width - 10
+        self.runtime.opacity = 0
+
+        self.add_widget(self.gap0)
+        self.add_widget(self.runtime)
+        self.add_widget(self.gap)
+        self.add_widget(self.volume)
+
+        #self.gap.width = Window.width - 10
         self.height = 50
         self.size_hint_y = None
-        self.orientation = 'rl-tb'
+        #self.orientation = 'rl-tb'
 
         self.bind(size=self.changeSize)
 

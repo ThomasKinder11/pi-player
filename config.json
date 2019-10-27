@@ -5,7 +5,7 @@
             "types": "mp3,wav"
         },
         "playlist": {
-            "rootdir": "C:\\tmp\\ishaPi2\\playlists\\test",
+            "rootdir": "C:\\tmp\\ishaPi2\\playlists",
             "types": "json"
         },
         "tmpdir": "C:\\tmp\\",
@@ -17,7 +17,7 @@
     "posix": {
         "audio": {
             "rootdir": "/home/thomas/tmp",
-            "types": "mp3, wav"
+            "types": "mp3,wav"
         },
         "playlist": {
             "rootdir": "/home/thomas/tmp",
@@ -30,7 +30,8 @@
         }
     },
     "settings": {
-        "osdTime": 5,
+        "osdTime": 6,
+        "runtimeInterval": 1,
         "screensaverTime": 5
     }
 }

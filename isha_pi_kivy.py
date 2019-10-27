@@ -23,6 +23,7 @@ class Select():
     defaultColor = None
     isSelectable = True
     onEnter = None
+    user = {}
 
     # selectableWidgets = {}
 
