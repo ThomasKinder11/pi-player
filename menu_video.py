@@ -73,7 +73,7 @@ class FileList(SelectListView):
                 for item in self.widgets[self.wId].user:
                     args[item]=self.widgets[self.wId].user[item]
 
-            self._onEnterPlayer(args)
+            self._onEnterPlayer(args) #This should call the global player instance by itself 
 
             if 'isRerun' in args:
                 if args['isRerun']:

@@ -28,14 +28,14 @@ meaning that this object will gain keyboard control
 
 controlTree = {
     0:{
-        "left": [{'func':'switch','id':4}, {'func':'enable','id':4}, {'func':'disable','id':0}, {'nextid':4}],
-        "right": [{'func':'switch','id':1}, {'func':'enable','id':1}, {'func':'disable','id':0}, {'nextid':1}],
+        "left": [{'func':'switch','id':3}, {'func':'enable','id':3}, {'func':'disable','id':0}, {'nextid':3}],
+        #"right": [{'func':'switch','id':1}, {'func':'enable','id':1}, {'func':'disable','id':0}, {'nextid':1}],
         "up": None,
         "down":[{'func':'enable','id':100}, {'func':'disable','id':0}, {'nextid':100}],
         "info":"settings menu",
       },
     1:{
-        "left":  [{'func':'switch','id':0}, {'func':'enable','id':0}, {'func':'disable','id':1}, {'nextid':0}],
+        "left":  [{'func':'switch','id':4}, {'func':'enable','id':4}, {'func':'disable','id':1}, {'nextid':4}],
         "right": [{'func':'switch','id':2}, {'func':'enable','id':2}, {'func':'disable','id':1}, {'nextid':2}],
         "up": [{
                 'func':'disable',
@@ -62,7 +62,7 @@ controlTree = {
       },
     3:{
         "left":  [{'func':'switch','id':2}, {'func':'enable','id':2}, {'func':'disable','id':3}, {'nextid':2}],
-        #"right":  [{'func':'switch','id':4}, {'func':'enable','id':4}, {'func':'disable','id':3}, {'nextid':4}],
+        "right":  [{'func':'switch','id':0}, {'func':'enable','id':0}, {'func':'disable','id':3}, {'nextid':0}],
         # "right": [
         #         {'func':'enable','id':45000, 'args':{'mode':0}},
         #         {'nextid':45000}],
@@ -75,7 +75,7 @@ controlTree = {
         "note":"playlist",
       },
     4:{
-        "right":  [{'func':'switch','id':0}, {'func':'enable','id':0}, {'func':'disable','id':4}, {'nextid':0}],
+        "right":  [{'func':'switch','id':1}, {'func':'enable','id':1}, {'func':'disable','id':4}, {'nextid':1}],
         # "down":[
         #         {'func':'enable','id':40000},
         #         {'func':'disable','id':3},

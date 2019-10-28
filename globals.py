@@ -30,8 +30,20 @@ screenSaver = None #will be initialized by main-menu
 #Generic database, bsically a json file which we read and write
 dbPath = os.path.join(syspath, "resources", "database.json")
 db = None
-with open(dbPath) as dbFile:
-    db = json.load(dbFile)
+try:
+    with open(dbPath) as dbFile:
+        db = json.load(dbFile)
+except:
+    logging.error("Globals: problem in opening json data base file... create new file... old data will be lost...\n\n\n")
+    f = open(dbPath, "w")
+    f.write('''{
+                "runtime":0
+                }''')
+    f.close()
+
+    with open(dbPath) as dbFile:
+        db = json.load(dbFile)
+
 
 def writeDb():
     writeJson(dbPath, db)

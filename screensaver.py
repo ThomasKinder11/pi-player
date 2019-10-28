@@ -14,7 +14,7 @@ class ScreenSaver():
     timeStep = 0.25
     saverTimeout = 5
     active = None
-    ena = True
+    ena = False
 
     def _worker(self):
         logging.info("ScreenSaver: thread called...")
@@ -59,7 +59,10 @@ class ScreenSaver():
             self.ctrlQueue.put({'cmd':'reset'})
 
     def disable(self):
+        logging.error("ScreenSaver: ßßßßßßßßßßß: trying to disable...")
+
         if self.ena:
+            logging.error("ScreenSaver: ßßßßßßßßßßß: disable ")
             self.ctrlQueue.put({'cmd':'disable'})
             while self.ena:
                 time.sleep(0.5)
@@ -68,6 +71,7 @@ class ScreenSaver():
 
 
     def enable(self):
+        logging.error("ScreenSaver: ßßßßßßßßßßß: enabled ")
         self.ctrlQueue.put({'cmd':'enable'})
 
 

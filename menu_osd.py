@@ -32,6 +32,7 @@ class MenuOSD(StackLayout, Select):
     enableDone = False
     widgets = []
     isSelectable = True
+    onPlaylistEnter = None
 
     """
     These are the callback functions which are triggered when a button on the OSD
@@ -48,6 +49,7 @@ class MenuOSD(StackLayout, Select):
             logging.error("MenuOSD: executed os.system call... {}".format(ret))
 
     def _onEnterPause(self):
+        #Todo: only execute this when the OSD is visible ! ::TK:: this is for all button callbacks in this class
         logging.error("MenuOSD: _onEnterPause")
         if os.name == "posix":
             cmd = 'echo \'{ "command": ["set_property", "pause", true] }\''
@@ -146,7 +148,15 @@ class MenuOSD(StackLayout, Select):
     def disable(self, args):
         pass#self.ctrlQueue.put({'cmd':'hide'})
 
+
+
+
     def enter(self, args):
+        #Forward the enter commadn to playlist worker thread so that
+        #it can process it if needed.
+        if self.onPlaylistEnter != None:
+            self.onPlaylistEnter(None)
+
         self.widgets[self.wId-1].onEnter()
 
     def changeSize(self, widget, value):

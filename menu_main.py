@@ -8,6 +8,7 @@ import control_tree
 import globals
 from menu_osd import *
 from menu_playlist import *
+import keyboard
 
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.stacklayout import StackLayout
@@ -89,7 +90,7 @@ class Menu(StackLayout, TabbedPanel):
     selectableWidgets = {}
     tbHeads = []
     curId = 100
-    nextId = None
+    nextId = None #Todo: checj if it can be removed! TK
     lastId = None
     root = None
     screenSaver = None
@@ -121,6 +122,7 @@ class Menu(StackLayout, TabbedPanel):
             return 0
 
         for cmd in cmdList:
+
             #Check if cmd is also a list, if so recursively we will execute
             logging.debug("_keyHandler: going to execute command = {}".format(cmd))
             if isinstance(cmd,list):
@@ -171,25 +173,37 @@ class Menu(StackLayout, TabbedPanel):
     _onPlayEnd : callback which is called by player after playback has been
                  finished. This can be used to control playlist etc.
     """
+    callbackPlayEnd = []
     def _onPlayEnd(self):
-        self.selectableWidgets[40000].onPlayerEnd(None)
+
+        for callback in self.callbackPlayEnd:
+            callback(None)
+
+        #self.selectableWidgets[40000].onPlayerEnd(None)
 
 
         self.root.current = "main_menu"
-        self.screenSaver.enable()
+        #self.screenSaver.enable()
+        #self.curId  = self.lastId
+
+    def osdDisable(self, args):
         self.curId  = self.lastId
 
+    def osdEnable(self, args):
+        self.lastId = self.curId #Todo: check if still needed ::TK::
+        self.curId = 200
 
 
+#Todo: shall we not move this into the video and audio menu itself? ::TK::
     def _onEnterPlayer(self, args):
 
         logging.info("_onEnterPlayer: start playing the file...")
         self.screenSaver.disable()
         self.root.current = "blackscreen"
 
-        self.lastId = self.curId
+        self.lastId = self.curId #Todo: check if still needed ::TK::
         self.curId = 200
-        self.nextId = 200
+        self.nextId = 200 #Todo: check if still needed
 
 
         path = args.pop("path", None)
@@ -272,6 +286,7 @@ class Menu(StackLayout, TabbedPanel):
 
 
     def __init__(self, **kwargs):
+
         self.root = kwargs.pop('root', "None")
         self.osd = kwargs.pop('osd', "None")
         #self.menuOSD = kwargs.pop('osd', "None")
@@ -280,15 +295,12 @@ class Menu(StackLayout, TabbedPanel):
         super(Menu, self).__init__(**kwargs)
 
         #Keyboard binding
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+        #self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         #self._keyboard.bind(on_key_down=self._keyDown)
 
-        logging.error("oooooooooooooo: before pynput")
 
-        import keyboard
         keyboard.on_press(self.onPress)
 
-        logging.error("oooooooooooooo: after pynput")
 
 
 
@@ -307,10 +319,10 @@ class Menu(StackLayout, TabbedPanel):
 
         #for i in range(len(self.selectableWidgets)):
         self.add_widget(self.selectableWidgets[4])
-        self.add_widget(self.selectableWidgets[0])
         self.add_widget(self.selectableWidgets[1])
         self.add_widget(self.selectableWidgets[2])
         self.add_widget(self.selectableWidgets[3])
+        self.add_widget(self.selectableWidgets[0])
 
         self.selectableWidgets[0].content = MenuSettings()
 
@@ -350,6 +362,8 @@ class Menu(StackLayout, TabbedPanel):
             id="40000",
             screenmanager=self.root
         )
+        self.selectableWidgets[40000].osdEnable = self.osdEnable
+        self.selectableWidgets[40000].osdDisable = self.osdDisable
 
         self.selectableWidgets[3].content = self.selectableWidgets[40000]
 
@@ -359,10 +373,8 @@ class Menu(StackLayout, TabbedPanel):
         self._findSelectableChildren(self.selectableWidgets[1].content.children)
         self.selectableWidgets[200] = self.osd
 
-
         self.controlTree = control_tree.controlTree
         self.curId = 4 # set start id
-        self.lastId = self.curId
 
         try:
             self.selectableWidgets[self.curId].enable(None)
@@ -374,10 +386,11 @@ class Menu(StackLayout, TabbedPanel):
         globals.screenSaver = self.screenSaver
 
         #set player
-        player.onPlayEnd = self._onPlayEnd
-        player._onUpdateRunTime = self._onUpdateRunTime
+        globals.player.onPlayEnd = self._onPlayEnd
+        globals.player._onUpdateRunTime = self._onUpdateRunTime
 
-        #check if last playback was interrupted and if so add entry in video list
-        # if globals.db['runtime'] > 0:
-        #     user = {'tSeek':globals.db['runtime'], 'isRerun':True}
-        #     self.selectableWidgets[20000].addTopText(globals.db['mediaPath'], user)
+        #assign player callback for end of playback
+        self.callbackPlayEnd.append(self.selectableWidgets[40000].onPlayerEnd)
+
+        #Setup OSD callback for passing enter command to playlist
+        self.osd.onPlaylistEnter = self.selectableWidgets[40000].enter
