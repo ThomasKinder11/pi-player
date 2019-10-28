@@ -38,11 +38,10 @@ class ScreenSaver():
                     self.active = False
 
                 elif cmd['cmd'] == 'stop':
-                    logging.info("ScreenSaver: thread stopped...")
+                    logging.debug("ScreenSaver: thread stopped...")
                     break;
 
                 elif cmd['cmd'] == 'disable':
-                    logging.debug("ßßßßßßßßßßßßßßßßß: disable screens")
                     self.ena  = False
                     self.screenManager.current=self.menuName
                     self.idleCounter = 0
@@ -53,7 +52,6 @@ class ScreenSaver():
                     self.idleCounter = 0
                     self.active = False
                     self.screenManager.current=self.menuName
-                    logging.debug("ßßßßßßßßßßßßßßßßß: enable screens")
 
                 elif cmd['cmd'] == 'start':
                     self.ena = True
@@ -69,25 +67,19 @@ class ScreenSaver():
             self.ctrlQueue.put({'cmd':'reset'})
 
     def disable(self):
-        logging.error("ScreenSaver: ßßßßßßßßßßß: trying to disable...")
-
-    #    if self.ena:
-        logging.error("ScreenSaver: ßßßßßßßßßßß: disable ")
         self.ctrlQueue.put({'cmd':'disable'})
+
         while self.ena:
             time.sleep(0.5)
-            logging.debug("ScreenSaver: disable wait ....")
-            pass
+
 
 
     def enable(self):
-        logging.error("ScreenSaver: ßßßßßßßßßßß: enabled ")
         self.ctrlQueue.put({'cmd':'enable'})
 
 
     def __init__(self, screenManager, blackScreenName, menuName):
         logging.info("ScreenSaver: init: called")
-        #self.ctrlQueue= queue.Queue()
         self.ctrlQueue = queue.Queue()
         self.thread = threading.Thread(target=self._worker)
         self.thread.setDaemon(True)

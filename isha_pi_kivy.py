@@ -139,7 +139,6 @@ class SelectButton(Button, Select):
 
         # background_down= "./resources/img/previous_select.png",
         self.imgPath = kwargs.pop('imgPath', None)
-        logging.info("Btn: self.impPath = {}".format(self.imgPath))
 
         if self.imgPath:
             self.btnType = "image"
@@ -147,16 +146,10 @@ class SelectButton(Button, Select):
         else:
             self.btnType = "text"
 
-
-
         super(SelectButton, self).__init__(**kwargs)
 
-        #self.bgDefault = self.background_color#
-        self.background_disabled_down = "c"
-        logging.debug("SelectButton: position is = {0}".format(self.pos))
-        # with self.canvas.before:
-        #     Color(1, 0, 0, 1)
-        #     Rectangle(pos=self.pos, size=self.size)
+    
+
 
 class SelectSlider(Select, GridLayout):
     label = None

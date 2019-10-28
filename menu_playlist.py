@@ -356,7 +356,6 @@ class MenuPlaylist(StackLayout, Select):
 
 
             globals.screenSaver.disable()
-            #self.screenmanager.current = "blackscreen"
 
             self._playListControl(playlist, plistStart, skipFirst, cmd['mode'])
 
@@ -365,116 +364,6 @@ class MenuPlaylist(StackLayout, Select):
             globals.screenSaver.start(None)
             #self.screenmanager.current="main_menu"
 
-
-
-
-
-
-
-
-
-
-            #
-            # self._waitForCmd('key', 'enter') #blocks until  we got signal that playback is finished
-            # self.osdEnable(None)
-            #
-            #
-            # #
-            # # Initialisation for playlist processing....
-            # #
-            # globals.screenSaver.disable()
-            # if self.mode == self._FILE_LIST:
-            #     if len(self.fileList.children) > 0:
-            #         self.pListStartId = 0
-            #         #globals.screenSaver.disable()
-            #         text = self.fileList.widgets[self.fileList.wId].text
-            #         self.updateJsonFiles(text)
-            #         self.right({'enableFilesView':False})
-            #         skipFirst = False
-            # elif self.mode == self._JSON_LIST:
-            #     #logging.debug("MenuPlayList: mode = json...{}".format(self.files.wId))
-            #     #text = self.fileList.widgets[self.fileList.wId].text
-            #
-            #     skipFirst = True
-            #
-            #     self.pListStartId = self.files.wId
-            # else:
-            #     continue
-            #
-            #
-            #
-            # #
-            # # Process the playlist
-            # #
-            # for item in self.pList:
-            #
-            #     if int(item) < self.pListStartId:
-            #         continue
-            #
-            #     # if int(item) > self.pListStartId:
-            #     #     self.files.enable(None)
-            #     if not skipFirst:
-            #         logging.error("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß: skipFirst")
-            #         self.files.enable(None)
-            #
-            #     skipFirst = False
-            #
-            #     if 'pre' in self.pList[item]:
-            #         logging.error("_processPlaylist: blackscreen in pre...")
-            #         if 'BLACKSCREEN' ==  self.pList[item]['pre']:
-            #             #TODO: We need to enable blackscrren here, how to do this? --> pass root to this as well?
-            #             # if self.screenmanager.current != "blackscreen":
-            #             #     self.screenmanager.current = "blackscreen"
-            #             #self.files.enable(None)
-            #             self._waitForCmd('key', 'enter') #blocks until button has been pressed
-            #
-            #
-            #
-            #
-            #     #
-            #     # Play the mdia file with the player
-            #     #
-            #     if 'start' in self.pList[item]:
-            #         tSeek = self.pList[item]['start']
-            #     else:
-            #         tSeek
-            #
-            #     globals.player.play(self.pList[item]['path'], tSeek)
-            #     self._waitForCmd('cmd', 'end') #blocks until  we got signal that playback is finished
-            #
-            #     if 'post' in self.pList[item]:
-            #         logging.error("_processPlaylist: blackscreen in post...")
-            #         if 'BLACKSCREEN' ==  self.pList[item]['post']:
-            #             #TODO: We need to enable blackscrren here, how to do this? --> pass root to this as well?
-            #             # if self.screenmanager.current != "blackscreen":
-            #             #     self.screenmanager.current = "blackscreen"
-            #             self._waitForCmd('key', 'enter') #blocks until button has been pressed
-            #
-            #         elif 'PLAYNEXT' in self.pList[item]['post']: #just start processing the next entry of the playlist : NOTICE: the next element should not have BLACKSCRREN define in pre
-            #             continue
-            #
-            #
-            #     #if self.mode == self._JSON_LIST:
-            #         # self.files.widgets[int(item)].enable(None)
-            #         # self.files.widgets[int(item)-1].disable(None)
-            #     #self.files.enable(None)
-            #
-            #
-            #
-            #
-            #
-            #     logging.error("_processPlaylist: alive 1...")
-            #
-            # self.playlistIsRunning = False
-            # self.osdDisable(None)
-            # self.screenmanager="main_menu"
-            # globals.screenSaver.enable()
-            #
-            # text = self.fileList.widgets[self.fileList.wId].text
-            # #self.updateJsonFiles(text)
-
-
-        logging.error("_processPlaylist: dead...")
 
     def abort(self, args):
         self.ctrlQueue.put(
@@ -508,7 +397,6 @@ class MenuPlaylist(StackLayout, Select):
                 'event':'end',
             }
         })
-        logging.debug("ßßßßßßßßßßßßßßßßß: onPlayerEnd called for playlist")
 
 
     def enter(self, args):
@@ -520,7 +408,6 @@ class MenuPlaylist(StackLayout, Select):
         # if globals.player.isPlaying:
         #     return
 
-        logging.debug("MenuPlayList: enter callback...")
         self.ctrlQueue.put(
             {
                 'cmd':{

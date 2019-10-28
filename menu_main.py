@@ -124,7 +124,7 @@ class Menu(StackLayout, TabbedPanel):
         for cmd in cmdList:
 
             #Check if cmd is also a list, if so recursively we will execute
-            logging.debug("_keyHandler: going to execute command = {}".format(cmd))
+            #logging.debug("_keyHandler: going to execute command = {}".format(cmd))
             if isinstance(cmd,list):
                 self._keyHanlder(cmd)
                 continue
@@ -132,7 +132,6 @@ class Menu(StackLayout, TabbedPanel):
             if 'nextid' in cmd and self._keyHandledMextId == False: #last entry, this will stop execution
                 self._keyHandledMextId = True
                 self.curId = cmd['nextid']
-                logging.debug("_keyHandler: nextid has been processed...")
                 return 0
 
             if not (all(k in cmd for k in ("id","func"))):
@@ -149,7 +148,6 @@ class Menu(StackLayout, TabbedPanel):
 
             #add user defined arguments of selectable widget to args passed to callback
             if self.selectableWidgets[id].user != None:
-                logging.error("TOOOOOOOOOOOO: user of selectable = {}".format(self.selectableWidgets[id].user) )
                 for item in self.selectableWidgets[id].user:
                     args[item]=self.selectableWidgets[id].user[item]
 
@@ -158,11 +156,9 @@ class Menu(StackLayout, TabbedPanel):
             if func == "switch":#build-in-switch-tabpannel
                 self.switch_to(self.selectableWidgets[id], False)
             else:
-                logging.debug("_keyHandler: execute calback...")
                 ret = getattr(self.selectableWidgets[id], func)(args)
 
                 if ret and 'true' in cmd: #execute ret functions if specified
-                    logging.debug("_keyHandler: going to execute the [true] command = {}".format(cmd['true']))
                     self._keyHanlder(cmd['true'])
 
     def _keyboard_closed(self):
@@ -282,7 +278,7 @@ class Menu(StackLayout, TabbedPanel):
         scancodes[53] = "-"
         scancodes[50] = "m"
 
-        logging.error("ooooooooooooooooooo: {}".format(key.to_json()))
+        #logging.error("ooooooooooooooooooo: {}".format(key.to_json()))
         id = key.scan_code
 
         if id in scancodes:

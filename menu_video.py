@@ -30,7 +30,9 @@ class FileList(SelectListView):
 
 
     def resize(self, widget, value):
-        logging.error("ßßßßßßßßßßßßßßßßß---------: VideoMenu [resize]  value = {} / self.width = {}".format(value, self.width) )
+        pass
+        #Todo: we might need to check if this is still needed ::TK::
+        #logging.error("ßßßßßßßßßßßßßßßßß---------: VideoMenu [resize]  value = {} / self.width = {}".format(value, self.width) )
         # for item in self.widgets:
         #     logging.info("Widgets: {}".format(item))
         #     item.width = self.width
@@ -73,7 +75,7 @@ class FileList(SelectListView):
                 for item in self.widgets[self.wId].user:
                     args[item]=self.widgets[self.wId].user[item]
 
-            self._onEnterPlayer(args) #This should call the global player instance by itself 
+            self._onEnterPlayer(args) #This should call the global player instance by itself
 
             if 'isRerun' in args:
                 if args['isRerun']:
@@ -148,17 +150,12 @@ class FileList(SelectListView):
         if 'showDirs' in kwargs:
             self.showDirs = kwargs['showDirs']
 
-
-
         self.supportedTypes = kwargs.pop('supportedTypes', None)
         if not self.supportedTypes:
             logging.error("MenuVideo: supported files types for video player not set")
             return
 
-
-
         self.supportedTypes = tuple(self.supportedTypes.split(','))
-        logging.error("ßßßßßßßßßßßßßßßßßßßßßß  - MenuVideo: {}".format(self.supportedTypes))
         self.screenmanager = kwargs.pop('screenmanager', None)
         self.type = kwargs.pop('type', "unknown")
 
@@ -167,11 +164,8 @@ class FileList(SelectListView):
             return
 
         super(FileList, self).__init__(**kwargs)
+
         self.widgets = []
-
-
         self._addFile(self.rootdir, False, None)
-
         self.wId = -1
-
         self.bind(width=self.resize)

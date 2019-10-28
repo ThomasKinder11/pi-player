@@ -78,9 +78,6 @@ class SelectListViewItem(StackLayout, Select):
     user = {}
 
     def resize(self, widget, value):
-        #logging.error("ßßßßßßßßßßßßßßßßß---------: SelectListViewItem [resize]  value = {} / self.width = {}".format(value, self.width) )
-
-        #self.label.width = Window.width-self.imgWidth-self.filler.width
         self.label.width = self.parent.width-self.imgWidth-self.filler.width
         self.label.text_size = (self.label.width-20,self.imgHeight)
         pass
@@ -174,8 +171,6 @@ class SelectListView(Select, ScrollView):
         else:
             increment = True
 
-        logging.error("ßßßßßßßßßßßßßßßßßßßßßß: Enter :SelectListView :: wId = {}".format(self.wId))
-
         if self.wId < len(self.widgets) - 1:
             if increment:
                 self.wId = self.wId + 1
@@ -221,10 +216,8 @@ class SelectListView(Select, ScrollView):
                 else:
                     self.wId = -1
 
-            logging.error("ßßßßßßßßßßßßßßßßßßßßßß: return true")
             return True
-
-        logging.error("ßßßßßßßßßßßßßßßßßßßßßß: return true")
+            
         return False
 
 
