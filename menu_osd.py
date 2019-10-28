@@ -33,6 +33,9 @@ class MenuOSD(StackLayout, Select):
     widgets = []
     isSelectable = True
     onPlaylistEnter = None
+    playlistAbort = None
+    playlistPrevious = None
+    playlistNext = None
 
     """
     These are the callback functions which are triggered when a button on the OSD
@@ -59,13 +62,20 @@ class MenuOSD(StackLayout, Select):
 
     def _onEnterPrevious(self):
         logging.error("MenuOSD: _onEnterPrevious")
-
+        self.playlistPrevious(None)
 
     def _onEnterNext(self):
         logging.error("MenuOSD: _onEnterNext")
 
     def _onEnterStop(self):
         logging.error("MenuOSD: _onEnterStop")
+
+        self.playlistAbort(None)
+
+        if globals.player.process != None:
+            globals.player.process.kill()
+
+
         if os.name == "posix":
             #os.system('echo \'{ "command": ["quit"] }\' | sudo socat - ~/tmp/socket')
             cmd = 'echo \'{ "command": ["quit"] }\''
@@ -90,7 +100,7 @@ class MenuOSD(StackLayout, Select):
                     wid.opacity = 0
                     wid.disable(None)
                 self.runtime.opacity = 0
-
+                self.isVisible = False
 
             if not self.ctrlQueue.empty():
 
@@ -106,7 +116,16 @@ class MenuOSD(StackLayout, Select):
                     self.runtime.opacity = 1.0
 
                     self.enableDone = True
+                    self.isVisible = True
 
+                elif cmd['cmd'] == 'invisible':
+                    logging.debug("MenuOSD: queue command has been received invisble")
+
+                    for wid in self.widgets:
+                        wid.opacity = 0.0
+
+                    self.runtime.opacity = 0.0
+                    self.isVisible = False
 
     def left(self, args):
         logging.debug("MenuOSD: left function called [wid = {}]".format(self.wId))
@@ -146,18 +165,18 @@ class MenuOSD(StackLayout, Select):
 
 
     def disable(self, args):
-        pass#self.ctrlQueue.put({'cmd':'hide'})
-
-
+        self.ctrlQueue.put({'cmd':'invisible'})
 
 
     def enter(self, args):
-        #Forward the enter commadn to playlist worker thread so that
-        #it can process it if needed.
-        if self.onPlaylistEnter != None:
-            self.onPlaylistEnter(None)
+        #If osd is not active send enter to playlist module instead of buttons
+        if self.isVisible:
+            self.widgets[self.wId-1].onEnter()
+        else:
+            if self.onPlaylistEnter != None:
+                self.onPlaylistEnter(None)
 
-        self.widgets[self.wId-1].onEnter()
+
 
     def changeSize(self, widget, value):
         winCenter= int(Window.width / 2)
@@ -167,13 +186,13 @@ class MenuOSD(StackLayout, Select):
         self.gap0.width = winBoundaryLeft-(5*50)
         self.gap.width = Window.width-winBoundaryRight-60
 
-    def volumeUp(self):
+    def volumeUp(self, args):
         self.volume.volumeUp()
 
-    def volumeDown(self):
+    def volumeDown(self, args):
         self.volume.volumeDown()
 
-    def muteToggle(self):
+    def muteToggle(self, args):
         self.volume.muteToggle()
 
     def __init__(self, **kwargs):
@@ -296,6 +315,7 @@ class MenuOSD(StackLayout, Select):
 
         self.runtime.opacity = 0
 
+
         self.add_widget(self.gap0)
         self.add_widget(self.runtime)
         self.add_widget(self.gap)
@@ -307,6 +327,7 @@ class MenuOSD(StackLayout, Select):
         #self.orientation = 'rl-tb'
 
         self.bind(size=self.changeSize)
+        self.isVisible = False
 
         self.ctrlQueue= queue.Queue()
         self.thread = threading.Thread(target=self._worker)

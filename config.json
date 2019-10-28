@@ -30,7 +30,7 @@
         }
     },
     "settings": {
-        "osdTime": 6,
+        "osdTime": 3,
         "runtimeInterval": 1,
         "screensaverTime": 5
     }

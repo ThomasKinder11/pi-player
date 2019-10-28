@@ -109,6 +109,10 @@ controlTree = {
         "left": [{'func':'left','id':200}],
         "right":[{'func':'right','id':200}],
         "enter":[{'func':'enter', 'id':200}],
+        "browser back": [{'func':'disable', 'id':200}],
+        "volume up": [{'func':'volumeUp', 'id':200}],
+        "volume down": [{'func':'volumeDown', 'id':200}],
+        "volume mute": [{'func':'muteToggle', 'id':200}],
         "type":"osd:control",
         },
     20000:{

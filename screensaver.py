@@ -42,6 +42,7 @@ class ScreenSaver():
                     break;
 
                 elif cmd['cmd'] == 'disable':
+                    logging.debug("ßßßßßßßßßßßßßßßßß: disable screens")
                     self.ena  = False
                     self.screenManager.current=self.menuName
                     self.idleCounter = 0
@@ -52,7 +53,16 @@ class ScreenSaver():
                     self.idleCounter = 0
                     self.active = False
                     self.screenManager.current=self.menuName
+                    logging.debug("ßßßßßßßßßßßßßßßßß: enable screens")
 
+                elif cmd['cmd'] == 'start':
+                    self.ena = True
+                    self.idleCounter =  globals.config['settings']['screensaverTime'] + 1
+                    self.active = True
+                    self.screenManager.current = self.blackScreenName
+
+    def start(self, args):
+        self.ctrlQueue.put({'cmd':'start'})
 
     def resetTime(self):
         if self.ena:
@@ -61,13 +71,13 @@ class ScreenSaver():
     def disable(self):
         logging.error("ScreenSaver: ßßßßßßßßßßß: trying to disable...")
 
-        if self.ena:
-            logging.error("ScreenSaver: ßßßßßßßßßßß: disable ")
-            self.ctrlQueue.put({'cmd':'disable'})
-            while self.ena:
-                time.sleep(0.5)
-                logging.debug("ScreenSaver: disable wait ....")
-                pass
+    #    if self.ena:
+        logging.error("ScreenSaver: ßßßßßßßßßßß: disable ")
+        self.ctrlQueue.put({'cmd':'disable'})
+        while self.ena:
+            time.sleep(0.5)
+            logging.debug("ScreenSaver: disable wait ....")
+            pass
 
 
     def enable(self):

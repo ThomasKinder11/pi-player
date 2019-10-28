@@ -102,15 +102,15 @@ class Menu(StackLayout, TabbedPanel):
 
         #volume control
         if keycode[1] == "+":
-            self.osd.volumeUp()
+            self.osd.volumeUp(None)
             return
 
         if keycode[1] == "-":
-            self.osd.volumeDown()
+            self.osd.volumeDown(None)
             return
 
         if keycode[1] == "m":
-            self.osd.muteToggle()
+            self.osd.muteToggle(None)
             self.selectableWidgets[40000].ctrlQueue.put({'cmd':'end'})
             return
 
@@ -182,7 +182,7 @@ class Menu(StackLayout, TabbedPanel):
         #self.selectableWidgets[40000].onPlayerEnd(None)
 
 
-        self.root.current = "main_menu"
+        #self.root.current = "main_menu"
         #self.screenSaver.enable()
         #self.curId  = self.lastId
 
@@ -198,7 +198,7 @@ class Menu(StackLayout, TabbedPanel):
     def _onEnterPlayer(self, args):
 
         logging.info("_onEnterPlayer: start playing the file...")
-        self.screenSaver.disable()
+        #self.screenSaver.disable()
         self.root.current = "blackscreen"
 
         self.lastId = self.curId #Todo: check if still needed ::TK::
@@ -263,18 +263,26 @@ class Menu(StackLayout, TabbedPanel):
             scancodes[75] = "left"
             scancodes[72] = "up"
             scancodes[80] = "down"
+            scancodes[-166] = "browser back"
+            scancodes[-175] = "volume up"
+            scancodes[-174] = "volume down"
+            scancodes[-173] = "volume mute"
         elif os.name == "posix":
             scancodes[106] = "right"
             scancodes[105] = "left"
             scancodes[103] = "up"
             scancodes[108] = "down"
+            scancodes[-166] = "browser back"
+            scancodes[-175] = "volume up"
+            scancodes[-174] = "volume down"
+            scancodes[-173] = "volume mute"
 
         scancodes[28] = "enter"
         scancodes[27] = "+"
         scancodes[53] = "-"
         scancodes[50] = "m"
 
-        #logging.error("ooooooooooooooooooo: {}".format(key.to_json()))
+        logging.error("ooooooooooooooooooo: {}".format(key.to_json()))
         id = key.scan_code
 
         if id in scancodes:
@@ -383,6 +391,7 @@ class Menu(StackLayout, TabbedPanel):
 
         #setup the screen saver and also make it available as global object
         self.screenSaver = ScreenSaver(self.root, "blackscreen", "main_menu")
+        self.screenSaver.enable()
         globals.screenSaver = self.screenSaver
 
         #set player
@@ -394,3 +403,6 @@ class Menu(StackLayout, TabbedPanel):
 
         #Setup OSD callback for passing enter command to playlist
         self.osd.onPlaylistEnter = self.selectableWidgets[40000].enter
+        self.osd.playlistAbort = self.selectableWidgets[40000].abort
+        self.osd.playlistPrevious = self.selectableWidgets[40000].previous
+        self.osd.playlistNext = self.selectableWidgets[40000].next
