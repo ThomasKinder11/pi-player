@@ -88,7 +88,7 @@ class MenuPlaylist(StackLayout, Select):
         pass
 
     def right(self,args):
-        logging.info("rigth")
+        logging.info("right")
         if args != None:
             enableFilesView = args.pop('enableFilesView', True)
         else:
@@ -226,13 +226,13 @@ class MenuPlaylist(StackLayout, Select):
             cmd = cmd['cmd']
 
             if 'abort' in cmd:
-                return (False, 'abort')
+                return ('abort')
 
             if 'previous' in cmd:
-                return (False, 'previous')
+                return ('previous')
 
             if 'next' in cmd:
-                return (False, 'next')
+                return ('next')
 
 
             if value != None:
@@ -240,9 +240,9 @@ class MenuPlaylist(StackLayout, Select):
                     logging.debug("key is in cmd")
                     if cmd[key] == value:
                         logging.debug("key value match cmd")
-                        return (True,'ok')
+                        return ('match', True)
             else:
-                return (cmd, 'cmd')
+                return ('cmd', cmd)
 
     def _playListControl(self, playlist, plistStart, skipFirst, mode):
         i = 0
@@ -265,10 +265,12 @@ class MenuPlaylist(StackLayout, Select):
                 if 'BLACKSCREEN' ==  playlist[item]['pre']:
                     logging.debug("pre black wait..")
                     ret = self._waitForCmd('key', 'enter') #blocks until button has been pressed #TODO this is not working
-                    if ret[1] ==  'abort':
+                    logging.debug("pre black after wait. ret value = {}".format(ret))
+                    if 'abort' in ret:
                         logging.info("Abort in pre black screen...")
                         return
-                    elif ret[1] == 'previous':
+
+                    elif 'previous' in ret:
                         logging.info("Previous in pre black")
                         if i >= 1:
                             i = i - 1
@@ -280,10 +282,12 @@ class MenuPlaylist(StackLayout, Select):
                         logging.info("Previous in pre black... i = {}".format(i))
 
                         if mode == "json":
+                            logging.info("Try to disable files... i = {}".format(i))
                             self.files.disable(None)
-
+                            skipFirst = True
 
                         continue
+
             #
             # Play the mdia file with the player
             #
@@ -295,7 +299,7 @@ class MenuPlaylist(StackLayout, Select):
             globals.player.play(playlist[item]['path'], tSeek)
 
             ret = self._waitForCmd('event', 'end') #blocks until  we got signal that playback is finished
-            if ret[1] ==  'abort':
+            if ret[0] ==  'abort':
                 logging.info("Abort during playback...")
                 return
 
@@ -306,7 +310,7 @@ class MenuPlaylist(StackLayout, Select):
                     #self.screenmanager.current = "blackscreen"
                     #logging.debug("$$ Post  black screen ...")
                     ret = self._waitForCmd('key', 'enter') #blocks until button has been pressed
-                    if ret[1] ==  'abort':
+                    if ret[0] ==  'abort':
                         logging.logger("Abort during blackscreen post...")
                         return
                 elif 'PLAYNEXT' in playlist[item]['post']: #just start processing the next entry of the playlist : NOTICE: the next element should not have BLACKSCRREN define in pre
@@ -322,10 +326,10 @@ class MenuPlaylist(StackLayout, Select):
 
 
             cmd = self._waitForCmd(None, None)
-            if 'cmd' == cmd[1]:
-                cmd = cmd[0]
+            if 'cmd' == cmd[0]:
+                cmd = cmd[1]
             else:
-                logging.error("_processPlaylist: command error [1]...")
+                logging.error("MenuPlayList._processPlaylist: command error [1]...")
                 return
 
             #only when mode is defined its something we can process otherwise wait for next command
@@ -404,6 +408,8 @@ class MenuPlaylist(StackLayout, Select):
             mode = args.pop('mode', "json")
         else:
             mode = "json"
+
+        logging.debug("PlayList_Enter: enter callback executed...")
         #Do not execute this if we do not wait to recive a command
         # if globals.player.isPlaying:
         #     return
