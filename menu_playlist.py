@@ -271,7 +271,6 @@ class MenuPlaylist(StackLayout, Select):
                         return
 
                     elif 'previous' in ret:
-                        logging.info("Previous in pre black")
                         if i >= 1:
                             i = i - 1
                             plistStart = plistStart - 1
@@ -279,13 +278,14 @@ class MenuPlaylist(StackLayout, Select):
                             i = 0
                             plistStart = 0
 
-                        logging.info("Previous in pre black... i = {}".format(i))
-
                         if mode == "json":
-                            logging.info("Try to disable files... i = {}".format(i))
                             self.files.disable(None)
                             skipFirst = True
 
+                        continue
+
+                    elif 'next' in ret:
+                        i = i + 1
                         continue
 
             #
@@ -378,6 +378,7 @@ class MenuPlaylist(StackLayout, Select):
         })
 
     def next(self, args):
+        logging.debug("ßßßßßßß: Next called...")
         self.ctrlQueue.put(
         {
             'cmd':{

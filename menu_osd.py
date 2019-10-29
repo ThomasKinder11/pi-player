@@ -66,6 +66,7 @@ class MenuOSD(StackLayout, Select):
 
     def _onEnterNext(self):
         logging.error("MenuOSD: _onEnterNext")
+        self.playlistNext(None)
 
     def _onEnterStop(self):
         logging.error("MenuOSD: _onEnterStop")
