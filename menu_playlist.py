@@ -32,9 +32,9 @@ def createPlayListEntry(path, name, id, start):
 
 
 class MenuPlaylist(StackLayout, Select):
-    _FILE_LIST = 0
-    _JSON_LIST = 1
-    mode = _FILE_LIST # mode 0 = json file fiew is selected, mode = 1 the list view of files in json are selected
+    _fileList = 0
+    _jsonList = 1
+    mode = _fileList
     select = "json"
     pList = None
     workThread = None
@@ -61,7 +61,7 @@ class MenuPlaylist(StackLayout, Select):
         includes.player.pause(args)
 
     def enable(self, args):#down
-        if self.mode == self._FILE_LIST  and len(self.fileList.widgets) > 0:
+        if self.mode == self._fileList  and len(self.fileList.widgets) > 0:
             logging.info("enable/down")
 
             id = self.fileList.wId + 1
@@ -74,15 +74,15 @@ class MenuPlaylist(StackLayout, Select):
 
             return ret
 
-        elif self.mode == self._JSON_LIST:
+        elif self.mode == self._jsonList:
 
 
             self.files.enable(None)
             return False
 
-    def disable(self,args):#up
+    def disable(self, args):#up
 
-        if self.mode == self._FILE_LIST and len(self.fileList.widgets) > 0:
+        if self.mode == self._fileList and len(self.fileList.widgets) > 0:
             logging.info("disable/up")
 
             id = self.fileList.wId - 1
@@ -94,7 +94,7 @@ class MenuPlaylist(StackLayout, Select):
 
             return self.fileList.disable(None)
 
-        elif self.mode == self._JSON_LIST:
+        elif self.mode == self._jsonList:
             self.files.disable({'disTop':False})
             return False
 
@@ -106,11 +106,11 @@ class MenuPlaylist(StackLayout, Select):
     def left(self, args):
         logging.debug("MenuPlayList: left called...")
 
-        if self.mode == self._FILE_LIST:
+        if self.mode == self._fileList:
 
             return True
-        elif self.mode == self._JSON_LIST:
-            self.mode = self._FILE_LIST
+        elif self.mode == self._jsonList:
+            self.mode = self._fileList
 
             for wid in self.files.widgets:
                 wid.disable({'inc':False})
@@ -121,31 +121,31 @@ class MenuPlaylist(StackLayout, Select):
             self.fileList.widgets[tmpID].label.color = self.fileList.enaColor
         pass
 
-    def right(self,args):
+    def right(self, args):
         logging.info("right")
         if args != None:
             enableFilesView = args.pop('enableFilesView', True)
         else:
             enableFilesView = True
         #self.fileList.widgets[0].enaColor = [1,0,0,1]
-        if self.mode == self._FILE_LIST and len(self.fileList.widgets) > 0:
-            self.mode = self._JSON_LIST
+        if self.mode == self._fileList and len(self.fileList.widgets) > 0:
+            self.mode = self._jsonList
 
             if enableFilesView:
                 self.files.enable(None)
 
             tmpID = self.fileList.wId
-            self.fileList.widgets[tmpID].label.color = [1,0.5,0.2,1]
-        elif self.mode == self._JSON_LIST:
+            self.fileList.widgets[tmpID].label.color = includes.colors['blue']
+        elif self.mode == self._jsonList:
             pass
 
-    def _validateJson(self,path):
+    def _validateJson(self, path):
         #check if number of eldn to the nodes, id must
         #accour in sequence without any gaps in between
         for i in range(len(self.pList)):
             #msg = "PlayList:  id = {} / str(id) ={} / plist = {}\n".format(i, str(i), self.pList)
             #logging.error(msg)
-            if not (str(i) in self.pList):
+            if not str(i) in self.pList:
                 msg = "PlayList: playlist file ids not correct, stopped at id = {}\n".format(i)
                 msg = msg + "\tplist = {} / i = {} \n".format(self.pList, i)
                 msg = msg + "\tpath = {}".format(path)
@@ -260,13 +260,13 @@ class MenuPlaylist(StackLayout, Select):
             cmd = cmd['cmd']
 
             if 'abort' in cmd:
-                return ('abort')
+                return 'abort'
 
             if 'previous' in cmd:
-                return ('previous')
+                return 'previous'
 
             if 'next' in cmd:
-                return ('next')
+                return 'next'
 
 
             if value != None:
@@ -285,11 +285,9 @@ class MenuPlaylist(StackLayout, Select):
         skipFirst = False
 
         if 'previous' in cmd:
-            logging.error("ßßßßßßßßßßßßßß: time = {} / previos = {} / div = {}".format(time.time(), self.prevTimestamp, time.time() - self.prevTimestamp))
             if time.time() - self.prevTimestamp <= 3: #we have 3 seconds to skip to previous
                 self.prevTimestamp = time.time()
                 doubleClickPrev = True
-                logging.error("ßßßßßßßßßßßßßßßßßßßßßßßßßßß: double previous")
 
             self.prevTimestamp = time.time()
 
@@ -297,8 +295,8 @@ class MenuPlaylist(StackLayout, Select):
                 doubleClickPrev = False
 
                 if index >= 1:
-                        index = index - 1
-                        self.files.disable(None)
+                    index = index - 1
+                    self.files.disable(None)
                 else:
                     index = 0
                     plistStart = 0
@@ -352,24 +350,17 @@ class MenuPlaylist(StackLayout, Select):
                     self.files.enable(None)
 
             if 'pre' in playlist[item] and skipPre == False:
-                logging.debug("ßßßßßßßßßßß Pre is defined = {}".format(playlist[item]['pre']))
-
-                if 'BLACKSCREEN' ==  playlist[item]['pre']:
-                    logging.debug("pre black wait..")
+                if playlist[item]['pre'] == 'BLACKSCREEN':
                     self.osdColorIndicator('red')
 
-                    ret = self._waitForCmd('key', 'enter') #blocks until button has been pressed #TODO this is not working
-                    logging.debug("pre black after wait. ret value = {}".format(ret))
+                    ret = self._waitForCmd('key', 'enter')
                     self.osdColorIndicator('black')
                     if 'abort' in ret:
-                        logging.info("Abort in pre black screen...")
                         return
 
-                    logging.info("New handler function prev /next...")
-
-                    stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart, True)
+                    ret = self._previousNextContrl(mode, ret, i, plistStart, True)
+                    stat, i, plistStart, skipFirst = ret
                     if stat == True:
-                        logging.info("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß Stat was true...")
                         skipPre = True
                         continue
             skipPre = False
@@ -383,27 +374,23 @@ class MenuPlaylist(StackLayout, Select):
 
             includes.player.play(playlist[item]['path'], tSeek)
 
-            ret = self._waitForCmd('event', 'end') #blocks until  we got signal that playback is finished
+            ret = self._waitForCmd('event', 'end')
             if 'abort' in ret:
-                if includes.player.process:
-                    includes.player.process.kill()
-                logging.info("Abort/ during playback...")
+                includes.player.killPlayer()
                 return
             else:
-                stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart, False)
+                ret = self._previousNextContrl(mode, ret, i, plistStart, False)
+                stat, i, plistStart, skipFirst = ret
+
                 if includes.player.process:
                     includes.player.process.kill()
-
-                logging.info("Next/Previous during playback...")
 
                 if stat == True:
                     logging.info("Stat was true...")
                     skipPre = True
                     continue
 
-            # stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart)
-            # if stat:
-            #     continue
+
 
 
             if 'post' in playlist[item]:
@@ -436,14 +423,14 @@ class MenuPlaylist(StackLayout, Select):
 
             if cmd['mode'] == "json": #started via file list viewer for PlayList
                 logging.debug("_processPlaylist: mode = json")
-                if self.mode == self._FILE_LIST:
+                if self.mode == self._fileList:
                     if len(self.fileList.children) > 0:
                         self.pListStartId = 0
                         text = self.fileList.widgets[self.fileList.wId].text
                         self.updateJsonFiles(text)
                         self.right({'enableFilesView':False})
                         skipFirst = False
-                elif self.mode == self._JSON_LIST:
+                elif self.mode == self._jsonList:
                     skipFirst = True
                     self.pListStartId = self.files.wId
                 else:
@@ -505,7 +492,7 @@ class MenuPlaylist(StackLayout, Select):
             }
         })
 
-    def startVirtualSingle(self,args):
+    def startVirtualSingle(self, args):
         path = args.pop('path', None)
         start = args.pop('start', 0)
 
@@ -549,7 +536,7 @@ class MenuPlaylist(StackLayout, Select):
         self.id = kwargs.pop('id', None)
         self.screenmanager = kwargs.pop('screenmanager', None)
 
-        super(MenuPlaylist,self).__init__(**kwargs)
+        super(MenuPlaylist, self).__init__(**kwargs)
 
 
         self.cols = 2
@@ -628,7 +615,7 @@ class MenuPlaylist(StackLayout, Select):
         self.add_widget(self.fileList)
         self.add_widget(self.files)
 
-        self.mode = self._FILE_LIST
+        self.mode = self._fileList
 
         #Fill the select List View with elements from the first json file
         # logging.debug("MenuVideo: before widget list iteration... len = {}".format(self.fileList.widgets))

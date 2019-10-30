@@ -11,3 +11,6 @@ method-naming-style=camelCase
 
 max-attributes=20
 max-statements=100
+
+#disable docstring warning
+disable=C0114, C0115, C0116
