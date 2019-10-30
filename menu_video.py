@@ -94,9 +94,6 @@ class FileList(SelectListView):
 
     def _addFile(self, path, isSubdir, wId):
 
-
-
-
         if isSubdir and self.showDirs:
             self.add("...", True)
 

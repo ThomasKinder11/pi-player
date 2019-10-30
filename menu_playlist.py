@@ -41,7 +41,24 @@ class MenuPlaylist(StackLayout, Select):
     ctrlQueue = None
     osdEnable = None #callback function to enable osd
     osdDisable = None #callback function to disable osd
+    osdColorIndicator = None
+    hasNext = False
+    hasPrevious = False
 
+    def hasNextTrack(self):
+        return self.hasNext
+
+    def hasPreviousTrack(self):
+        return self.hasPrevious
+
+    def isPaused(self):
+        return not globals.player.isPlaying
+
+    def isPlaying(self):
+        return globals.player.isPlaying
+
+    def pause(self, args):
+        globals.player.pause(args)
 
     def enable(self, args):#down
         if self.mode == self._FILE_LIST  and len(self.fileList.widgets) > 0:
@@ -316,6 +333,20 @@ class MenuPlaylist(StackLayout, Select):
                 i = i + 1
                 continue
 
+            #mark if there is a file before this
+            if i > 0:
+                self.hasPrevious = True
+            else:
+                self.hasPrevious = False
+
+            #mark if there is a file after this
+            if i < len(playlist) - 1:
+                self.hasNext = True
+            else:
+                self.hasNext = False
+
+
+
             if not skipFirst:
                 if mode == "json":
                     self.files.enable(None)
@@ -325,9 +356,11 @@ class MenuPlaylist(StackLayout, Select):
 
                 if 'BLACKSCREEN' ==  playlist[item]['pre']:
                     logging.debug("pre black wait..")
+                    self.osdColorIndicator('red')
+
                     ret = self._waitForCmd('key', 'enter') #blocks until button has been pressed #TODO this is not working
                     logging.debug("pre black after wait. ret value = {}".format(ret))
-
+                    self.osdColorIndicator('black')
                     if 'abort' in ret:
                         logging.info("Abort in pre black screen...")
                         return

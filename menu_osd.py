@@ -20,6 +20,7 @@ class MenuOSD(StackLayout, Select):
     btnPaus = None
     btnStop = None
     volume = None
+    colorIndicator = None
     id = None
     gap = None
     timeStep = 0.0091
@@ -37,39 +38,47 @@ class MenuOSD(StackLayout, Select):
     playlistPrevious = None
     playlistNext = None
 
+
+    def setColorIndicator(self, color):
+        logging.debug("setColorIndicator: called function....")
+        if color in globals.colors:
+            logging.debug("setColorIndicator: color is in color palet....")
+            self.colorIndicator.background_color = globals.colors[color]
+            return True
+
+        return False
+
     """
     These are the callback functions which are triggered when a button on the OSD
     is activated. Here we can implemente the player control.
     """
-    def _onEnterPlay(self):
-        logging.error("MenuOSD: _onEnterPlay")
+    def onEnterPlay(self):
+        logging.error("MenuOSD: onEnterPlay")
         if os.name == "posix":
-            logging.error("MenuOSD: for linux _onEnterPlay")
+            logging.error("MenuOSD: for linux onEnterPlay")
             cmd = 'echo \'{ "command": ["set_property", "pause", false] }\''
             cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
-            #logging.error("MenuOSD: for linux _onEnterPlay cmd = {}".format(cmd))
+            #logging.error("MenuOSD: for linux onEnterPlay cmd = {}".format(cmd))
             ret = os.system(cmd)
             logging.error("MenuOSD: executed os.system call... {}".format(ret))
 
-    def _onEnterPause(self):
+    def onEnterPause(self):
         #Todo: only execute this when the OSD is visible ! ::TK:: this is for all button callbacks in this class
-        logging.error("MenuOSD: _onEnterPause")
-        if os.name == "posix":
-            cmd = 'echo \'{ "command": ["set_property", "pause", true] }\''
-            cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
-            #os.system('echo \'{ "command": ["set_property", "pause", true] }\' | sudo socat - /home/thomas/tmp/socket')
-            os.system(cmd)
+        logging.error("MenuOSD: onEnterPause needs to be assigned to playlist callback!")
+        #TODO: we need to call the player stop function here, but this
+        # should be done only via the playlist controller.
 
-    def _onEnterPrevious(self):
-        logging.error("MenuOSD: _onEnterPrevious")
+    def onEnterPrevious(self):
+        logging.error("MenuOSD: onEnterPrevious")
         self.playlistPrevious(None)
 
-    def _onEnterNext(self):
-        logging.error("MenuOSD: _onEnterNext")
+    def onEnterNext(self):
+        logging.error("MenuOSD: onEnterNext")
         self.playlistNext(None)
 
-    def _onEnterStop(self):
-        logging.error("MenuOSD: _onEnterStop")
+    def onEnterStop(self):
+        logging.error("MenuOSD: onEnterStop")
+        self.disable(None)
 
         self.playlistAbort(None)
 
@@ -110,6 +119,7 @@ class MenuOSD(StackLayout, Select):
                 if cmd['cmd'] == 'visible':
                     self.idleCounter = 0
                     logging.debug("MenuOSD: queue command has been received visible")
+
 
                     for wid in self.widgets:
                         wid.opacity = 1.0
@@ -155,14 +165,8 @@ class MenuOSD(StackLayout, Select):
 
     def enable(self, args):
         #logging.debug("MenuOSD: enable function called")
-        self.enableDone = False
         self.ctrlQueue.put({'cmd':'visible'})
-         #always start OSD on first button
 
-        while not self.enableDone:
-            time.sleep(0.25)
-
-        return
 
 
     def disable(self, args):
@@ -195,6 +199,25 @@ class MenuOSD(StackLayout, Select):
 
     def muteToggle(self, args):
         self.volume.muteToggle()
+
+    def _addAllWidgets(self):
+
+        self.widgets.append(self.btnPause)
+        self.widgets.append(self.btnPlay)
+        self.widgets.append(self.btnStop)
+        self.widgets.append(self.btnPrevious)
+        self.widgets.append(self.btnNext)
+
+        for wid in self.widgets:
+            self.add_widget(wid)
+            wid.opacity = 0
+
+        self.runtime.opacity = 0
+
+        self.add_widget(self.gap0)
+        self.add_widget(self.runtime)
+        self.add_widget(self.gap)
+        self.add_widget(self.volume)
 
     def __init__(self, **kwargs):
         self.id = kwargs.pop('id', None)
@@ -297,33 +320,29 @@ class MenuOSD(StackLayout, Select):
             value=0
         )
 
-        self.btnPlay.onEnter = self._onEnterPlay
-        self.btnPause.onEnter = self._onEnterPause
-        self.btnStop.onEnter = self._onEnterStop
-        self.btnNext.onEnter = self._onEnterNext
-        self.btnPrevious.onEnter = self._onEnterPrevious
+        self.btnPlay.onEnter = self.onEnterPlay
+        self.btnPause.onEnter = self.onEnterPause
+        self.btnStop.onEnter = self.onEnterStop
+        self.btnNext.onEnter = self.onEnterNext
+        self.btnPrevious.onEnter = self.onEnterPrevious
 
-        self.widgets.append(self.btnPause)
-        self.widgets.append(self.btnPlay)
-        self.widgets.append(self.btnStop)
-        self.widgets.append(self.btnPrevious)
-        self.widgets.append(self.btnNext)
+        self._addAllWidgets()
 
+        #add a colored 5px indicator bar at the bottom of the OSD to show status
+        self.colorIndicator = SelectLabelBg(
+        height=5,
+            size_hint_y = None,
+            size_hint_x = None,
+            width=Window.width,
+            background_color= globals.colors['black'],
+            id="-1",
+            text=""
+         )
 
-        for wid in self.widgets:
-            self.add_widget(wid)
-            wid.opacity = 0
-
-        self.runtime.opacity = 0
-
-
-        self.add_widget(self.gap0)
-        self.add_widget(self.runtime)
-        self.add_widget(self.gap)
-        self.add_widget(self.volume)
+        self.add_widget(self.colorIndicator)
 
         #self.gap.width = Window.width - 10
-        self.height = 50
+        self.height = 50 + 5
         self.size_hint_y = None
         #self.orientation = 'rl-tb'
 

@@ -23,7 +23,10 @@ class SelectLabelBg(SelectLabel):
         self.back.pos = self.pos
 
     def updateBg(self, widget, value):
-        self.canvas.ask_update()
+        with self.canvas.before:
+            Color(*value)
+            self.back = Rectangle(size=self.size, pos=self.pos)
+
 
     def __init__(self,**kwargs):
         self.background_color = kwargs.pop('background_color', (1,1,1,0.5))
@@ -217,7 +220,7 @@ class SelectListView(Select, ScrollView):
                     self.wId = -1
 
             return True
-            
+
         return False
 
 

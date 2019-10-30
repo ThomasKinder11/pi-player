@@ -26,8 +26,8 @@ class IshaGui(StackLayout):
         self.osd = MenuOSD(id="200")
         self.screens = IshaPiScreens(osd=self.osd)
 
-        self.osd.size_hint_y= None
-        self.osd.height = 50
+        #self.osd.size_hint_y= None
+        #self.osd.height = 50 + 2
 
         self.screens.size_hint_y=None
         self.screens.height = Window.height - self.osd.height
@@ -370,6 +370,7 @@ class Menu(StackLayout, TabbedPanel):
         )
         self.selectableWidgets[40000].osdEnable = self.osdEnable
         self.selectableWidgets[40000].osdDisable = self.osdDisable
+        self.selectableWidgets[40000].osdColorIndicator = self.osd.setColorIndicator
 
         self.selectableWidgets[3].content = self.selectableWidgets[40000]
 
@@ -404,7 +405,13 @@ class Menu(StackLayout, TabbedPanel):
         self.osd.playlistAbort = self.selectableWidgets[40000].abort
         self.osd.playlistPrevious = self.selectableWidgets[40000].previous
         self.osd.playlistNext = self.selectableWidgets[40000].next
+        self.osd.onEnterPause = self.selectableWidgets[40000].pause
+        self.osd.isPaused = self.selectableWidgets[40000].isPaused
+        self.osd.hasNextTrack = self.selectableWidgets[40000].hasNextTrack
+        self.osd.hasPreviousTrack = self.selectableWidgets[40000].hasPreviousTrack
 
         #Setup video/audio view callbacks
         self.selectableWidgets[20000]._onEnterPlayer = self.selectableWidgets[40000].startVirtualSingle
         self.selectableWidgets[30000]._onEnterPlayer = self.selectableWidgets[40000].startVirtualSingle
+
+        #Stup OSD callbacks

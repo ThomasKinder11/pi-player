@@ -21,6 +21,7 @@ class Player():
     screensaver = None
     screenManager = None
     isPlaying = False
+    isPaused = False
     path = None
     runtime = 0
     vlcPl = None
@@ -66,10 +67,24 @@ class Player():
 
         self.onPlayEnd()
 
+    def pause(self):
+        self.isPaused = True
+
+
+
+        if os.name == "posix":
+            cmd = 'echo \'{ "command": ["set_property", "pause", true] }\''
+            cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
+            #os.system('echo \'{ "command": ["set_property", "pause", true] }\' | sudo socat - /home/thomas/tmp/socket')
+            os.system(cmd)
+
+
+
 
     def play(self, path, tSeek):
         logging.info("Player: start playing file... path = {}".format(path))
         self.path = path
+
 
         if not os.path.isfile(path):
             logging.error("Player: file not found")

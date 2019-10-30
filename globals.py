@@ -4,6 +4,15 @@ import os
 import logging
 import json
 
+#Color definition
+colors = {
+    'gray': (0.4,0.4,0.4,1),
+    'darkgray': (0.2,0.2,0.2,1),
+    'red': (0.5,0.0,0.0,0.8),
+    'black' : (0, 0, 0, 1),
+
+}
+
 #Media player instance we can use in all modules
 player = Player()
 
