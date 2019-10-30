@@ -1,18 +1,18 @@
-from isha_pi_kivy import SelectSlider, SelectButton
+from selectable_items import SelectSlider, SelectButton
 
 import kivy
 from kivy.uix.gridlayout import GridLayout
 import logging
 import json
-import globals
+import includes
 
 class MenuSettings(GridLayout):
     widgets = []
     widName = []
     def save_settings(self, args):
-        globals.config['settings']['screensaverTime'] = self.widgets[0].slider.value
-        globals.config['settings']['osdTime'] = self.widgets[1].slider.value
-        globals.writeConfig()
+        includes.config['settings']['screensaverTime'] = self.widgets[0].slider.value
+        includes.config['settings']['osdTime'] = self.widgets[1].slider.value
+        includes.writeConfig()
 
     def __init__(self, **kwargs):
         super(MenuSettings, self).__init__(**kwargs)
@@ -20,8 +20,8 @@ class MenuSettings(GridLayout):
         self.cols = 1
         #self.rows = 2
 
-        screensaverTime = globals.config['settings']['screensaverTime']
-        osdTime = globals.config['settings']['osdTime']
+        screensaverTime = includes.config['settings']['screensaverTime']
+        osdTime = includes.config['settings']['osdTime']
 
         self.widgets.append(SelectSlider(value=screensaverTime, size_hint=(None,None), text="Screensaver time", enaColor=[0.5,0.5,1,1], id="100"))
         self.widgets.append(SelectSlider(value=osdTime, size_hint=(None,None), text="OSD auto turnoff time", enaColor=[0.5,0.5,1,1], id="101"))

@@ -1,8 +1,8 @@
-from select_listview import *
+from selectable_items import *
 import logging
 import os, sys, time
 from subprocess import threading
-from globals import player
+from includes import player
 
 
 class FileList(SelectListView):
@@ -123,9 +123,9 @@ class FileList(SelectListView):
             if self.selectFirst or isSubdir:
                 self.widgets[self.wId].enable(None)
 
-        if globals.db['runtime'] > 0 and self.type == "video":
-             user = {'tSeek':globals.db['runtime'], 'isRerun':True}
-             self.addTopText(globals.db['mediaPath'], user)
+        if includes.db['runtime'] > 0 and self.type == "video":
+             user = {'tSeek':includes.db['runtime'], 'isRerun':True}
+             self.addTopText(includes.db['mediaPath'], user)
 
     def __init__(self, **kwargs):
         if not 'rootdir' in kwargs:

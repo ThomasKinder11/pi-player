@@ -3,7 +3,7 @@ import threading
 import time
 import queue
 import sys
-import globals
+import includes
 
 
 
@@ -24,8 +24,8 @@ class ScreenSaver():
             self.idleCounter = self.idleCounter + self.timeStep
 
             #just limit the counter value
-            if self.idleCounter > globals.config['settings']['screensaverTime'] and self.ena:
-                self.idleCounter = globals.config['settings']['screensaverTime']
+            if self.idleCounter > includes.config['settings']['screensaverTime'] and self.ena:
+                self.idleCounter = includes.config['settings']['screensaverTime']
                 self.screenManager.current = self.blackScreenName
                 self.active = True
 
@@ -55,7 +55,7 @@ class ScreenSaver():
 
                 elif cmd['cmd'] == 'start':
                     self.ena = True
-                    self.idleCounter =  globals.config['settings']['screensaverTime'] + 1
+                    self.idleCounter =  includes.config['settings']['screensaverTime'] + 1
                     self.active = True
                     self.screenManager.current = self.blackScreenName
 

@@ -4,7 +4,7 @@ import os
 from  subprocess import Popen, threading
 from kivy.core.window import Window
 import time
-import globals
+import includes
 from  pymediainfo import MediaInfo
 import vlc
 
@@ -54,18 +54,18 @@ class Player():
             self.runtime = self.runtime + 1
             self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
 
-            if self.runtime % globals.config['settings']['runtimeInterval'] == 0:
-                globals.db['runtime'] = self.runtime
-                globals.db['mediaPath'] = self.path
-                globals.writeDb()
+            if self.runtime % includes.config['settings']['runtimeInterval'] == 0:
+                includes.db['runtime'] = self.runtime
+                includes.db['mediaPath'] = self.path
+                includes.writeDb()
 
         #-------------- End of playback ------------
         self.isPlaying = False
-        globals.db['runtime'] = 0
-        globals.db['mediaPath'] = ""
-        globals.writeDb()
+        includes.db['runtime'] = 0
+        includes.db['mediaPath'] = ""
+        includes.writeDb()
 
-        self.onPlayEnd()
+        self.onPlayEnd(None)
 
     def pause(self):
         self.isPaused = True
@@ -74,7 +74,7 @@ class Player():
 
         if os.name == "posix":
             cmd = 'echo \'{ "command": ["set_property", "pause", true] }\''
-            cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
+            cmd = cmd + "| sudo socat - " + includes.config[os.name]['tmpdir'] + "/socket"
             #os.system('echo \'{ "command": ["set_property", "pause", true] }\' | sudo socat - /home/thomas/tmp/socket')
             os.system(cmd)
 
@@ -90,8 +90,8 @@ class Player():
             logging.error("Player: file not found")
             return
 
-        videoFormats =  tuple(globals.config[os.name]['video']['types'].split(','))
-        audioFormats = tuple(globals.config[os.name]['audio']['types'].split(','))
+        videoFormats =  tuple(includes.config[os.name]['video']['types'].split(','))
+        audioFormats = tuple(includes.config[os.name]['audio']['types'].split(','))
 
         logging.debug("Player: videoFormats = {} / audioFormats = {}".format(videoFormats, audioFormats))
         mode = "nothing"
@@ -128,7 +128,7 @@ class Player():
                             #"--really-quiet",
                             #"--no-osc",
                             "--ontop",
-                            "--input-ipc-server={}".format(os.path.join(globals.config[os.name]['tmpdir'],"socket"))
+                            "--input-ipc-server={}".format(os.path.join(includes.config[os.name]['tmpdir'],"socket"))
 
                             ])
 
@@ -150,7 +150,7 @@ class Player():
 #"--really-quiet",
 #"--no-osc",
 
-# "--input-ipc-server={}".format(os.path.join(globals.config[os.name]['tmpdir'], "ishapiSocket")
+# "--input-ipc-server={}".format(os.path.join(includes.config[os.name]['tmpdir'], "ishapiSocket")
     def killPlayer(self):
 
         if self.process:

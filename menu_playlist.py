@@ -1,11 +1,11 @@
-import globals
+import includes
 from kivy.app import App
 import kivy
 from kivy.utils import get_color_from_hex as hexColor
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
-from select_listview import *
+from selectable_items import *
 from menu_video import *
 from kivy.core.window import Window
 from kivy.graphics import Rectangle, Color, Line
@@ -52,13 +52,13 @@ class MenuPlaylist(StackLayout, Select):
         return self.hasPrevious
 
     def isPaused(self):
-        return not globals.player.isPlaying
+        return not includes.player.isPlaying
 
     def isPlaying(self):
-        return globals.player.isPlaying
+        return includes.player.isPlaying
 
     def pause(self, args):
-        globals.player.pause(args)
+        includes.player.pause(args)
 
     def enable(self, args):#down
         if self.mode == self._FILE_LIST  and len(self.fileList.widgets) > 0:
@@ -168,7 +168,7 @@ class MenuPlaylist(StackLayout, Select):
 
 
     def updateJsonFiles(self, text):
-        path = os.path.join(globals.config[os.name]['playlist']['rootdir'], text)
+        path = os.path.join(includes.config[os.name]['playlist']['rootdir'], text)
 
         if os.path.isdir(path):
             return
@@ -381,18 +381,18 @@ class MenuPlaylist(StackLayout, Select):
             else:
                 tSeek = 0
 
-            globals.player.play(playlist[item]['path'], tSeek)
+            includes.player.play(playlist[item]['path'], tSeek)
 
             ret = self._waitForCmd('event', 'end') #blocks until  we got signal that playback is finished
             if 'abort' in ret:
-                if globals.player.process:
-                    globals.player.process.kill()
+                if includes.player.process:
+                    includes.player.process.kill()
                 logging.info("Abort/ during playback...")
                 return
             else:
                 stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart, False)
-                if globals.player.process:
-                    globals.player.process.kill()
+                if includes.player.process:
+                    includes.player.process.kill()
 
                 logging.info("Next/Previous during playback...")
 
@@ -461,13 +461,13 @@ class MenuPlaylist(StackLayout, Select):
 
 
 
-            globals.screenSaver.disable()
+            includes.screenSaver.disable()
 
             self._playListControl(playlist, plistStart, skipFirst, cmd['mode'])
 
 
             self.osdDisable(None)
-            globals.screenSaver.start(None)
+            includes.screenSaver.start(None)
             #self.screenmanager.current="main_menu"
 
 
@@ -531,7 +531,7 @@ class MenuPlaylist(StackLayout, Select):
 
         logging.debug("PlayList_Enter: enter callback executed...")
         #Do not execute this if we do not wait to recive a command
-        # if globals.player.isPlaying:
+        # if includes.player.isPlaying:
         #     return
 
         self.ctrlQueue.put(
@@ -602,12 +602,12 @@ class MenuPlaylist(StackLayout, Select):
 
         self.fileList = FileList(
             id=str(int(self.id)+1),
-            rootdir=globals.config[os.name]['playlist']['rootdir'],
+            rootdir=includes.config[os.name]['playlist']['rootdir'],
             enaColor=enaColor0,
             bar_width=10,
             size_hint_x=None,
             width=columnWidth0,
-            supportedTypes=globals.config[os.name]['playlist']['types'],
+            supportedTypes=includes.config[os.name]['playlist']['types'],
             screenmanager=self.screenmanager,
             fillerColor=headerColor0,
             showDirs=False,

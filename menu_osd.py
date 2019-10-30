@@ -1,7 +1,6 @@
-from isha_pi_kivy import *
-from select_listview import *
+from selectable_items import *
 import logging
-import globals
+import includes
 from volume_widget import VolumeIndicator
 import queue
 import threading
@@ -41,9 +40,9 @@ class MenuOSD(StackLayout, Select):
 
     def setColorIndicator(self, color):
         logging.debug("setColorIndicator: called function....")
-        if color in globals.colors:
+        if color in includes.colors:
             logging.debug("setColorIndicator: color is in color palet....")
-            self.colorIndicator.background_color = globals.colors[color]
+            self.colorIndicator.background_color = includes.colors[color]
             return True
 
         return False
@@ -57,7 +56,7 @@ class MenuOSD(StackLayout, Select):
         if os.name == "posix":
             logging.error("MenuOSD: for linux onEnterPlay")
             cmd = 'echo \'{ "command": ["set_property", "pause", false] }\''
-            cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
+            cmd = cmd + "| sudo socat - " + includes.config[os.name]['tmpdir'] + "/socket"
             #logging.error("MenuOSD: for linux onEnterPlay cmd = {}".format(cmd))
             ret = os.system(cmd)
             logging.error("MenuOSD: executed os.system call... {}".format(ret))
@@ -82,14 +81,14 @@ class MenuOSD(StackLayout, Select):
 
         self.playlistAbort(None)
 
-        if globals.player.process != None:
-            globals.player.process.kill()
+        if includes.player.process != None:
+            includes.player.process.kill()
 
 
         if os.name == "posix":
             #os.system('echo \'{ "command": ["quit"] }\' | sudo socat - ~/tmp/socket')
             cmd = 'echo \'{ "command": ["quit"] }\''
-            cmd = cmd + "| sudo socat - " + globals.config[os.name]['tmpdir'] + "/socket"
+            cmd = cmd + "| sudo socat - " + includes.config[os.name]['tmpdir'] + "/socket"
             os.system(cmd)
             # os.system('echo \'{ "command": ["quit"] }\' | sudo socat - ~/tmp/socket')
 
@@ -103,8 +102,8 @@ class MenuOSD(StackLayout, Select):
             self.idleCounter = self.idleCounter + self.timeStep
 
             #just limit the counter value
-            if self.idleCounter > globals.config['settings']['osdTime']:
-                self.idleCounter = globals.config['settings']['osdTime']
+            if self.idleCounter > includes.config['settings']['osdTime']:
+                self.idleCounter = includes.config['settings']['osdTime']
                 self.wId = 0
                 for wid in self.widgets:
                     wid.opacity = 0
@@ -334,7 +333,7 @@ class MenuOSD(StackLayout, Select):
             size_hint_y = None,
             size_hint_x = None,
             width=Window.width,
-            background_color= globals.colors['black'],
+            background_color= includes.colors['black'],
             id="-1",
             text=""
          )

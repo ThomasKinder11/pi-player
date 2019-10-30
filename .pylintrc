@@ -1,0 +1,13 @@
+[MASTER]
+
+# Set name styling conventions
+class-naming-style=PascalCase
+function-naming-style=camelCase
+class-attribute-naming-style=camelCase
+argument-naming-style=camelCase
+attr-naming-style=camelCase
+variable-naming-style=camelCase
+method-naming-style=camelCase
+
+max-attributes=20
+max-statements=100
