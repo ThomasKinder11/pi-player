@@ -13,6 +13,23 @@ from  subprocess import Popen, threading
 import queue
 import time
 
+def createPlayListEntry(path, name, id, start):
+    tmp = {
+        int(id):{
+            'path': path,
+            'name': name,
+            'pre' : "",
+            'post' : "",
+            'start' : 0,
+            'end' : 0
+        }
+    }
+    # tmp['path'] = path
+    # tmp['name'] = name
+    # tmp['pre'] = ""
+    # tmp['post'] = ""
+    return tmp
+
 
 class MenuPlaylist(StackLayout, Select):
     _FILE_LIST = 0
@@ -242,6 +259,7 @@ class MenuPlaylist(StackLayout, Select):
                         logging.debug("key value match cmd")
                         return ('match', True)
             else:
+                logging.debug("_waitForCmd: return the received cmd = {}".format(cmd))
                 return ('cmd', cmd)
 
     prevTimestamp = None
@@ -278,25 +296,8 @@ class MenuPlaylist(StackLayout, Select):
 
             return (True, index, plistStart, skipFirst)
 
-        elif 'next' in cmd: #not working properly so work int this TODO ::TK::
+        elif 'next' in cmd: #TODO: do we need to do soemething here?  ::TK::
             pass
-        #     if time.time() - self.prevTimestamp <= 3: #we have 3 seconds to skip to previous
-        #         self.prevTimestamp = time.time()
-        #         doubleClickPrev = True
-        #
-        #     self.prevTimestamp = time.time()
-        #
-        #     if doubleClickPrev:
-        #         doubleClickPrev = False
-        #
-        #         if index >= 1:
-        #                 index = index - 1
-        #         else:
-        #             index = 0
-        #             plistStart = 0
-        #
-        #         plistStart = index
-        #     return (True, index, plistStart, False)
 
         #If nothing happens return original values
         return (False, index, plistStart, False)
@@ -374,22 +375,7 @@ class MenuPlaylist(StackLayout, Select):
 
             if 'post' in playlist[item]:
                 logging.debug("$$ post is defined... post =  {}".format(playlist[item]['post']))
-
-                #
-                # Post: Black screen does not make any sense think about removind this ! TODO: ::TK::
-                #
-                # if 'BLACKSCREEN' ==  playlist[item]['post']: #TODO: This does not make any sense isnt it? after an element we do not need black screen really....
-                #     #self.screenmanager.current = "blackscreen"
-                #     #logging.debug("$$ Post  black screen ...")
-                #     ret = self._waitForCmd('key', 'enter') #blocks until button has been pressed
-                #     if ret[0] ==  'abort':
-                #         logging.logger("Abort during blackscreen post...")
-                #         return
-                #
-                #     stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart, False)
-                #     if stat:
-                #         continue
-
+                #TODO: do we need to implement post black screen? is that needed?
                 if 'PLAYNEXT' in playlist[item]['post']: #just start processing the next entry of the playlist : NOTICE: the next element should not have BLACKSCRREN define in pre
                     i = i + 1
                     continue
@@ -400,8 +386,7 @@ class MenuPlaylist(StackLayout, Select):
         skipFirst = False
         while True:
             time.sleep(0.25)
-
-
+            logging.error("_processPlaylist: wait for command")
             cmd = self._waitForCmd(None, None)
             if 'cmd' == cmd[0]:
                 cmd = cmd[1]
@@ -414,11 +399,10 @@ class MenuPlaylist(StackLayout, Select):
                 continue
 
             logging.debug("_processPlaylist:received command {}..".format(cmd))
+            self.osdEnable(None)
 
             if cmd['mode'] == "json": #started via file list viewer for PlayList
                 logging.debug("_processPlaylist: mode = json")
-                self.osdEnable(None)
-
                 if self.mode == self._FILE_LIST:
                     if len(self.fileList.children) > 0:
                         self.pListStartId = 0
@@ -434,6 +418,14 @@ class MenuPlaylist(StackLayout, Select):
 
                 playlist = self.pList
                 plistStart = self.pListStartId
+            elif cmd['mode'] == "virtual": #this is a virtual playlist not based on an actualy json file
+                if 'playlist' in cmd:
+                    logging.debug("ßßßßßßßßßßßßß: start virtual file...")
+                    playlist = cmd['playlist']
+                    plistStart = 0
+
+                    logging.debug("ßßßßßßßßßßßßß: playlist = {}".format(playlist))
+
 
 
             globals.screenSaver.disable()
@@ -471,7 +463,6 @@ class MenuPlaylist(StackLayout, Select):
             }
         })
 
-
     def onPlayerEnd(self, args):
         self.ctrlQueue.put(
         {
@@ -480,6 +471,24 @@ class MenuPlaylist(StackLayout, Select):
             }
         })
 
+    def startVirtualSingle(self,args):
+        path = args.pop('path', None)
+        start = args.pop('start', 0)
+
+        if path == None:
+            logging.error("startVirtualSingle: path was not specified in arguments!...")
+            return
+
+        tmp = createPlayListEntry(path, "VPL", 0, 0)
+
+        cmd = {
+            'cmd':{
+                'playlist': tmp,
+                'mode': 'virtual'
+            }
+        }
+
+        self.ctrlQueue.put(cmd)
 
     def enter(self, args):
         if args != None:

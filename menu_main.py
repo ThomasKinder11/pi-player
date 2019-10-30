@@ -195,16 +195,18 @@ class Menu(StackLayout, TabbedPanel):
 
         logging.info("_onEnterPlayer: start playing the file...")
         #self.screenSaver.disable()
-        self.root.current = "blackscreen"
+        #self.root.current = "blackscreen"
 
-        self.lastId = self.curId #Todo: check if still needed ::TK::
-        self.curId = 200
-        self.nextId = 200 #Todo: check if still needed
+        #self.lastId = self.curId #Todo: check if still needed ::TK::
+        #self.curId = 200
+        #self.nextId = 200 #Todo: check if still needed
 
 
-        path = args.pop("path", None)
-        tSeek = args.pop("tSeek", 0)
-        player.play(path, tSeek)
+        # path = args.pop("path", None)
+        # tSeek = args.pop("tSeek", 0)
+
+        self.menu_playlist.startVirtualSingle(args)
+        #player.play(path, tSeek)
 
 
     """
@@ -343,7 +345,7 @@ class Menu(StackLayout, TabbedPanel):
             selectFirst=False,
             type="video"
         )
-        self.selectableWidgets[20000]._onEnterPlayer = self._onEnterPlayer
+        # self.selectableWidgets[20000]._onEnterPlayer = self._onEnterPlayer
         self.selectableWidgets[1].content = self.selectableWidgets[20000]
 
         #Setup Audio menu
@@ -402,3 +404,7 @@ class Menu(StackLayout, TabbedPanel):
         self.osd.playlistAbort = self.selectableWidgets[40000].abort
         self.osd.playlistPrevious = self.selectableWidgets[40000].previous
         self.osd.playlistNext = self.selectableWidgets[40000].next
+
+        #Setup video/audio view callbacks
+        self.selectableWidgets[20000]._onEnterPlayer = self.selectableWidgets[40000].startVirtualSingle
+        self.selectableWidgets[30000]._onEnterPlayer = self.selectableWidgets[40000].startVirtualSingle

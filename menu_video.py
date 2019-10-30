@@ -66,6 +66,7 @@ class FileList(SelectListView):
 
         elif os.path.isfile(path): #We hit enter on a video file so play it
             #self.running = True
+            logging.error("ßßßßßßßßßßßßßßßßßßßßßßßß: we pressed on a video file....")
             if args == None:
                 args = {}
 
@@ -75,7 +76,7 @@ class FileList(SelectListView):
                 for item in self.widgets[self.wId].user:
                     args[item]=self.widgets[self.wId].user[item]
 
-            self._onEnterPlayer(args) #This should call the global player instance by itself
+            self._onEnterPlayer(args) #TODO: ::TK:: This should call the global player instance by itself
 
             if 'isRerun' in args:
                 if args['isRerun']:
