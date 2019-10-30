@@ -67,6 +67,13 @@ class Player():
 
         self.onPlayEnd(None)
 
+    def stop(self):
+        if os.name == "posix":
+            if self.process.poll():
+                cmd = 'echo \'{ "command": ["quit"] }\''
+                cmd = cmd + "| sudo socat - " + includes.config[os.name]['tmpdir'] + "/socket"
+                os.system(cmd)
+
     def pause(self):
         self.isPaused = True
 

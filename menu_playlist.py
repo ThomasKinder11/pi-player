@@ -472,6 +472,7 @@ class MenuPlaylist(StackLayout, Select):
 
 
     def abort(self, args):
+        includes.player.stop()
         self.ctrlQueue.put(
         {
             'cmd':{

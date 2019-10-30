@@ -1,18 +1,32 @@
-from selectable_items import *
-import logging
-import includes
-from volume_widget import VolumeIndicator
+'''
+This is the implementation of the media players on screen display
+to control the playback of the media files. The main object
+is the MenuOSD() class which can be added to Kivy gui applications.
+
+This creates a 50px high button bar, under under it a 5px high
+border which color can be changed to display different states of
+the software, e.g. the color could be changed to differentiate
+between screen saver black screen and waiting for user inout during
+playlist processing.
+'''
 import queue
 import threading
 import time
 import os
-
+import logging
 
 from kivy.uix.stacklayout import StackLayout
+from kivy.uix.label import Label
 from kivy.app import App
 from kivy.core.window import Window
 
+
+from selectable_items import Select, SelectButton, SelectLabel, SelectLabelBg
+import includes
+from volume_widget import VolumeIndicator
+
 class MenuOSD(StackLayout, Select):
+    '''On Screen Display (fixed height 50px (button height) + 5px (status border))'''
     btnPrevious = None
     btnNext = None
     btnPlay = None
@@ -32,13 +46,28 @@ class MenuOSD(StackLayout, Select):
     enableDone = False
     widgets = []
     isSelectable = True
-    onPlaylistEnter = None
-    playlistAbort = None
-    playlistPrevious = None
-    playlistNext = None
+
+
+    #Empty functions for callbacks which need to be setup
+    def onPlaylistEnter(self, args):
+        '''callback that is executed when we press enter button while osd is active'''
+
+
+    def playlistAbort(self, args):
+        '''callback to stop current execution of media playback'''
+
+
+    def playlistPrevious(self, args):
+        '''callback to swicht to previous media file in playlist mode'''
+
+
+    def playlistNext(self, args):
+        '''callback to swicht to next media file in playlist mode'''
+
 
 
     def setColorIndicator(self, color):
+        '''Set the color of the 5px high indicator border at the bottom of OSD'''
         logging.debug("setColorIndicator: called function....")
         if color in includes.colors:
             logging.debug("setColorIndicator: color is in color palet....")
@@ -47,11 +76,10 @@ class MenuOSD(StackLayout, Select):
 
         return False
 
-    """
-    These are the callback functions which are triggered when a button on the OSD
-    is activated. Here we can implemente the player control.
-    """
+
     def onEnterPlay(self):
+        '''These are the callback functions which are triggered when play button is pressed'''
+
         logging.error("MenuOSD: onEnterPlay")
         if os.name == "posix":
             logging.error("MenuOSD: for linux onEnterPlay")
@@ -62,36 +90,21 @@ class MenuOSD(StackLayout, Select):
             logging.error("MenuOSD: executed os.system call... {}".format(ret))
 
     def onEnterPause(self):
-        #Todo: only execute this when the OSD is visible ! ::TK:: this is for all button callbacks in this class
-        logging.error("MenuOSD: onEnterPause needs to be assigned to playlist callback!")
-        #TODO: we need to call the player stop function here, but this
-        # should be done only via the playlist controller.
+        '''Callback function which needs to be set by parent to execute pause fct of player'''
+        logging.debug("MenuOSD: onEnterPause needs to be assigned to playlist callback!")
 
     def onEnterPrevious(self):
-        logging.error("MenuOSD: onEnterPrevious")
+        '''called when previous button on OSD is pressed'''
         self.playlistPrevious(None)
 
     def onEnterNext(self):
-        logging.error("MenuOSD: onEnterNext")
+        '''called when next button on OSD is pressed'''
         self.playlistNext(None)
 
     def onEnterStop(self):
-        logging.error("MenuOSD: onEnterStop")
+        '''This function is executed when we hit stop'''
         self.disable(None)
-
         self.playlistAbort(None)
-
-        if includes.player.process != None:
-            includes.player.process.kill()
-
-
-        if os.name == "posix":
-            #os.system('echo \'{ "command": ["quit"] }\' | sudo socat - ~/tmp/socket')
-            cmd = 'echo \'{ "command": ["quit"] }\''
-            cmd = cmd + "| sudo socat - " + includes.config[os.name]['tmpdir'] + "/socket"
-            os.system(cmd)
-            # os.system('echo \'{ "command": ["quit"] }\' | sudo socat - ~/tmp/socket')
-
 
     def _worker(self):
         logging.debug("MenuOSD: thread called...")
@@ -138,7 +151,7 @@ class MenuOSD(StackLayout, Select):
                     self.isVisible = False
 
     def left(self, args):
-        logging.debug("MenuOSD: left function called [wid = {}]".format(self.wId))
+        '''Logic to select next OSD element to the left from currently selected item'''
         self.enable(None)
 
         if self.wId <= len(self.widgets) and self.wId > 1:
@@ -150,7 +163,7 @@ class MenuOSD(StackLayout, Select):
                 self.wId = self.wId - 1
 
     def right(self, args):
-        logging.debug("MenuOSD: right function called [wid = {}]".format(self.wId))
+        '''Logic to select next OSD element to the right from currently selected item'''
         self.enable(None)
 
         if self.wId < len(self.widgets):
@@ -173,17 +186,18 @@ class MenuOSD(StackLayout, Select):
 
 
     def enter(self, args):
-        #If osd is not active send enter to playlist module instead of buttons
+        '''When enter is pressed it will make OSD visible or activate button functions'''
         if self.isVisible:
             self.widgets[self.wId-1].onEnter()
         else:
-            if self.onPlaylistEnter != None:
+            if self.onPlaylistEnter is not None:
                 self.onPlaylistEnter(None)
 
 
 
     def changeSize(self, widget, value):
-        winCenter= int(Window.width / 2)
+        '''resize the child attributes if widht or height changes'''
+        winCenter = int(Window.width / 2)
         winBoundaryLeft = winCenter - int(self.runtime.width / 2)
         winBoundaryRight = winCenter + int(self.runtime.width / 2)
 
@@ -191,16 +205,19 @@ class MenuOSD(StackLayout, Select):
         self.gap.width = Window.width-winBoundaryRight-60
 
     def volumeUp(self, args):
+        '''Increase the audio volume'''
         self.volume.volumeUp()
 
     def volumeDown(self, args):
+        '''Decrease the audio volume'''
         self.volume.volumeDown()
 
     def muteToggle(self, args):
+        '''Mute/unmute the audio'''
         self.volume.muteToggle()
 
     def _addAllWidgets(self):
-
+        '''Add all widgets to the OSD and hide them with opacity = 0'''
         self.widgets.append(self.btnPause)
         self.widgets.append(self.btnPlay)
         self.widgets.append(self.btnStop)
@@ -221,7 +238,7 @@ class MenuOSD(StackLayout, Select):
     def __init__(self, **kwargs):
         self.id = kwargs.pop('id', None)
 
-        if self.id == None:
+        if self.id is None:
             logging.error("MenuOSD: id not defined...")
             return
 
@@ -230,7 +247,7 @@ class MenuOSD(StackLayout, Select):
         super(MenuOSD, self).__init__()
 
         self.btnPrevious = SelectButton(
-            imgPath= "./resources/img/previous",
+            imgPath="./resources/img/previous",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -239,7 +256,7 @@ class MenuOSD(StackLayout, Select):
         )
 
         self.btnNext = SelectButton(
-            imgPath= "./resources/img/next",
+            imgPath="./resources/img/next",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -248,7 +265,7 @@ class MenuOSD(StackLayout, Select):
         )
 
         self.btnPlay = SelectButton(
-            imgPath= "./resources/img/play",
+            imgPath="./resources/img/play",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -259,7 +276,7 @@ class MenuOSD(StackLayout, Select):
 
 
         self.btnPause = SelectButton(
-            imgPath= "./resources/img/pause",
+            imgPath="./resources/img/pause",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -268,7 +285,7 @@ class MenuOSD(StackLayout, Select):
         )
 
         self.btnStop = SelectButton(
-            imgPath= "./resources/img/stop",
+            imgPath="./resources/img/stop",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -286,7 +303,7 @@ class MenuOSD(StackLayout, Select):
             text="00:00:23"
         )
 
-        winCenter= int(Window.width / 2)
+        winCenter = int(Window.width / 2)
         winBoundaryLeft = winCenter - int(self.runtime.width / 2)
         winBoundaryRight = winCenter + int(self.runtime.width / 2)
 
@@ -314,8 +331,8 @@ class MenuOSD(StackLayout, Select):
             width=50,
             height=50,
             radius=15,
-            bgColor=(0.4,0.4,0.4,1),
-            color=(0, 0, 1, 0.5),
+            bgColor=includes.colors['gray'],
+            color=includes.colors['blue'],
             value=0
         )
 
@@ -329,34 +346,31 @@ class MenuOSD(StackLayout, Select):
 
         #add a colored 5px indicator bar at the bottom of the OSD to show status
         self.colorIndicator = SelectLabelBg(
-        height=5,
-            size_hint_y = None,
-            size_hint_x = None,
+            height=5,
+            size_hint_y=None,
+            size_hint_x=None,
             width=Window.width,
-            background_color= includes.colors['black'],
+            background_color=includes.colors['black'],
             id="-1",
             text=""
-         )
+        )
 
         self.add_widget(self.colorIndicator)
 
-        #self.gap.width = Window.width - 10
         self.height = 50 + 5
         self.size_hint_y = None
-        #self.orientation = 'rl-tb'
 
         self.bind(size=self.changeSize)
         self.isVisible = False
 
-        self.ctrlQueue= queue.Queue()
+        #Thread and queue handling
+        self.ctrlQueue = queue.Queue()
         self.thread = threading.Thread(target=self._worker)
         self.thread.setDaemon(True)
         self.thread.start()
 
-
-
-
 class OSDMain(App):
+    '''This is just a Kivy app for testing the OSD on its own - do not rely on this!'''
     def build(self):
         return MenuOSD(id="0")
 
