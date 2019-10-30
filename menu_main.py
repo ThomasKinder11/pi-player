@@ -380,7 +380,7 @@ class Menu(StackLayout, TabbedPanel):
         self._findSelectableChildren(self.selectableWidgets[1].content.children)
         self.selectableWidgets[200] = self.osd
 
-        self.controlTree = control_tree.controlTree
+        self.controlTree = control_tree.CONTROL_TREE
         self.curId = 4 # set start id
 
         try:

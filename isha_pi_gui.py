@@ -1,17 +1,12 @@
-from isha_pi_kivy import *
-from menu_main import Menu, IshaPiScreens, IshaGui
-from kivy.config import Config
-
+'''This is the main loop of the IshaPi player application'''
 from kivy.app import App
-from kivy.core.window import Window
+from menu_main import IshaGui
+
 
 class Main(App):
+    '''This is the main class for the IshaPi Player'''
     def build(self):
-        # tmp = IshaPiScreens()
-        # tmp.current = "main_menu"
-
-        tmp = IshaGui()
-        return tmp
+        return IshaGui()
 
 if __name__ == "__main__":
     Main().run()
