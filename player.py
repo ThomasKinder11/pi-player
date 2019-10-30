@@ -136,6 +136,21 @@ class Player():
 #"--no-osc",
 
 # "--input-ipc-server={}".format(os.path.join(globals.config[os.name]['tmpdir'], "ishapiSocket")
+    def killPlayer(self):
+
+        if self.process:
+            self.process.kill()
+
+        #wait for process to finish
+        while self.process.poll() == None:
+            time.sleep(0.25)
+
+        #reset the runtime value
+        self.runtime = 0
+        self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
+
+
+
 
 
     def __init__(self):#, screenManager, screenSaver):

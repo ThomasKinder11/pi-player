@@ -244,8 +244,68 @@ class MenuPlaylist(StackLayout, Select):
             else:
                 return ('cmd', cmd)
 
+    prevTimestamp = None
+    def _previousNextContrl(self, mode, cmd, index, plistStart, isPre):
+        doubleClickPrev = False
+        skipFirst = False
+
+        if 'previous' in cmd:
+            logging.error("ßßßßßßßßßßßßßß: time = {} / previos = {} / div = {}".format(time.time(), self.prevTimestamp, time.time() - self.prevTimestamp))
+            if time.time() - self.prevTimestamp <= 3: #we have 3 seconds to skip to previous
+                self.prevTimestamp = time.time()
+                doubleClickPrev = True
+                logging.error("ßßßßßßßßßßßßßßßßßßßßßßßßßßß: double previous")
+
+            self.prevTimestamp = time.time()
+
+            if isPre or doubleClickPrev: #if media files has been playing for more then 10s
+                doubleClickPrev = False
+
+                if index >= 1:
+                        index = index - 1
+                        self.files.disable(None)
+                else:
+                    index = 0
+                    plistStart = 0
+
+                plistStart = index #Todo: Is this correct ? ::TK:: it should start on indes isnt it?
+
+            #else: return value as they are nothing to do
+
+            if mode == "json":
+
+                skipFirst = True
+
+            return (True, index, plistStart, skipFirst)
+
+        elif 'next' in cmd: #not working properly so work int this TODO ::TK::
+            pass
+        #     if time.time() - self.prevTimestamp <= 3: #we have 3 seconds to skip to previous
+        #         self.prevTimestamp = time.time()
+        #         doubleClickPrev = True
+        #
+        #     self.prevTimestamp = time.time()
+        #
+        #     if doubleClickPrev:
+        #         doubleClickPrev = False
+        #
+        #         if index >= 1:
+        #                 index = index - 1
+        #         else:
+        #             index = 0
+        #             plistStart = 0
+        #
+        #         plistStart = index
+        #     return (True, index, plistStart, False)
+
+        #If nothing happens return original values
+        return (False, index, plistStart, False)
+
+
     def _playListControl(self, playlist, plistStart, skipFirst, mode):
         i = 0
+        skipPre = False
+
         while i < len(playlist):
             item = list(playlist.keys())[i]
             logging.info("############## item = {} / i = {}".format(item, i))
@@ -259,35 +319,26 @@ class MenuPlaylist(StackLayout, Select):
                 if mode == "json":
                     self.files.enable(None)
 
-            skipFirst = False
+            if 'pre' in playlist[item] and skipPre == False:
+                logging.debug("ßßßßßßßßßßß Pre is defined = {}".format(playlist[item]['pre']))
 
-            if 'pre' in playlist[item]:
                 if 'BLACKSCREEN' ==  playlist[item]['pre']:
                     logging.debug("pre black wait..")
                     ret = self._waitForCmd('key', 'enter') #blocks until button has been pressed #TODO this is not working
                     logging.debug("pre black after wait. ret value = {}".format(ret))
+
                     if 'abort' in ret:
                         logging.info("Abort in pre black screen...")
                         return
 
-                    elif 'previous' in ret:
-                        if i >= 1:
-                            i = i - 1
-                            plistStart = plistStart - 1
-                        else:
-                            i = 0
-                            plistStart = 0
+                    logging.info("New handler function prev /next...")
 
-                        if mode == "json":
-                            self.files.disable(None)
-                            skipFirst = True
-
+                    stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart, True)
+                    if stat == True:
+                        logging.info("ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß Stat was true...")
+                        skipPre = True
                         continue
-
-                    elif 'next' in ret:
-                        i = i + 1
-                        continue
-
+            skipPre = False
             #
             # Play the mdia file with the player
             #
@@ -299,21 +350,47 @@ class MenuPlaylist(StackLayout, Select):
             globals.player.play(playlist[item]['path'], tSeek)
 
             ret = self._waitForCmd('event', 'end') #blocks until  we got signal that playback is finished
-            if ret[0] ==  'abort':
-                logging.info("Abort during playback...")
+            if 'abort' in ret:
+                if globals.player.process:
+                    globals.player.process.kill()
+                logging.info("Abort/ during playback...")
                 return
+            else:
+                stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart, False)
+                if globals.player.process:
+                    globals.player.process.kill()
+
+                logging.info("Next/Previous during playback...")
+
+                if stat == True:
+                    logging.info("Stat was true...")
+                    skipPre = True
+                    continue
+
+            # stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart)
+            # if stat:
+            #     continue
 
 
             if 'post' in playlist[item]:
                 logging.debug("$$ post is defined... post =  {}".format(playlist[item]['post']))
-                if 'BLACKSCREEN' ==  playlist[item]['post']: #TODO: This does not make any sense isnt it? after an element we do not need black screen really....
-                    #self.screenmanager.current = "blackscreen"
-                    #logging.debug("$$ Post  black screen ...")
-                    ret = self._waitForCmd('key', 'enter') #blocks until button has been pressed
-                    if ret[0] ==  'abort':
-                        logging.logger("Abort during blackscreen post...")
-                        return
-                elif 'PLAYNEXT' in playlist[item]['post']: #just start processing the next entry of the playlist : NOTICE: the next element should not have BLACKSCRREN define in pre
+
+                #
+                # Post: Black screen does not make any sense think about removind this ! TODO: ::TK::
+                #
+                # if 'BLACKSCREEN' ==  playlist[item]['post']: #TODO: This does not make any sense isnt it? after an element we do not need black screen really....
+                #     #self.screenmanager.current = "blackscreen"
+                #     #logging.debug("$$ Post  black screen ...")
+                #     ret = self._waitForCmd('key', 'enter') #blocks until button has been pressed
+                #     if ret[0] ==  'abort':
+                #         logging.logger("Abort during blackscreen post...")
+                #         return
+                #
+                #     stat, i, plistStart, skipFirst =  self._previousNextContrl(mode, ret, i, plistStart, False)
+                #     if stat:
+                #         continue
+
+                if 'PLAYNEXT' in playlist[item]['post']: #just start processing the next entry of the playlist : NOTICE: the next element should not have BLACKSCRREN define in pre
                     i = i + 1
                     continue
 
@@ -523,3 +600,6 @@ class MenuPlaylist(StackLayout, Select):
         self.workThread.setDaemon(True)
         self.workThread.start()
         self.ctrlQueue = queue.Queue()
+
+
+        self.prevTimestamp = time.time()
