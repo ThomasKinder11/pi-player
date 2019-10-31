@@ -11,6 +11,7 @@ defined = True
 colors = {
     'gray': (0.4,0.4,0.4,1),
     'darkgray': (0.2,0.2,0.2,1),
+    'darkestgray': (0.1,0.1,0.1,1),
     'red': (0.5,0.0,0.0,0.8),
     'lightred': (0.8,0.2,0.2,0.3),
     'black' : (0, 0, 0, 1),
@@ -25,12 +26,13 @@ styles = {
     'enaColor0': colors['blue'],
     'enaColor1': colors['orange'],
     'warning': colors['lightred'],
-    'defaultFiller': colors['lightblue']
+    'defaultFiller': colors['lightblue'],
+    'itemColor0': colors['darkgray'],
+    'itemColor1': colors['darkestgray'],
 }
 
 #Media player instance we can use in all modules
 player = Player()
-
 
 #configuration file
 syspath = os.path.dirname(os.path.realpath(__file__))

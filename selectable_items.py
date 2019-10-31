@@ -1,26 +1,17 @@
-import os, sys
+import os
 import json
 import logging
 
-from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
-
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.uix.slider import Slider
-from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.uix.scrollview import ScrollView
-
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.stacklayout import StackLayout
-
-from kivy.graphics import Rectangle, Color, Line
-from kivy.uix.image import Image
+from kivy.graphics import Rectangle, Color
 from kivy.properties import ObjectProperty
 
 import includes
@@ -36,6 +27,7 @@ class Select():
 
     def enable(self, args):
         logging.warning("I AM NOT IMPLEMENTED self = {}".format(self))
+
     def disable(self, args):
         logging.warning("I AM NOT IMPLEMENTED self = {}".format(self))
 
@@ -56,7 +48,6 @@ class SelectableTabbedPanelHeader(Select, TabbedPanelHeader):
         self.enaColor = kwargs.pop('enaColor', None)
 
         super(SelectableTabbedPanelHeader, self).__init__(**kwargs)
-
 
         if not self.enaColor:
             self.enaColor = self.background_color
@@ -115,9 +106,10 @@ class SelectButton(Button, Select):
 
         if self.btnType == "text":
             self.color = self.defaultColor
+
         elif self.btnType == "image":
             self.background_normal = self.imgPath + ".png"
-        #self.background_color = (0,0,0.5,1)
+
         return True
 
     def __init__(self, **kwargs):
@@ -179,24 +171,28 @@ class SelectSlider(Select, GridLayout):
 
         #remove all kwargs argment which shall not be passed to child
         self.id = kwargs.pop('id', None)
-        if not id:
+        if not self.id:
             print("SelectSlider::init::id is not defined")
-            return -1
+            return
 
         self.enaColor = kwargs.pop('enaColor', None)
-        if not id:
+        if not self.enaColor:
             print("SelectSlider::init::enaColor is not defined")
-            return -1
+            return
 
         self.value = kwargs.pop('value', None)
-
-
         text = kwargs.pop('text', "!!!Empty Name in slider!!!")
 
         #call super only after additional arguments have been popped
         super(SelectSlider, self).__init__(**kwargs)
 
-        self.label = Label(text=text, size_hint=(None, None), width=200, height=50)
+        self.label = Label(
+            text=text,
+            size_hint=(None, None),
+            width=200,
+            height=50
+        )
+
         self.slider = Slider(
             min=-0,
             max=20,
@@ -224,7 +220,7 @@ class SelectSlider(Select, GridLayout):
 class SelectLabelBg(SelectLabel):
     background_color = ObjectProperty(includes.styles['defaultBg'])
 
-    def size_change(self, a, b):
+    def size_change(self, widget, value):
         self.back.size = (self.width, self.height)
         self.back.pos = self.pos
 
@@ -252,7 +248,7 @@ class SelectLabelBg(SelectLabel):
 class ImageBg(Widget):
     source = None
 
-    def size_change(self, a, b):
+    def size_change(self, widget, value):
         self.back.size = self.size
         self.back.pos = self.pos
         self.img.size = self.size
@@ -278,7 +274,7 @@ class ImageBg(Widget):
 
 class SelectListViewItem(StackLayout, Select):
     background_color = ObjectProperty(includes.styles['defaultBg'])
-    fillerColor=ObjectProperty(includes.styles['defaultFiller'])
+    fillerColor = ObjectProperty(includes.styles['defaultFiller'])
 
     image = None
     label = None
@@ -312,17 +308,17 @@ class SelectListViewItem(StackLayout, Select):
 
         #set the layout hight to fit the image height
         self.height = self.imgHeight + 2*self.padding_top
-        self.size_hint_y= None
+        self.size_hint_y = None
 
         super(SelectListViewItem, self).__init__(**kwargs)
 
         self.filler = SelectLabelBg(
-            size_hint_x = None,
+            size_hint_x=None,
             width=10,
             size_hint_y=None,
             height=self.imgHeight,
             id="-1",
-            text_size = (0, 0),
+            text_size=(0, 0),
             background_color=self.fillerColor
         )
         self.add_widget(self.filler)
@@ -331,17 +327,15 @@ class SelectListViewItem(StackLayout, Select):
             self.image = ImageBg(
                 background_color=self.background_color,
                 width=self.imgWidth,
-                size_hint= (None, None),
+                size_hint=(None, None),
                 height=self.imgHeight,
                 source=self.source
             )
             self.add_widget(self.image)
 
-
-
         labelWidth = self.widthParent-self.imgWidth-self.filler.width
         self.label = SelectLabelBg(
-            background_color = self.background_color,
+            background_color=self.background_color,
             text_size=(labelWidth-20, self.imgHeight),
             enaColor=self.enaColor,
             text=self.text,
@@ -368,7 +362,7 @@ class SelectListView(Select, ScrollView):
     enaColor = ObjectProperty(includes.styles['defaultEnaColor'])
     headerText = None
     header = None
-
+    topTextVisible = None
 
     def enter(self, args):
         logging.info("SelectListView: enter callback triggered")
@@ -386,17 +380,14 @@ class SelectListView(Select, ScrollView):
             self.widgets[self.wId].enable(None)
             self.scroll_to(self.widgets[self.wId])
 
-
-
             if self.wId > 0:
                 self.widgets[self.wId-1].disable(args)
-
 
         return False # never returns true as there nothing we need to do when we come to end of list
 
 
     def disable(self, args):
-        if isinstance(args,dict):
+        if isinstance(args, dict):
             increment = args.pop('inc', True)
             disTop = args.pop('disTop', True)
         else:
@@ -404,8 +395,6 @@ class SelectListView(Select, ScrollView):
             disTop = True
 
         if self.wId >= 1:
-
-
             self.widgets[self.wId].disable(None)
 
             if increment:
@@ -424,7 +413,6 @@ class SelectListView(Select, ScrollView):
                     self.wId = -1
 
             return True
-
         return False
 
 
@@ -439,13 +427,13 @@ class SelectListView(Select, ScrollView):
         self.wId = 0
         self.widgets[self.wId].enable(None)
 
-    """
-    This function can be used to add a widget to the top of the list. For this
-    we firts have to remove all the children, add the new entry and then re-add
-    the old children.
-    """
 
     def addTopText(self, text, user, bgColor):
+        """
+        This function can be used to add a widget to the top of the list. For this
+        we firts have to remove all the children, add the new entry and then re-add
+        the old children.
+        """
         self.layout.clear_widgets()
 
         self.widgets.insert(0, SelectListViewItem(
@@ -459,7 +447,7 @@ class SelectListView(Select, ScrollView):
             widthParent=self.width,
             fillerColor=self.fillerColor,
             isDir=False,
-            user = user
+            user=user
         ))
 
         for wid in self.widgets:
@@ -467,10 +455,6 @@ class SelectListView(Select, ScrollView):
 
         self.topTextVisible = True
 
-
-        #self.wId = self.wId + 1
-        #if self.wId == 0:
-        #    self.wId = 1
         for wid in self.widgets:
             wid.disable(None)
 
@@ -479,23 +463,22 @@ class SelectListView(Select, ScrollView):
 
 
     def add(self, text, isDir):
-        id = str(len(self.widgets) + self.startId)
+        tmpId = str(len(self.widgets) + self.startId)
         imgWidth, imgHeight = 0, 46 #image height defines the hight of the element
 
         if not self.showDirs and isDir:
             return
 
-        source = None # source="./resources/img/empty.png"
+        source = None
         if isDir:
-            source="./resources/img/dir.png"
+            source = "./resources/img/dir.png"
             imgWidth, imgHeight = 46, 46
-
 
         bg = None
         if len(self.widgets) % 2 == 0:
-            bg = self.itemColor0#(0.2,0.2,0.2,1)
+            bg = self.itemColor0
         else:
-            bg = self.itemColor1#(0.1,0.1,0.1,1)
+            bg = self.itemColor1
 
         if not self.fillerColor:
             self.fillerColor = bg
@@ -505,15 +488,13 @@ class SelectListView(Select, ScrollView):
             source=source,
             background_color=bg,
             text=text,
-            id=id,
+            id=tmpId,
             imgWidth=imgWidth,
             imgHeight=imgHeight,
             widthParent=self.width,
             fillerColor=self.fillerColor,
-            isDir = isDir,
-            )
-
-        )
+            isDir=isDir,
+        ))
 
         self.layout.add_widget(self.widgets[-1])
 
@@ -541,8 +522,8 @@ class SelectListView(Select, ScrollView):
         self.showDirs = kwargs.pop('showDirs', True)
         self.selectFirst = kwargs.pop('selectFirst', True)
 
-        self.itemColor0 = kwargs.pop('itemColor0', (0.2,0.2,0.2,1))
-        self.itemColor1 = kwargs.pop('itemColor1', (0.1,0.1,0.1,1))
+        self.itemColor0 = kwargs.pop('itemColor0', includes.styles['itemColor0'])
+        self.itemColor1 = kwargs.pop('itemColor1', includes.styles['itemColor1'])
 
         super(SelectListView, self).__init__(**kwargs)
 
@@ -555,30 +536,24 @@ class SelectListView(Select, ScrollView):
 
         self.layout = GridLayout(cols=1, spacing=0, size_hint_y=None)
         self.layout.bind(minimum_height=self.layout.setter('height'))
-        self.size_hint_y=None
-        self.height= Window.height-100
+        self.size_hint_y = None
+        self.height = Window.height-100
 
         self.add_widget(self.layout)
         self.bind(enaColor=self.changeColor)
-        #self.bind(width=self.update)
 
     def changeColor(self, wid, value):
         self.widgets[self.wId].label.color = value
 
 
-
 class PlaylistJsonList(SelectListView):
     def updateList(self, args):
-
-        if args == None:
-            logging.error("Thomas:----------- args =  %s" % str(args))
+        if args is None:
             return
 
         if "currentWidget" in args:
             tmp = args['currentWidget']
             text = tmp.widgets[tmp.wId].text
-            logging.error("Thomas:----------- text = %s" % text)
-
 
             path = os.path.join(includes.config[os.name]['playlist']['rootdir'], text)
             with open(path) as playFile:
@@ -589,4 +564,4 @@ class PlaylistJsonList(SelectListView):
             self.widgets = []
 
             for item in data:
-                 self.add(data[item]['name'], False)
+                self.add(data[item]['name'], False)
