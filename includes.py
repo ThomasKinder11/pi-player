@@ -29,6 +29,8 @@ styles = {
     'defaultFiller': colors['lightblue'],
     'itemColor0': colors['darkgray'],
     'itemColor1': colors['darkestgray'],
+    'volumeIndicatorBG': colors['gray'],
+    'volumeIndicatorColor': colors['blue'],
 }
 
 #Media player instance we can use in all modules
@@ -42,7 +44,6 @@ with open(cfgPath) as config_file:
     config = json.load(config_file)
 
 def writeJson(path, dict):
-        logging.info("ConfigGLobals: write jsonFile...")
         f = open(path, "w")
         f.write(json.dumps(dict, sort_keys=True, indent=4))
         f.close()
@@ -60,7 +61,6 @@ try:
     with open(dbPath) as dbFile:
         db = json.load(dbFile)
 except:
-    logging.error("Globals: problem in opening json data base file... create new file... old data will be lost...\n\n\n")
     f = open(dbPath, "w")
     f.write('''{
                 "runtime":0

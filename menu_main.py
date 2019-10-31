@@ -6,9 +6,6 @@ and key processing for all selectable elements in the GUI
 import logging
 import os
 
-
-
-
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.stacklayout import StackLayout
 from kivy.core.window import Window

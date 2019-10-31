@@ -506,7 +506,6 @@ class SelectListView(Select, ScrollView):
 
     def __init__(self, **kwargs):
         self.enaColor = kwargs.pop('enaColor', None)
-        logging.error("enaCOlor = {}".format(self.enaColor))
         if not self.enaColor:
             logging.error("start id not set")
             return
