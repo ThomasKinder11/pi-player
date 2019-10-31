@@ -15,7 +15,6 @@ colors = {
     'black' : (0, 0, 0, 1),
     'blue' : (0.5, 0.5, 1, 1),
     'orange' : (1,0.5,0.2,1),
-    '': (0.5,0.5,1,1)
 }
 
 #Media player instance we can use in all modules
