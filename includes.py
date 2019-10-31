@@ -12,6 +12,7 @@ colors = {
     'gray': (0.4,0.4,0.4,1),
     'darkgray': (0.2,0.2,0.2,1),
     'red': (0.5,0.0,0.0,0.8),
+    'lightred': (0.8,0.2,0.2,0.3),
     'black' : (0, 0, 0, 1),
     'blue' : (0.5, 0.5, 1, 1),
     'orange' : (1,0.5,0.2,1),
@@ -20,6 +21,7 @@ colors = {
 styles = {
     'enaColor0': colors['blue'],
     'enaColor1': colors['orange'],
+    'warning': colors['lightred']
 }
 
 #Media player instance we can use in all modules

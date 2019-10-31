@@ -1,18 +1,16 @@
-from selectable_items import *
 import logging
-import os, sys, time
-from subprocess import threading
-from includes import player
+import os
 
+import includes
+from selectable_items import SelectListView
 
 class FileList(SelectListView):
     rootdir = ""
     dirTree = []
-    supportedTypes = None# ('.mp4')
+    supportedTypes = None
     screenmanager = None
     playerProcess = None
     topTextVisible = False
-
 
     def delTopText(self):
         if not self.topTextVisible:
@@ -22,22 +20,12 @@ class FileList(SelectListView):
         self.topTextVisible = False
 
     def addTopText(self, text, user):
-        #if self.topTextVisible:
-        #    return
-
-        super(FileList, self).addTopText(text,user, (0.8,0.2,0.2,0.3))
-        #self.topTextVisible = True
-
+        super(FileList, self).addTopText(text, user, includes.styles['warning'])
 
     def resize(self, widget, value):
         pass
-        #Todo: we might need to check if this is still needed ::TK::
-        #logging.error("ßßßßßßßßßßßßßßßßß---------: VideoMenu [resize]  value = {} / self.width = {}".format(value, self.width) )
-        # for item in self.widgets:
-        #     logging.info("Widgets: {}".format(item))
-        #     item.width = self.width
 
-    def _onEnterPlayer(self,args):
+    def _onEnterPlayer(self, args):
         pass
 
     def enter(self, args):
@@ -49,7 +37,6 @@ class FileList(SelectListView):
 
         path = os.path.join(path, self.widgets[self.wId].text)
 
-        logging.info("VideoMenu: start playing file = {}".format(path))
         if self.widgets[self.wId].text == "...": #jump to previous directory
             tmp = self.dirTree.pop(len(self.dirTree)-1)
             path = self.rootdir
@@ -65,18 +52,16 @@ class FileList(SelectListView):
             self.widgets[self.wId].enable(None)
 
         elif os.path.isfile(path): #We hit enter on a video file so play it
-            #self.running = True
-            logging.error("ßßßßßßßßßßßßßßßßßßßßßßßß: we pressed on a video file....")
-            if args == None:
+            if args is None:
                 args = {}
 
             args['path'] = path
 
             if self.widgets[self.wId].user:
                 for item in self.widgets[self.wId].user:
-                    args[item]=self.widgets[self.wId].user[item]
+                    args[item] = self.widgets[self.wId].user[item]
 
-            self._onEnterPlayer(args) #TODO: ::TK:: This should call the global player instance by itself
+            self._onEnterPlayer(args)
 
             if 'isRerun' in args:
                 if args['isRerun']:
@@ -103,7 +88,6 @@ class FileList(SelectListView):
         #add all directories first
         for item in files:
             tmpPath = os.path.join(path, item)
-            #logging.error("THOMAS-------------: root dir = {} /files = {} / tmppath  = {}".format(self.rootdir, files, tmpPath ))
             if os.path.isdir(tmpPath):
                 self.add(item.strip(), isDir=True)
 
@@ -124,11 +108,11 @@ class FileList(SelectListView):
                 self.widgets[self.wId].enable(None)
 
         if includes.db['runtime'] > 0 and self.type == "video":
-             user = {'tSeek':includes.db['runtime'], 'isRerun':True}
-             self.addTopText(includes.db['mediaPath'], user)
+            user = {'tSeek':includes.db['runtime'], 'isRerun':True}
+            self.addTopText(includes.db['mediaPath'], user)
 
     def __init__(self, **kwargs):
-        if not 'rootdir' in kwargs:
+        if 'rootdir' not in kwargs:
             logging.error("MenuVideo: root dir not give as parameter")
             return
 
