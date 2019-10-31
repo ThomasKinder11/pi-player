@@ -15,13 +15,17 @@ colors = {
     'lightred': (0.8,0.2,0.2,0.3),
     'black' : (0, 0, 0, 1),
     'blue' : (0.5, 0.5, 1, 1),
+    'lightblue' : (0, 0, 0.5, 1),
     'orange' : (1,0.5,0.2,1),
 }
 
 styles = {
+    'defaultEnaColor': colors['blue'],
+    'defaultBg': colors['black'],
     'enaColor0': colors['blue'],
     'enaColor1': colors['orange'],
-    'warning': colors['lightred']
+    'warning': colors['lightred'],
+    'defaultFiller': colors['lightblue']
 }
 
 #Media player instance we can use in all modules

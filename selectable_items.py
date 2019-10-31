@@ -1,67 +1,43 @@
+import os, sys
+import json
+import logging
+
+from kivy.app import App
+from kivy.core.window import Window
+from kivy.uix.widget import Widget
+
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.widget import Widget
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.uix.slider import Slider
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.stacklayout import StackLayout
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.uix.scrollview import ScrollView
-from kivy.core.window import Window
-from kivy.properties import ObjectProperty
 
-import logging
-from kivy.graphics import Color, Rectangle
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.stacklayout import StackLayout
 
 from kivy.graphics import Rectangle, Color, Line
-from kivy.app import App
-from kivy.uix.stacklayout import StackLayout
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.widget import Widget
-from kivy.uix.gridlayout import GridLayout
-from kivy.core.window import Window
 from kivy.uix.image import Image
 from kivy.properties import ObjectProperty
 
-#from isha_pi_kivy import Select, SelectButton, SelectLabel
-import os, sys
 import includes
-import json
 
 class Select():
     selected = None
     type = None
-    enaColor =  ObjectProperty()
+    enaColor = ObjectProperty()
     defaultColor = None
     isSelectable = True
     onEnter = None
     user = {}
 
-    # selectableWidgets = {}
-
-    # def findSelectableChildren(self, children):
-    #     if not children:
-    #         return
-    #
-    #     for child in children:
-    #         try:
-    #             self.findSelectableChildren(child.children)
-    #             if child and child.isSelectable:
-    #                 self.selectableWidgets[int(child.id)] = child
-    #         except:
-    #             pass
-
     def enable(self, args):
         logging.warning("I AM NOT IMPLEMENTED self = {}".format(self))
     def disable(self, args):
-        #raise NotImplementedError("disable function of Select class not implemented")
         logging.warning("I AM NOT IMPLEMENTED self = {}".format(self))
-
-
-
 
 
 class SelectableTabbedPanelHeader(Select, TabbedPanelHeader):
@@ -83,7 +59,7 @@ class SelectableTabbedPanelHeader(Select, TabbedPanelHeader):
 
 
         if not self.enaColor:
-            self.enaColor =  self.background_color
+            self.enaColor = self.background_color
 
         self.defaultColor = self.background_color
         self.selected = False
@@ -149,10 +125,8 @@ class SelectButton(Button, Select):
         self.defaultColor = self.color
 
         if not self.enaColor:
-            self.enaColor = (1,0,0,0.2)#self.defaultColor
+            self.enaColor = includes.styles['defaultEnaColor']
 
-
-        # background_down= "./resources/img/previous_select.png",
         self.imgPath = kwargs.pop('imgPath', None)
 
         if self.imgPath:
@@ -162,8 +136,6 @@ class SelectButton(Button, Select):
             self.btnType = "text"
 
         super(SelectButton, self).__init__(**kwargs)
-
-
 
 
 class SelectSlider(Select, GridLayout):
@@ -216,7 +188,7 @@ class SelectSlider(Select, GridLayout):
             print("SelectSlider::init::enaColor is not defined")
             return -1
 
-        self.value = kwargs.pop('value',None)
+        self.value = kwargs.pop('value', None)
 
 
         text = kwargs.pop('text', "!!!Empty Name in slider!!!")
@@ -224,11 +196,18 @@ class SelectSlider(Select, GridLayout):
         #call super only after additional arguments have been popped
         super(SelectSlider, self).__init__(**kwargs)
 
-        self.label = Label(text=text, size_hint=(None,None), width=200, height=50)
-        self.slider = Slider(min=-0, max=20, value=self.value,  size_hint=(None,None), width=200, height=50)
+        self.label = Label(text=text, size_hint=(None, None), width=200, height=50)
+        self.slider = Slider(
+            min=-0,
+            max=20,
+            value=self.value,
+            size_hint=(None, None),
+            width=200,
+            height=50
+        )
 
         val = self.slider.value
-        self.valLabel = Label(text=str(val)+'s', size_hint=(None,None), width=10, height=50)
+        self.valLabel = Label(text=str(val)+'s', size_hint=(None, None), width=10, height=50)
 
         self.selected = False
         self.type = "selectslider"
@@ -237,20 +216,15 @@ class SelectSlider(Select, GridLayout):
         self.rows = 1
         self.cols = 3
 
-
         self.add_widget(self.label)
         self.add_widget(self.slider)
         self.add_widget(self.valLabel)
 
 
-
-
-
 class SelectLabelBg(SelectLabel):
-    background_color = ObjectProperty((1,1,1,0.5))
+    background_color = ObjectProperty(includes.styles['defaultBg'])
 
     def size_change(self, a, b):
-        #labelWidth = Window.width
         self.back.size = (self.width, self.height)
         self.back.pos = self.pos
 
@@ -259,10 +233,9 @@ class SelectLabelBg(SelectLabel):
             Color(*value)
             self.back = Rectangle(size=self.size, pos=self.pos)
 
-
-    def __init__(self,**kwargs):
-        self.background_color = kwargs.pop('background_color', (1,1,1,0.5))
-        super(SelectLabelBg,self).__init__(**kwargs)
+    def __init__(self, **kwargs):
+        self.background_color = kwargs.pop('background_color', includes.styles['defaultBg'])
+        super(SelectLabelBg, self).__init__(**kwargs)
 
         self.size_hint_x = None
         self.size_hint_y = None
@@ -287,7 +260,7 @@ class ImageBg(Widget):
 
     def __init__(self, **kwargs):
         self.imgSrc = kwargs.pop('source', None)
-        self.background_color = kwargs.pop('background_color', (1,0,0,1))
+        self.background_color = kwargs.pop('background_color', includes.styles['defaultBg'])
         super(ImageBg, self).__init__(**kwargs)
 
         with self.canvas.before:
@@ -304,8 +277,9 @@ class ImageBg(Widget):
 
 
 class SelectListViewItem(StackLayout, Select):
-    background_color = ObjectProperty((1,1,1,0.5))
-    fillerColor=ObjectProperty((0,0,0.5,0.3))
+    background_color = ObjectProperty(includes.styles['defaultBg'])
+    fillerColor=ObjectProperty(includes.styles['defaultFiller'])
+
     image = None
     label = None
     filler = None
@@ -314,7 +288,7 @@ class SelectListViewItem(StackLayout, Select):
 
     def resize(self, widget, value):
         self.label.width = self.parent.width-self.imgWidth-self.filler.width
-        self.label.text_size = (self.label.width-20,self.imgHeight)
+        self.label.text_size = (self.label.width-20, self.imgHeight)
         pass
 
     def enable(self, args):
@@ -325,9 +299,9 @@ class SelectListViewItem(StackLayout, Select):
 
     def __init__(self, **kwargs):
         self.source = kwargs.pop('source', None)
-        self.enaColor = kwargs.pop('enaColor', (0,1,0,1))
+        self.enaColor = kwargs.pop('enaColor', includes.styles['defaultEnaColor'])
         self.padding_top = kwargs.pop('padding_top', 0)
-        self.background_color = kwargs.pop('background_color', (1,0,0,1))
+        self.background_color = kwargs.pop('background_color', includes.styles['defaultBg'])
         self.text = kwargs.pop('text', "undefined text")
         self.id = kwargs.pop('id', "undefined id")
         self.imgWidth = kwargs.pop('imgWidth', 100)
@@ -348,7 +322,7 @@ class SelectListViewItem(StackLayout, Select):
             size_hint_y=None,
             height=self.imgHeight,
             id="-1",
-            text_size = (0,0),
+            text_size = (0, 0),
             background_color=self.fillerColor
         )
         self.add_widget(self.filler)
@@ -368,7 +342,7 @@ class SelectListViewItem(StackLayout, Select):
         labelWidth = self.widthParent-self.imgWidth-self.filler.width
         self.label = SelectLabelBg(
             background_color = self.background_color,
-            text_size=(labelWidth-20,self.imgHeight),
+            text_size=(labelWidth-20, self.imgHeight),
             enaColor=self.enaColor,
             text=self.text,
             halign="left",
@@ -379,7 +353,6 @@ class SelectListViewItem(StackLayout, Select):
             width=labelWidth,
             id=self.id
         )
-
 
         self.add_widget(self.label)
         self.bind(width=self.resize)
@@ -392,7 +365,7 @@ class SelectListView(Select, ScrollView):
     startId = None
     wId = -1 # id of the currently selected entry
     dir = "down"
-    enaColor = ObjectProperty((1,1,1,0.5))
+    enaColor = ObjectProperty(includes.styles['defaultEnaColor'])
     headerText = None
     header = None
 
@@ -401,7 +374,7 @@ class SelectListView(Select, ScrollView):
         logging.info("SelectListView: enter callback triggered")
 
     def enable(self, args):
-        if isinstance(args,dict):
+        if isinstance(args, dict):
             increment = args.pop('inc', True)
         else:
             increment = True
@@ -418,8 +391,7 @@ class SelectListView(Select, ScrollView):
             if self.wId > 0:
                 self.widgets[self.wId-1].disable(args)
 
-        # if self.wId < 0:
-        #     self.wId = 1
+
         return False # never returns true as there nothing we need to do when we come to end of list
 
 
@@ -563,11 +535,11 @@ class SelectListView(Select, ScrollView):
             logging.error("start id not set")
             return
 
-        self.widthParent =  kwargs.pop('widthParent', None)
-        self.fillerColor =  kwargs.pop('fillerColor', None)
-        self.headerText =  kwargs.pop('headerText', None)
-        self.showDirs =  kwargs.pop('showDirs', True)
-        self.selectFirst =  kwargs.pop('selectFirst', True)
+        self.widthParent = kwargs.pop('widthParent', None)
+        self.fillerColor = kwargs.pop('fillerColor', None)
+        self.headerText = kwargs.pop('headerText', None)
+        self.showDirs = kwargs.pop('showDirs', True)
+        self.selectFirst = kwargs.pop('selectFirst', True)
 
         self.itemColor0 = kwargs.pop('itemColor0', (0.2,0.2,0.2,1))
         self.itemColor1 = kwargs.pop('itemColor1', (0.1,0.1,0.1,1))
