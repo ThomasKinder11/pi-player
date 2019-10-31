@@ -16,16 +16,16 @@
     },
     "posix": {
         "audio": {
-            "rootdir": "/home/thomas/tmp",
+            "rootdir": "/home/thomas/tmp/audios",
             "types": "mp3,wav"
         },
         "playlist": {
-            "rootdir": "/home/thomas/tmp",
+            "rootdir": "/home/thomas/tmp/playlists",
             "types": "json"
         },
         "tmpdir": "/home/thomas/tmp",
         "video": {
-            "rootdir": "/home/thomas/tmp",
+            "rootdir": "/home/thomas/tmp/videos",
             "types": "mp4"
         }
     },

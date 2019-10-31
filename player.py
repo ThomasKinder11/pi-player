@@ -6,7 +6,7 @@ from kivy.core.window import Window
 import time
 import includes
 from  pymediainfo import MediaInfo
-import vlc
+
 
 
 """
@@ -146,7 +146,7 @@ class Player():
 
             #self.vlcPl = vlc.MediaPlayer(path)
             #self.vlcPl.play()
-            self.process = Popen(['vlc', path, "-I dummy --dummy-quiet"])
+            #self.process = Popen(['vlc', path, "-I dummy --dummy-quiet"])
         else:
             logging.debug("Player: no video nor audio file... {}".format(path))
 
