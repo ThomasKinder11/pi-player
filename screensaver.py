@@ -2,10 +2,7 @@ import logging
 import threading
 import time
 import queue
-import sys
 import includes
-
-
 
 class ScreenSaver():
     ctrlQueue = None
@@ -17,8 +14,6 @@ class ScreenSaver():
     ena = False
 
     def _worker(self):
-        logging.info("ScreenSaver: thread called...")
-
         while True:
             time.sleep(self.timeStep)
             self.idleCounter = self.idleCounter + self.timeStep
@@ -34,16 +29,16 @@ class ScreenSaver():
 
                 if cmd['cmd'] == 'reset':
                     self.idleCounter = 0
-                    self.screenManager.current=self.menuName
+                    self.screenManager.current = self.menuName
                     self.active = False
 
                 elif cmd['cmd'] == 'stop':
                     logging.debug("ScreenSaver: thread stopped...")
-                    break;
+                    break
 
                 elif cmd['cmd'] == 'disable':
-                    self.ena  = False
-                    self.screenManager.current=self.menuName
+                    self.ena = False
+                    self.screenManager.current = self.menuName
                     self.idleCounter = 0
                     self.active = False
 
@@ -51,11 +46,11 @@ class ScreenSaver():
                     self.ena = True
                     self.idleCounter = 0
                     self.active = False
-                    self.screenManager.current=self.menuName
+                    self.screenManager.current = self.menuName
 
                 elif cmd['cmd'] == 'start':
                     self.ena = True
-                    self.idleCounter =  includes.config['settings']['screensaverTime'] + 1
+                    self.idleCounter = includes.config['settings']['screensaverTime'] + 1
                     self.active = True
                     self.screenManager.current = self.blackScreenName
 
