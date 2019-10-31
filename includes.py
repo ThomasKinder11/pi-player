@@ -17,6 +17,11 @@ colors = {
     'orange' : (1,0.5,0.2,1),
 }
 
+styles = {
+    'enaColor0': colors['blue'],
+    'enaColor1': colors['orange'],
+}
+
 #Media player instance we can use in all modules
 player = Player()
 
