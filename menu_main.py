@@ -281,6 +281,7 @@ class Menu(StackLayout, TabbedPanel):
         )
         self.selectableWidgets[2].content = self.selectableWidgets[30000]
 
+
         #Setup Playlist menu
         self.selectableWidgets[40000] = MenuPlaylist(
             id="40000",
@@ -292,7 +293,6 @@ class Menu(StackLayout, TabbedPanel):
 
         self.selectableWidgets[3].content = self.selectableWidgets[40000]
 
-
         #Find all the children which are selectble and can be controlled by keyboard
         self._findSelectableChildren(self.selectableWidgets[0].content.children)
         self._findSelectableChildren(self.selectableWidgets[1].content.children)
@@ -300,6 +300,10 @@ class Menu(StackLayout, TabbedPanel):
 
         self.controlTree = control_tree.CONTROL_TREE
         self.curId = 4 # set start id
+
+        #do not allow down press on empty list
+        if len(self.selectableWidgets[30000].layout.children) <= 0:
+            self.controlTree[2]['down'] = None
 
         try:
             self.selectableWidgets[self.curId].enable(None)

@@ -83,16 +83,23 @@ class FileList(SelectListView):
             self.add("...", True)
 
         files = os.listdir(path)
+        files.sort()
 
-
-        #add all directories first
+        dirs = []
+        docs = []
         for item in files:
             tmpPath = os.path.join(path, item)
             if os.path.isdir(tmpPath):
-                self.add(item.strip(), isDir=True)
+                dirs.append(item)
+            else:
+                docs.append(item)
+
+        #add all directories first
+        for item in dirs:
+            self.add(item.strip(), isDir=True)
 
         #then add all the files
-        for item in files:
+        for item in docs:
             if item.lower().endswith(self.supportedTypes):
                 self.add(item.strip(), False)
 
