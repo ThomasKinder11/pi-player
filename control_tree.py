@@ -155,10 +155,25 @@ CONTROL_TREE = {
             {'func':'disable', 'id':102},
             {'nextid':101}
         ],
-        "down":None,
+        "down": [
+            {'func':'enable', 'id':103},
+            {'func':'disable', 'id':102},
+            {'nextid':103}
+        ],
         "enter": [
             {'func':'on_press', 'id':102},
             {'nextid':102}
+        ],
+    },
+    103:{
+        "up": [
+            {'func':'enable', 'id':102},
+            {'func':'disable', 'id':103},
+            {'nextid':102}
+        ],
+        "enter": [
+            {'func':'on_press', 'id':103},
+            {'nextid':103}
         ],
     },
     200:{

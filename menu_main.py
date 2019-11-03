@@ -10,7 +10,9 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.stacklayout import StackLayout
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-import keyboard
+
+if os.name == 'nt':
+    import keyboard
 
 import control_tree
 import includes
@@ -20,6 +22,11 @@ from menu_settings import MenuSettings
 from menu_video import FileList
 from menu_osd import MenuOSD
 from menu_playlist import MenuPlaylist
+
+
+
+if os.name == "posix":
+    from key_handler import KeyHandler
 
 
 class IshaGui(StackLayout):
@@ -165,7 +172,7 @@ class Menu(StackLayout, TabbedPanel):
 
     def _keyDown(self, keycode):
         '''Callback function for keyboard events. All key handling is done here.'''
-
+        logging.error("_keyDowm called with keycode = {}".format(keycode))
         if self.screenSaver.active and self.screenSaver.ena:
             self.screenSaver.resetTime()
             return 0
@@ -200,24 +207,24 @@ class Menu(StackLayout, TabbedPanel):
     def onPress(self, key):
         '''callback fucntion when any keyboard button is pressed. It will analyze keycomand'''
         scancodes = {}
-        if os.name == "nt":
-            scancodes[77] = "right"
-            scancodes[75] = "left"
-            scancodes[72] = "up"
-            scancodes[80] = "down"
-            scancodes[-166] = "browser back"
-            scancodes[-175] = "volume up"
-            scancodes[-174] = "volume down"
-            scancodes[-173] = "volume mute"
-        elif os.name == "posix":
-            scancodes[106] = "right"
-            scancodes[105] = "left"
-            scancodes[103] = "up"
-            scancodes[108] = "down"
-            scancodes[-166] = "browser back"
-            scancodes[-175] = "volume up"
-            scancodes[-174] = "volume down"
-            scancodes[-173] = "volume mute"
+        #if os.name == "nt":
+        scancodes[77] = "right"
+        scancodes[75] = "left"
+        scancodes[72] = "up"
+        scancodes[80] = "down"
+        scancodes[-166] = "browser back"
+        scancodes[-175] = "volume up"
+        scancodes[-174] = "volume down"
+        scancodes[-173] = "volume mute"
+        # elif os.name == "posix":
+        #     scancodes[106] = "right"
+        #     scancodes[105] = "left"
+        #     scancodes[103] = "up"
+        #     scancodes[108] = "down"
+        #     scancodes[-166] = "browser back"
+        #     scancodes[-175] = "volume up"
+        #     scancodes[-174] = "volume down"
+        #     scancodes[-173] = "volume mute"
 
         scancodes[28] = "enter"
         scancodes[27] = "+"
@@ -241,7 +248,13 @@ class Menu(StackLayout, TabbedPanel):
         kwargs["do_default_tab"] = False #always disable the default tab
         super(Menu, self).__init__(**kwargs)
 
-        keyboard.on_press(self.onPress)
+        if os.name == 'posix':
+            logging.error("´´´´´´´´´´´´ßßßßßßßßßßß: Posix keyhandler")
+            tmp = KeyHandler()
+            tmp.onPress = self._keyDown
+        else:
+            keyboard.on_press(self.onPress)
+
 
         #Setup tabview for main menu
         self.tab_width = 100

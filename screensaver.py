@@ -27,14 +27,17 @@ class ScreenSaver():
             if not self.ctrlQueue.empty():
                 cmd = self.ctrlQueue.get()
 
+                if cmd is None:
+                    continue
+
                 if cmd['cmd'] == 'reset':
                     self.idleCounter = 0
                     self.screenManager.current = self.menuName
                     self.active = False
 
-                elif cmd['cmd'] == 'stop':
-                    logging.debug("ScreenSaver: thread stopped...")
-                    break
+                # elif cmd['cmd'] == 'stop':
+                #     logging.debug("ScreenSaver: thread stopped...")
+                #     break TODO: is this needed ??
 
                 elif cmd['cmd'] == 'disable':
                     self.ena = False
@@ -53,6 +56,7 @@ class ScreenSaver():
                     self.idleCounter = includes.config['settings']['screensaverTime'] + 1
                     self.active = True
                     self.screenManager.current = self.blackScreenName
+
 
     def start(self, args):
         self.ctrlQueue.put({'cmd':'start'})

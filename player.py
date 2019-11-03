@@ -94,7 +94,7 @@ class Player():
 
 
         if not os.path.isfile(path):
-            logging.error("Player: file not found")
+            logging.error("Player: file not found [{}]".format(path))
             return
 
         videoFormats =  tuple(includes.config[os.name]['video']['types'].split(','))
