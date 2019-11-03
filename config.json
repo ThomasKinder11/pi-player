@@ -1,33 +1,16 @@
 {
-    "nt": {
-        "audio": {
-            "rootdir": "C:\\tmp\\ishaPi2\\audios",
-            "types": "mp3,wav"
-        },
-        "playlist": {
-            "rootdir": "C:\\tmp\\ishaPi2\\playlists",
-            "types": "json"
-        },
-        "tmpdir": "C:\\tmp\\",
-        "video": {
-            "rootdir": "C:\\tmp\\ishaPi2\\videos",
-            "types": "mp4"
-        }
+    "tmpdir": "/home/thomas/tmp",
+    "audio": {
+        "rootdir": "/home/thomas/tmp/audios",
+        "types": "mp3,wav"
     },
-    "posix": {
-        "audio": {
-            "rootdir": "/home/thomas/tmp/audios",
-            "types": "mp3,wav"
-        },
-        "playlist": {
-            "rootdir": "/home/thomas/tmp/playlists",
-            "types": "json"
-        },
-        "tmpdir": "/home/thomas/tmp",
-        "video": {
-            "rootdir": "/home/thomas/tmp/videos",
-            "types": "mp4"
-        }
+    "playlist": {
+        "rootdir": "/home/thomas/tmp/playlists",
+        "types": "json"
+    },
+    "video": {
+        "rootdir": "/home/thomas/tmp/videos",
+        "types": "mp4"
     },
     "settings": {
         "osdTime": 3,

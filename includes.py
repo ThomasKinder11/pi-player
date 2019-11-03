@@ -43,6 +43,8 @@ config = None
 with open(cfgPath) as config_file:
     config = json.load(config_file)
 
+logging.error(config)
+
 def writeJson(path, dict):
         f = open(path, "w")
         f.write(json.dumps(dict, sort_keys=True, indent=4))

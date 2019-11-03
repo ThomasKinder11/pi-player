@@ -554,7 +554,7 @@ class PlaylistJsonList(SelectListView):
             tmp = args['currentWidget']
             text = tmp.widgets[tmp.wId].text
 
-            path = os.path.join(includes.config[os.name]['playlist']['rootdir'], text)
+            path = os.path.join(includes.config['playlist']['rootdir'], text)
             with open(path) as playFile:
                 data = json.load(playFile)
 

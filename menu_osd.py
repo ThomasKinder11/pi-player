@@ -79,15 +79,7 @@ class MenuOSD(StackLayout, Select):
 
     def onEnterPlay(self):
         '''These are the callback functions which are triggered when play button is pressed'''
-
-        logging.error("MenuOSD: onEnterPlay")
-        if os.name == "posix":
-            logging.error("MenuOSD: for linux onEnterPlay")
-            cmd = 'echo \'{ "command": ["set_property", "pause", false] }\''
-            cmd = cmd + "| sudo socat - " + includes.config[os.name]['tmpdir'] + "/socket"
-            #logging.error("MenuOSD: for linux onEnterPlay cmd = {}".format(cmd))
-            ret = os.system(cmd)
-            logging.error("MenuOSD: executed os.system call... {}".format(ret))
+        logging.debug("MenuOSD: onEnterPlay")
 
     def onEnterPause(self):
         '''Callback function which needs to be set by parent to execute pause fct of player'''

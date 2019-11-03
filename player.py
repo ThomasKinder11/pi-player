@@ -16,7 +16,6 @@ On virtual machines and testing on windows we can use mpv player
 """
 class Player():
     exec = None
-    supportedPlayers = {}
     process = None
     screensaver = None
     screenManager = None
@@ -68,24 +67,11 @@ class Player():
         self.onPlayEnd(None)
 
     def stop(self):
-        if os.name == "posix":
-            if self.process.poll():
-                cmd = 'echo \'{ "command": ["quit"] }\''
-                cmd = cmd + "| sudo socat - " + includes.config[os.name]['tmpdir'] + "/socket"
-                os.system(cmd)
+        pass #TODO
 
     def pause(self):
         self.isPaused = True
-
-
-
-        if os.name == "posix":
-            cmd = 'echo \'{ "command": ["set_property", "pause", true] }\''
-            cmd = cmd + "| sudo socat - " + includes.config[os.name]['tmpdir'] + "/socket"
-            #os.system('echo \'{ "command": ["set_property", "pause", true] }\' | sudo socat - /home/thomas/tmp/socket')
-            os.system(cmd)
-
-
+        pass
 
 
     def play(self, path, tSeek):
@@ -97,8 +83,8 @@ class Player():
             logging.error("Player: file not found [{}]".format(path))
             return
 
-        videoFormats =  tuple(includes.config[os.name]['video']['types'].split(','))
-        audioFormats = tuple(includes.config[os.name]['audio']['types'].split(','))
+        videoFormats =  tuple(includes.config['video']['types'].split(','))
+        audioFormats = tuple(includes.config['audio']['types'].split(','))
 
         logging.debug("Player: videoFormats = {} / audioFormats = {}".format(videoFormats, audioFormats))
         mode = "nothing"
@@ -126,8 +112,7 @@ class Player():
             self.isPlaying = True
             self.runtime = tSeek
 
-            #if os.name == 'nt':
-            self.process = Popen([self.supportedPlayers[os.name],
+            self.process = Popen(["mpv",
                             "--geometry={}+{}+{}".format(playerWidth, posx, posy),
                             #"--geometry=1244+98+0",
                             "--start=+{}".format(tSeek),
@@ -137,15 +122,10 @@ class Player():
                             #"--really-quiet",
                             #"--no-osc",
                             "--ontop",
-                            "--input-ipc-server={}".format(os.path.join(includes.config[os.name]['tmpdir'],"socket"))
+                            "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
 
                             ])
-            #elif os.name == "posix":
-                #optWin = ""# "--win \"0 0 {} {}\"".format(playerWidth, playerHeight)
 
-                #self.process = Popen(['omxplayer', r'--win',  r'"0 0 100 100"', path])
-                # self.process = Popen(['omxplayer', "--win", '"0 0 200 200"', path])
-                #logging.error("ßßßßßßßßßßßßß: popen === {}".format(self.process.communicate()))
 
         elif path.lower().endswith(audioFormats):
             self.isPlaying = True
@@ -162,10 +142,7 @@ class Player():
         self.playThread = threading.Thread(target = self._playWorkThread, args=(mode,))
         self.playThread.setDaemon(True)
         self.playThread.start()
-#"--really-quiet",
-#"--no-osc",
 
-# "--input-ipc-server={}".format(os.path.join(includes.config[os.name]['tmpdir'], "ishapiSocket")
     def killPlayer(self):
 
         if self.process:
@@ -178,11 +155,3 @@ class Player():
         #reset the runtime value
         self.runtime = 0
         self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
-
-
-
-
-
-    def __init__(self):#, screenManager, screenSaver):
-        self.supportedPlayers['nt'] = "mpv.exe"
-        self.supportedPlayers['posix'] = "mpv"

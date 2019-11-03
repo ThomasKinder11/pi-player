@@ -85,7 +85,7 @@ class MenuPlaylist(StackLayout, Select):
             self.files.enable(None)
             return False
 
-        return False #::TK:: added this for code cleanup
+        return False
 
     def disable(self, args):#up
 
@@ -103,7 +103,7 @@ class MenuPlaylist(StackLayout, Select):
             self.files.disable({'disTop':False})
             return False
 
-        return False #::TK:: added this for pyinter
+        return False
 
     def disableAll(self, args):
         for wid in self.fileList.widgets:
@@ -124,7 +124,7 @@ class MenuPlaylist(StackLayout, Select):
             tmpID = self.fileList.wId
             self.fileList.widgets[tmpID].label.color = self.fileList.enaColor
 
-        return False #::TK:: added for pyinter
+        return False
 
     def right(self, args):
         if args is not None:
@@ -168,7 +168,7 @@ class MenuPlaylist(StackLayout, Select):
 
 
     def updateJsonFiles(self, text):
-        path = os.path.join(includes.config[os.name]['playlist']['rootdir'], text)
+        path = os.path.join(includes.config['playlist']['rootdir'], text)
 
         if os.path.isdir(path):
             return
@@ -531,12 +531,12 @@ class MenuPlaylist(StackLayout, Select):
 
         self.fileList = FileList(
             id=str(int(self.selId)+1),
-            rootdir=includes.config[os.name]['playlist']['rootdir'],
+            rootdir=includes.config['playlist']['rootdir'],
             enaColor=enaColor0,
             bar_width=10,
             size_hint_x=None,
             width=columnWidth0,
-            supportedTypes=includes.config[os.name]['playlist']['types'],
+            supportedTypes=includes.config['playlist']['types'],
             screenmanager=self.screenmanager,
             fillerColor=headerColor0,
             showDirs=False,

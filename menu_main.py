@@ -11,9 +11,6 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
-if os.name == 'nt':
-    import keyboard
-
 import control_tree
 import includes
 from selectable_items import SelectableTabbedPanelHeader
@@ -22,11 +19,7 @@ from menu_settings import MenuSettings
 from menu_video import FileList
 from menu_osd import MenuOSD
 from menu_playlist import MenuPlaylist
-
-
-
-if os.name == "posix":
-    from key_handler import KeyHandler
+from key_handler import KeyHandler
 
 
 class IshaGui(StackLayout):
@@ -168,11 +161,8 @@ class Menu(StackLayout, TabbedPanel):
         self.lastId = self.curId
         self.curId = 200
 
-
-
     def _keyDown(self, keycode):
         '''Callback function for keyboard events. All key handling is done here.'''
-        logging.error("_keyDowm called with keycode = {}".format(keycode))
         if self.screenSaver.active and self.screenSaver.ena:
             self.screenSaver.resetTime()
             return 0
@@ -204,38 +194,7 @@ class Menu(StackLayout, TabbedPanel):
             except Exception as allExceptions:
                 pass
 
-    def onPress(self, key):
-        '''callback fucntion when any keyboard button is pressed. It will analyze keycomand'''
-        scancodes = {}
-        #if os.name == "nt":
-        scancodes[77] = "right"
-        scancodes[75] = "left"
-        scancodes[72] = "up"
-        scancodes[80] = "down"
-        scancodes[-166] = "browser back"
-        scancodes[-175] = "volume up"
-        scancodes[-174] = "volume down"
-        scancodes[-173] = "volume mute"
-        # elif os.name == "posix":
-        #     scancodes[106] = "right"
-        #     scancodes[105] = "left"
-        #     scancodes[103] = "up"
-        #     scancodes[108] = "down"
-        #     scancodes[-166] = "browser back"
-        #     scancodes[-175] = "volume up"
-        #     scancodes[-174] = "volume down"
-        #     scancodes[-173] = "volume mute"
 
-        scancodes[28] = "enter"
-        scancodes[27] = "+"
-        scancodes[53] = "-"
-        scancodes[50] = "m"
-
-        tmpId = key.scan_code
-
-        if tmpId in scancodes:
-            keycode = [tmpId, scancodes[tmpId]]
-            self._keyDown(keycode)
 
     def _onUpdateRunTime(self, value):
         self.osd.runtime.text = value
@@ -248,13 +207,8 @@ class Menu(StackLayout, TabbedPanel):
         kwargs["do_default_tab"] = False #always disable the default tab
         super(Menu, self).__init__(**kwargs)
 
-        if os.name == 'posix':
-            logging.error("´´´´´´´´´´´´ßßßßßßßßßßß: Posix keyhandler")
-            tmp = KeyHandler()
-            tmp.onPress = self._keyDown
-        else:
-            keyboard.on_press(self.onPress)
-
+        tmp = KeyHandler()
+        tmp.onPress = self._keyDown
 
         #Setup tabview for main menu
         self.tab_width = 100
@@ -301,12 +255,12 @@ class Menu(StackLayout, TabbedPanel):
         #Setup Video menu
         self.selectableWidgets[20000] = FileList(
             id="20000",
-            rootdir=includes.config[os.name]['video']['rootdir'],
+            rootdir=includes.config['video']['rootdir'],
             enaColor=includes.colors['blue'],
             bar_width=10,
             size_hint=(1, None),
             size=(Window.width, Window.height),
-            supportedTypes=includes.config[os.name]['video']['types'],
+            supportedTypes=includes.config['video']['types'],
             screenmanager=self.root,
             selectFirst=False,
             type="video"
@@ -316,12 +270,12 @@ class Menu(StackLayout, TabbedPanel):
         #Setup Audio menu
         self.selectableWidgets[30000] = FileList(
             id="30000",
-            rootdir=includes.config[os.name]['audio']['rootdir'],
+            rootdir=includes.config['audio']['rootdir'],
             enaColor=includes.colors['blue'],
             bar_width=10,
             size_hint=(1, None),
             size=(Window.width, Window.height),
-            supportedTypes=includes.config[os.name]['audio']['types'],
+            supportedTypes=includes.config['audio']['types'],
             screenmanager=self.root,
             selectFirst=False
         )
