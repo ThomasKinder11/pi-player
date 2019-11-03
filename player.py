@@ -125,6 +125,8 @@ class Player():
 
             self.isPlaying = True
             self.runtime = tSeek
+
+            #if os.name == 'nt':
             self.process = Popen([self.supportedPlayers[os.name],
                             "--geometry={}+{}+{}".format(playerWidth, posx, posy),
                             #"--geometry=1244+98+0",
@@ -138,6 +140,12 @@ class Player():
                             "--input-ipc-server={}".format(os.path.join(includes.config[os.name]['tmpdir'],"socket"))
 
                             ])
+            #elif os.name == "posix":
+                #optWin = ""# "--win \"0 0 {} {}\"".format(playerWidth, playerHeight)
+
+                #self.process = Popen(['omxplayer', r'--win',  r'"0 0 100 100"', path])
+                # self.process = Popen(['omxplayer', "--win", '"0 0 200 200"', path])
+                #logging.error("ßßßßßßßßßßßßß: popen === {}".format(self.process.communicate()))
 
         elif path.lower().endswith(audioFormats):
             self.isPlaying = True

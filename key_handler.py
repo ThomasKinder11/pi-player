@@ -64,23 +64,17 @@ if os.name == "posix":
 					pass
 
 		def __init__(self):
-			#logging.error("´´´´´´´´´´´´ßßßßßßßßßßß: init called")
 			devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-			#logging.error("´´´´´´´´´´´´ßßßßßßßßßßß: devices = {}".format(evdev.list_devices()))
-			#Find all interesting keyboards for us...
+
 			for dev in devices:
 				cap = dev.capabilities(verbose=True)
-				#logging.error("ßßßßßßßßßßßßßßßßßßß: " + str(dev))
 				for item in cap:
-					#isKeyboard = False
-
 					if 'EV_KEY' in item:
 						isKeyboard = False
 						for availKeys in cap[item]:
 
 							for supKey in self.supportedKeys:
 								if supKey in availKeys[0]:
-									#logging.error("############ Keyboard =  {}".format(dev))
 									isKeyboard = True
 									break
 
@@ -92,7 +86,6 @@ if os.name == "posix":
 			self.selector = DefaultSelector()
 
 			for kbd in self.keyboards:
-				logging.error("############ Setup keyboard  = " + str(kbd))
 				self.selector.register(kbd, EVENT_READ)
 
 				self.thread = threading.Thread(target=self._worker)
@@ -100,17 +93,20 @@ if os.name == "posix":
 				self.thread.start()
 
 
-	if __name__ == "__main__":
 
-		def onPress(self, args):
-			print(args)
+#------------------------------------------------------------------------------
+#
+if __name__ == "__main__":
+
+	def onPress(self, args):
+		print(args)
 
 
-		k = KeyHandler()
-		k.onPress = onPress
+	k = KeyHandler()
+	k.onPress = onPress
 
 
-		while True:
-			import time
-			time.sleep(2)
-			print("alive")
+	while True:
+		import time
+		time.sleep(2)
+		print("alive")
