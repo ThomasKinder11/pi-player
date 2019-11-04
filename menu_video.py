@@ -51,6 +51,7 @@ class FileList(SelectListView):
             self._addFile(path, isSubdir, tmp[1])
             self.widgets[self.wId].enable(None)
 
+
         elif os.path.isfile(path): #We hit enter on a video file so play it
             if args is None:
                 args = {}
@@ -110,9 +111,6 @@ class FileList(SelectListView):
                 self.scroll_to(self.widgets[self.wId], animate=False)
             else:
                 self.wId = 0
-
-            if self.selectFirst or isSubdir:
-                self.widgets[self.wId].enable(None)
 
         if includes.db['runtime'] > 0 and self.type == "video":
             user = {'tSeek':includes.db['runtime'], 'isRerun':True}

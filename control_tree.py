@@ -30,8 +30,6 @@ CONTROL_TREE = {
     0:{
         "left": [
             {'func':'switch', 'id':3},
-            {'func':'enable', 'id':3},
-            {'func':'disable', 'id':0},
             {'nextid':3}
         ],
         "up": None,
@@ -45,14 +43,10 @@ CONTROL_TREE = {
     1:{
         "left":  [
             {'func':'switch', 'id':4},
-            {'func':'enable', 'id':4},
-            {'func':'disable', 'id':1},
             {'nextid':4}
         ],
         "right": [
             {'func':'switch', 'id':2},
-            {'func':'enable', 'id':2},
-            {'func':'disable', 'id':1},
             {'nextid':2}
         ],
         "up": [
@@ -69,14 +63,10 @@ CONTROL_TREE = {
     2:{
         "left":  [
             {'func':'switch', 'id':1},
-            {'func':'enable', 'id':1},
-            {'func':'disable', 'id':2},
             {'nextid':1}
         ],
         "right": [
             {'func':'switch', 'id':3},
-            {'func':'enable', 'id':3},
-            {'func':'disable', 'id':2},
             {'nextid':3}
         ],
         "down": [
@@ -89,14 +79,10 @@ CONTROL_TREE = {
     3:{
         "left":  [
             {'func':'switch', 'id':2},
-            {'func':'enable', 'id':2},
-            {'func':'disable', 'id':3},
             {'nextid':2}
         ],
         "right": [
             {'func':'switch', 'id':0},
-            {'func':'enable', 'id':0},
-            {'func':'disable', 'id':3},
             {'nextid':0}
         ],
         "up": [
@@ -113,8 +99,6 @@ CONTROL_TREE = {
     4:{
         "right": [
             {'func':'switch', 'id':1},
-            {'func':'enable', 'id':1},
-            {'func':'disable', 'id':4},
             {'nextid':1}
         ],
         "note":"power control",

@@ -211,34 +211,37 @@ class Menu(StackLayout, TabbedPanel):
         tmp.onPress = self._keyDown
 
         #Setup tabview for main menu
-        self.tab_width = 100
-        self.tab_height = 40
+        self.tab_width = 150 + 10
+        self.tab_height = 60
+
 
         self.selectableWidgets[0] = SelectableTabbedPanelHeader(
-            text="Settings",
             id="000",
-            enaColor=includes.colors['blue']
         )
+        self.selectableWidgets[0].background_normal = "./resources/img/settings.png"
+        self.selectableWidgets[0].background_down = "./resources/img/settings_select.png"
 
         self.selectableWidgets[1] = SelectableTabbedPanelHeader(
-            text="Video",
             id="001",
-            enaColor=includes.colors['blue']
         )
+        self.selectableWidgets[1].background_normal = "./resources/img/video.png"
+        self.selectableWidgets[1].background_down = "./resources/img/video_select.png"
+
 
         self.selectableWidgets[2] = SelectableTabbedPanelHeader(
-            text="Music",
             id="002",
-            enaColor=includes.colors['blue']
         )
+        self.selectableWidgets[2].background_normal = "./resources/img/music.png"
+        self.selectableWidgets[2].background_down = "./resources/img/music_select.png"
 
         self.selectableWidgets[3] = SelectableTabbedPanelHeader(
-            text="Playlist",
             id="003",
-            enaColor=includes.colors['blue']
         )
+        self.selectableWidgets[3].background_normal = "./resources/img/playlist.png"
+        self.selectableWidgets[3].background_down = "./resources/img/playlist_select.png"
 
         self.selectableWidgets[4] = SelectableTabbedPanelHeader(id="004")
+
         self.selectableWidgets[4].background_normal = "./resources/img/power.png"
         self.selectableWidgets[4].background_down = "./resources/img/power_select.png"
 
@@ -256,7 +259,7 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[20000] = FileList(
             id="20000",
             rootdir=includes.config['video']['rootdir'],
-            enaColor=includes.colors['blue'],
+            enaColor=includes.styles['enaColor0'],
             bar_width=10,
             size_hint=(1, None),
             size=(Window.width, Window.height),
@@ -271,7 +274,7 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[30000] = FileList(
             id="30000",
             rootdir=includes.config['audio']['rootdir'],
-            enaColor=includes.colors['blue'],
+            enaColor=includes.styles['enaColor0'],
             bar_width=10,
             size_hint=(1, None),
             size=(Window.width, Window.height),

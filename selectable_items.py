@@ -35,12 +35,12 @@ class Select():
 class SelectableTabbedPanelHeader(Select, TabbedPanelHeader):
     def enable(self, args):
         self.selected = True
-        self.background_color = self.enaColor
+        self.state = "down"
         return True
 
     def disable(self, args):
         self.selected = False
-        self.background_color = self.defaultColor
+        self.state = "normal"
         return True
 
 
@@ -51,6 +51,8 @@ class SelectableTabbedPanelHeader(Select, TabbedPanelHeader):
 
         if not self.enaColor:
             self.enaColor = self.background_color
+
+        self.font_size = includes.styles['fontSize']
 
         self.defaultColor = self.background_color
         self.selected = False
@@ -80,6 +82,8 @@ class SelectLabel(Label, Select):
         self.defaultColor = self.color
         self.selected = False
         self.type = "label"
+
+        self.font_size = includes.styles['fontSize']
 
         return
 
@@ -224,6 +228,15 @@ class SelectLabelBg(SelectLabel):
         self.back.size = (self.width, self.height)
         self.back.pos = self.pos
 
+    def enable(self, args):
+        self.tmpColor = self.background_color
+        self.background_color = self.enaColor# includes.colors['darkblue']
+        #super(SelectListViewItem, self).enable(args)
+
+    def disable(self, args):
+        self.background_color = self.tmpColor
+        #super(SelectListViewItem, self).disable(args)
+
     def updateBg(self, widget, value):
         with self.canvas.before:
             Color(*value)
@@ -305,6 +318,7 @@ class SelectListViewItem(StackLayout, Select):
         self.widthParent = kwargs.pop('widthParent', None)
         self.isDir = kwargs.pop('isDir', False)
         self.user = kwargs.pop('user', None)
+        self.showIcon = kwargs.pop('showIcon', True)
 
         #set the layout hight to fit the image height
         self.height = self.imgHeight + 2*self.padding_top
@@ -323,13 +337,22 @@ class SelectListViewItem(StackLayout, Select):
         )
         self.add_widget(self.filler)
 
-        if self.source:
+        if self.source and self.showIcon:
             self.image = ImageBg(
                 background_color=self.background_color,
                 width=self.imgWidth,
                 size_hint=(None, None),
                 height=self.imgHeight,
                 source=self.source
+            )
+            self.add_widget(self.image)
+
+        elif not self.source and self.showIcon:
+            self.image = SelectLabelBg(
+                width=self.imgWidth,
+                size_hint=(None, None),
+                height=self.imgHeight,
+                background_color=self.background_color,
             )
             self.add_widget(self.image)
 
@@ -447,7 +470,8 @@ class SelectListView(Select, ScrollView):
             widthParent=self.width,
             fillerColor=self.fillerColor,
             isDir=False,
-            user=user
+            user=user,
+            showIcon=self.showIcon,
         ))
 
         for wid in self.widgets:
@@ -464,7 +488,12 @@ class SelectListView(Select, ScrollView):
 
     def add(self, text, isDir):
         tmpId = str(len(self.widgets) + self.startId)
-        imgWidth, imgHeight = 0, 46 #image height defines the hight of the element
+
+        if self.showIcon:
+            imgWidth, imgHeight = includes.styles['selectItemHeight'], includes.styles['selectItemHeight'] #image height defines the hight of the element
+        else:
+            imgWidth, imgHeight = 0, includes.styles['selectItemHeight'] #image height defines the hight of the element
+
 
         if not self.showDirs and isDir:
             return
@@ -472,7 +501,9 @@ class SelectListView(Select, ScrollView):
         source = None
         if isDir:
             source = "./resources/img/dir.png"
-            imgWidth, imgHeight = 46, 46
+            #imgWidth, imgHeight = includes.styles['selectItemHeight'], includes.styles['selectItemHeight']
+        else:
+            source =  "./resources/img/dot.png"
 
         bg = None
         if len(self.widgets) % 2 == 0:
@@ -494,6 +525,7 @@ class SelectListView(Select, ScrollView):
             widthParent=self.width,
             fillerColor=self.fillerColor,
             isDir=isDir,
+            showIcon=self.showIcon,
         ))
 
         self.layout.add_widget(self.widgets[-1])
@@ -523,6 +555,7 @@ class SelectListView(Select, ScrollView):
 
         self.itemColor0 = kwargs.pop('itemColor0', includes.styles['itemColor0'])
         self.itemColor1 = kwargs.pop('itemColor1', includes.styles['itemColor1'])
+        self.showIcon = kwargs.pop('showIcon', True)
 
         super(SelectListView, self).__init__(**kwargs)
 

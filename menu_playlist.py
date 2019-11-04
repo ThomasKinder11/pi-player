@@ -112,6 +112,7 @@ class MenuPlaylist(StackLayout, Select):
 
     def left(self, args):
         if self.mode == self._fileList:
+
             return True
 
         elif self.mode == self._jsonList:
@@ -119,10 +120,12 @@ class MenuPlaylist(StackLayout, Select):
 
             for wid in self.files.widgets:
                 wid.disable({'inc':False})
+
             self.files.wId = -1
 
-            tmpID = self.fileList.wId
-            self.fileList.widgets[tmpID].label.color = self.fileList.enaColor
+            #TODO: instead of text color, switch the background color if possible
+            #tmpID = self.fileList.wId
+            #self.fileList.widgets[tmpID].label.color = self.fileList.enaColor
 
         return False
 
@@ -135,11 +138,10 @@ class MenuPlaylist(StackLayout, Select):
         if self.mode == self._fileList and len(self.fileList.widgets) > 0:
             self.mode = self._jsonList
 
+            self.files.wId = -1
             if enableFilesView:
                 self.files.enable(None)
 
-            tmpID = self.fileList.wId
-            self.fileList.widgets[tmpID].label.color = includes.colors['orange']
         elif self.mode == self._jsonList:
             pass
 
@@ -486,18 +488,18 @@ class MenuPlaylist(StackLayout, Select):
 
         columnWidth0 = Window.width * 0.3
         columnWidth1 = Window.width-columnWidth0
-        headerHeight = 20
+        headerHeight = includes.styles['playlistHeadHeight']
         headerText0 = "[b]Playlists[/b]"
         headerText1 = "[b]Media Files[/b]"
 
-        headerColor0 = hexColor('#5a5560')#
-        headerColor1 = hexColor('#2d4159')#(0.5,0.5,0,1)
+        # headerColor0 = hexColor('#5a5560')#
+        # headerColor1 = hexColor('#2d4159')#(0.5,0.5,0,1)
 
-        enaColor0 = includes.colors['blue']
-        enaColor1 = includes.colors['orange']
+        #enaColor0 = includes.colors['blue']
+        #enaColor1 = includes.colors['orange']
 
         self.header0 = SelectLabelBg(
-            background_color=headerColor0,
+            background_color=includes.styles['headerColor0'],
             text_size=(columnWidth0-20, headerHeight),
             text=headerText0,
             halign="center",
@@ -512,7 +514,7 @@ class MenuPlaylist(StackLayout, Select):
         self.add_widget(self.header0)
 
         self.header1 = SelectLabelBg(
-            background_color=headerColor1,
+            background_color=includes.styles['headerColor1'],
             text_size=(columnWidth0-20, headerHeight),
             text=headerText1,
             halign="center",
@@ -527,29 +529,29 @@ class MenuPlaylist(StackLayout, Select):
 
         self.add_widget(self.header1)
 
-
-
         self.fileList = FileList(
             id=str(int(self.selId)+1),
             rootdir=includes.config['playlist']['rootdir'],
-            enaColor=enaColor0,
+            enaColor=includes.styles['enaColor0'],
             bar_width=10,
             size_hint_x=None,
             width=columnWidth0,
             supportedTypes=includes.config['playlist']['types'],
             screenmanager=self.screenmanager,
-            fillerColor=headerColor0,
+            fillerColor=includes.styles['headerColor0'],
             showDirs=False,
-            selectFirst=False
+            selectFirst=False,
+            showIcon=False,
         )
 
         self.files = PlaylistJsonList(
             id=str(int(self.selId) + 5000),
-            enaColor=enaColor1,
+            enaColor=includes.styles['enaColor1'],
             bar_width=10,
             size_hint_x=None,
             width=columnWidth1,
-            fillerColor=headerColor1,
+            fillerColor=includes.styles['headerColor1'],
+            showIcon=False,
         )
 
 

@@ -3,6 +3,7 @@ from screensaver import *
 import os
 import logging
 import json
+from kivy.utils import get_color_from_hex as hexColor
 
 #Just make sure its not causing error redefininf build-in
 defined = True
@@ -15,15 +16,19 @@ colors = {
     'red': (0.5,0.0,0.0,0.8),
     'lightred': (0.8,0.2,0.2,0.3),
     'black' : (0, 0, 0, 1),
+    'darkblue': hexColor('#2c2c57'),
     'blue' : (0.5, 0.5, 1, 1),
-    'lightblue' : (0, 0, 0.5, 1),
-    'orange' : (1,0.5,0.2,1),
+    'oldblue': hexColor('#0f85a5'),
+    'lightblue' : hexColor('#035972'),
+    'orange' : (1,0.5,0.2,0.5),
+    'ishaOrange' : hexColor('#F15B28'),
 }
 
 styles = {
-    'defaultEnaColor': colors['blue'],
+    #colors
+    'defaultEnaColor': colors['oldblue'],
     'defaultBg': colors['black'],
-    'enaColor0': colors['blue'],
+    'enaColor0': colors['oldblue'],
     'enaColor1': colors['orange'],
     'warning': colors['lightred'],
     'defaultFiller': colors['lightblue'],
@@ -31,7 +36,15 @@ styles = {
     'itemColor1': colors['darkestgray'],
     'volumeIndicatorBG': colors['gray'],
     'volumeIndicatorColor': colors['blue'],
+    'headerColor0': colors['darkblue'],
+    'headerColor1': colors['gray'],
+    #sizes
+    'selectItemHeight': 80,
+    "fontSize": "25sp",
+    "playlistHeadHeight": 40
 }
+
+
 
 #Media player instance we can use in all modules
 player = Player()
