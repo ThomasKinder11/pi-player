@@ -186,16 +186,20 @@ class SelectSlider(Select, GridLayout):
 
         self.value = kwargs.pop('value', None)
         text = kwargs.pop('text', "!!!Empty Name in slider!!!")
+        textSize = kwargs.pop('fontSize', "20sp")
 
         #call super only after additional arguments have been popped
         super(SelectSlider, self).__init__(**kwargs)
 
         self.label = Label(
             text=text,
+            halign='left',
             size_hint=(None, None),
-            width=200,
-            height=50
+            width=400,
+            height=50,
+            font_size=textSize
         )
+        self.label.text_size = (self.label.width - 60, self.label.height)
 
         self.slider = Slider(
             min=-0,
@@ -207,8 +211,14 @@ class SelectSlider(Select, GridLayout):
         )
 
         val = self.slider.value
-        self.valLabel = Label(text=str(val)+'s', size_hint=(None, None), width=10, height=50)
-
+        self.valLabel = Label(
+            text=str(val)+'s',
+            size_hint=(None, None),
+            width=10,
+            height=50,
+            font_size=textSize
+        )
+    
         self.selected = False
         self.type = "selectslider"
         self.defaultColor = self.label.color

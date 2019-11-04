@@ -30,18 +30,20 @@ class MenuSettings(GridLayout):
 
         self.widgets.append(SelectSlider(
             value=screensaverTime,
-            size_hint=(None, None),
+            size_hint=(1, None),
             text="Screensaver time",
             enaColor=includes.styles['enaColor0'],
-            id="100"
+            id="100",
+            fontSize=includes.styles['fontSize']
         ))
 
         self.widgets.append(SelectSlider(
             value=osdTime,
-            size_hint=(None, None),
+            size_hint=(1, None),
             text="OSD auto turnoff time",
             enaColor=includes.styles['enaColor0'],
-            id="101"
+            id="101",
+            fontSize=includes.styles['fontSize']
         ))
 
         self.btnSave = SelectButton(
