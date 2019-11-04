@@ -324,8 +324,9 @@ class MenuOSD(StackLayout, Select):
             height=50,
             radius=15,
             bgColor=includes.colors['gray'],
-            color=includes.colors['blue'],
-            value=0
+            color=includes.colors['oldblue'],
+            value=0,
+            mode='line'
         )
 
         self.btnPlay.onEnter = self.onEnterPlay

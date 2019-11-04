@@ -19,9 +19,6 @@ class FileList(SelectListView):
         super(FileList, self).delTopText()
         self.topTextVisible = False
 
-    def addTopText(self, text, user):
-        super(FileList, self).addTopText(text, user, includes.styles['warning'])
-
     def resize(self, widget, value):
         pass
 
@@ -111,11 +108,7 @@ class FileList(SelectListView):
                 self.scroll_to(self.widgets[self.wId], animate=False)
             else:
                 self.wId = 0
-
-        if includes.db['runtime'] > 0 and self.type == "video":
-            user = {'tSeek':includes.db['runtime'], 'isRerun':True}
-            self.addTopText(includes.db['mediaPath'], user)
-
+        
     def __init__(self, **kwargs):
         if 'rootdir' not in kwargs:
             logging.error("MenuVideo: root dir not give as parameter")

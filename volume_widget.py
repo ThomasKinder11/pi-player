@@ -3,7 +3,7 @@ import threading
 import time
 import queue
 
-from kivy.graphics import Color, Line
+from kivy.graphics import Color, Line, Rectangle
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.stacklayout import StackLayout
@@ -113,12 +113,14 @@ class VolumeIndicator(RelativeLayout):
         if not self.muteState: #we are muted
             self.indicator.bgColor = self.bgColor
             self.indicator.color = self.color
-            self.label.color = self.labelColor
+            if self.label:
+                self.label.color = self.labelColor
             self.value = self.oldVolume
         else:
             self.indicator.bgColor = (1, 0, 0, 1)
             self.indicator.color = (1, 0, 0, 1)
-            self.label.color = (1, 0, 0, 1)
+            if self.label:
+                self.label.color = (1, 0, 0, 1)
             self.oldVolume = self.value
             self.value = 0
 
@@ -132,36 +134,28 @@ class VolumeIndicator(RelativeLayout):
         if value < 0 or value > 100:
             return -1
 
-        self.label.text = str(value)
+        if self.label:
+            self.label.text = str(value)
+
         self.indicator.value = value
         self.value = value
 
         return 0
 
     def _drawCanvas(self):
-        self.indicator = CirularIndicator(
+
+        self.indicator = Indicator(
             size_hint=(None, None),
             width=self.width,
             height=self.height,
             radius=self.radius,
             bgColor=self.bgColor,
             color=self.color,
-            value=self.value
+            value=self.value,
+            mode=self.mode
         )
 
         self.add_widget(self.indicator)
-
-        self.label = Label(
-            text=str(self.value),
-            color=self.labelColor,
-            size_hint=(None, None),
-            width=self.width+5,
-            height=self.height+5,
-            valign="middle",
-            halign="center"
-        )
-
-        self.add_widget(self.label)
         self.visible = True
 
     def release(self):
@@ -176,6 +170,7 @@ class VolumeIndicator(RelativeLayout):
         self.width = kwargs.pop('width', None)
         self.height = kwargs.pop('height', None)
         self.incVal = kwargs.pop('incVal', 5)
+        self.mode = kwargs.pop('mode', 'line')
         self.timeInterval = 0.100
 
         super(VolumeIndicator, self).__init__(**kwargs)
@@ -192,14 +187,19 @@ class VolumeIndicator(RelativeLayout):
         self.muteState = False
 
 
+class LinearIndicator(Widget):
+    value = ObjectProperty(0)
+    color = ObjectProperty(None, allownone=True)
+    bgColor = ObjectProperty(None, allownone=True)
 
 
 
-class CirularIndicator(Widget):
+class Indicator(Widget):
     value = ObjectProperty(0)
     color = ObjectProperty(None, allownone=True)
     bgColor = ObjectProperty(None, allownone=True)
     radius = None
+    line = None
 
     def changeBG(self, widget, value):
         if not value:
@@ -221,9 +221,13 @@ class CirularIndicator(Widget):
         if value < 0 or value > 100:
             return -1
 
-        maxVal = int((value / 100.0) * 360.0)
+        if self.mode == "line":
+            self.line.size = (int(self.width  * (value / 100)), 20)
 
-        self.line.circle = (self.width/2+3, self.height/2+3, self.radius, 0, maxVal)
+        else:
+            maxVal = int((value / 100.0) * 360.0)
+            self.line.circle = (self.width/2+3, self.height/2+3, self.radius, 0, maxVal)
+
         self.canvas.ask_update()
 
         return 0
@@ -234,29 +238,40 @@ class CirularIndicator(Widget):
                 return
 
             self.bgc = Color(*self.bgColor)
-            self.bgLine = Line(
-                circle=(
-                    self.width/2+3,
-                    self.height/2+3,
-                    self.radius,
-                    0,
-                    360
-                ),
-                width=3
-            )
 
-            self.c = Color(*self.color)
-            maxVal = int((self.value / 100.0) * 360.0)
-            self.line = Line(
-                circle=(
-                    self.width/2+3,
-                    self.height/2+3,
-                    self.radius,
-                    0,
-                    maxVal
-                ),
-                width=3
-            )
+            if self.mode == 'circle':
+                self.bgLine = Line(
+                    circle=(
+                        self.width/2+3,
+                        self.height/2+3,
+                        self.radius,
+                        0,
+                        360
+                    ),
+                    width=3
+                )
+
+                self.c = Color(*self.color)
+                maxVal = int((self.value / 100.0) * 360.0)
+                self.line = Line(
+                    circle=(
+                        self.width/2+3,
+                        self.height/2+3,
+                        self.radius,
+                        0,
+                        maxVal
+                    ),
+                    width=3
+                )
+
+            elif self.mode == 'line':
+                posY = (self.height-20)/ 2
+                self.bgLine = Rectangle(pos=(0, posY), size=(self.width, 20))
+
+
+                self.c = Color(*self.color)
+                width = int(self.width  * (self.value / 100))
+                self.line = Rectangle(pos=(0, posY), size=(width, 20))
 
 
     def __init__(self, **kwargs):
@@ -264,7 +279,8 @@ class CirularIndicator(Widget):
         self.color = kwargs.pop('color', (1, 1, 1, 1))
         self.value = kwargs.pop('value', 0)
         self.radius = kwargs.pop('radius', 10)
-        super(CirularIndicator, self).__init__(**kwargs)
+        self.mode = kwargs.pop('mode', 'circle')
+        super(Indicator, self).__init__(**kwargs)
 
         self._drawCanvas()
 
@@ -278,10 +294,18 @@ class CirularIndicator(Widget):
 #-- Standalone test
 #-------------------------------------------------------------------------------
 if __name__ == "__main__":
+    import logging
 
     class Test(App):
         testVal = 0
         volume = None
+
+        def toogleMode(self, widget):
+            logging.error("toogle called {}".format(self.volume.mode))
+            if self.volume.mode == 'cirle':
+                self.volume.mode = 'line'
+            elif self.volume.mode == 'line':
+                self.volume.mode = 'circle'
 
         def volumeUp(self, widget):
             self.volume.volumeUp()
@@ -298,14 +322,15 @@ if __name__ == "__main__":
 
         def build(self):
             self.volume = VolumeIndicator(
-                incVal=1,
+                incVal=10,
                 size_hint=(None, None),
-                width=50,
+                width=100,
                 height=50,
                 radius=15,
                 bgColor=includes.styles['volumeIndicatorBG'],
                 color=includes.styles['volumeIndicatorColor'],
-                value=0
+                value=0,
+                mode='line'
             )
 
             layout = StackLayout()
@@ -352,6 +377,17 @@ if __name__ == "__main__":
 
             stopBtn.bind(on_press=self.stopBtn)
             layout.add_widget(stopBtn)
+
+            tglModeBtn = Button(
+                text="Toggle Mode",
+                size_hint=(None, None),
+                width=100,
+                height=100,
+                pos=(210, 100)
+            )
+
+            tglModeBtn.bind(on_press=self.toogleMode)
+            layout.add_widget(tglModeBtn)
 
             return layout
 
