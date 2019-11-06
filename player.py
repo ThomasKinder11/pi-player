@@ -1,6 +1,10 @@
-from player import *
+#from player import *
 import logging
 import os
+import socket
+import json
+from functools import partial
+
 from  subprocess import Popen, threading
 from kivy.core.window import Window
 import time
@@ -25,21 +29,98 @@ class Player():
     runtime = 0
     vlcPl = None
 
+    #
+    # Playback functions the user need to set up if needed
+    #
     def onPlayEnd(self):
+        '''Callbakc function called when playback finished'''
         return
+
+    #
+    # Public functions of the player, each player class should have them
+    #
+    def stop(self):
+        self._execute({'command': ["quit"]})
+
+    def _getRunTime(self):
+        ret = self._execute({'command': ["get_property", "time-pos"]})
+        tmp = json.loads(ret[0])
+        if 'data' in tmp:
+            self.runtime(int(tmp['data']))
+
+    def pause(self):
+        self._execute({'command': ["set_property", "pause", True]})
+
+    def play(self):
+        self._execute({'command': ["set_property", "pause", False]})
+
+    def start(self):
+        self._execute({'command': ["set_property", "pause", False]})
+
+    def togglePause(self):
+        self.isPaused = True
+        ret = self._execute({'command': ["get_property", "pause"]})
+        logging.error("Ret= {}".format(ret))
+        tmp = json.loads(ret[0])
+
+        if 'data' in tmp:
+            val = not tmp['data']
+            self._execute({'command': ["set_property", "pause", val]})
+
+    #
+    # Private methods
+    #
+    socket = None
+    def _conectToSocker(self, path):
+        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            self.socket.connect(path)
+        except OSError as e:
+            self.socket = None
+            #raise SocketError from e
+            logging.error("SockerError")
+
+    def _execute(self, command):
+        data = json.dumps(command) + "\r\n"
+        data = bytes(data, encoding='utf-8')
+
+        try:
+            if self.socket:
+                self.socket.send(data)
+                buf = self.socket.recv(1024)
+            else:
+                logging.error("No socket in commmand")
+                return None
+        except OSError as e:
+            raise SocketError from e
+
+        #logging.error('DEBUG:data:: {}'.format(data))
+        #logging.error('DEBUG:buffer:: {}'.format(buf))
+
+
+        tmp = buf.decode('utf-8').split('\n')
+        for item in tmp:
+            result = json.loads(item)
+            status = result['error']
+            if status == 'success':
+                return tmp
+
+        logging.error("Player: error value returned from player...")
+
+    def _command(self, command, *args):
+        return self._execute({'command': [command, *args]})
+
+    def close(self):
+        self.socket.close()
 
     def _onUpdateRunTime(self, val):
         pass
 
     def _playWorkThread(self, mode):
         logging.debug("Thread mode = {}.....".format(mode))
+        time.sleep(2)
+        self._conectToSocker(os.path.join(includes.config['tmpdir'],"socket"))
 
-        # if mode == 'audio':
-        #     while self.vlcPl.is_playing():
-        #         time.sleep(1)
-        #         logging.debug("Wait for VLC to stop.....")
-        #
-        # elif mode == 'video':
         self.isPlaying = True
         if self.process == None:
             self.isPlaying = False
@@ -50,7 +131,7 @@ class Player():
         while self.process.poll() == None:
             time.sleep(1)
 
-            self.runtime = self.runtime + 1
+            #self.runtime = self.runtime + 1
             self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
 
             if self.runtime % includes.config['settings']['runtimeInterval'] == 0:
@@ -66,15 +147,10 @@ class Player():
 
         self.onPlayEnd(None)
 
-    def stop(self):
-        pass #TODO
-
-    def pause(self):
-        self.isPaused = True
-        pass
 
 
-    def play(self, path, tSeek):
+
+    def start(self, path, tSeek):
         logging.info("Player: start playing file... path = {}".format(path))
         self.path = path
 
@@ -121,6 +197,7 @@ class Player():
                             path,
                             #"--really-quiet",
                             #"--no-osc",
+                            "--pause", #TODO: remove !!! ::TK::
                             "--ontop",
                             "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
 
@@ -139,6 +216,7 @@ class Player():
             logging.debug("Player: no video nor audio file... {}".format(path))
 
         # Start player thread
+
         self.playThread = threading.Thread(target = self._playWorkThread, args=(mode,))
         self.playThread.setDaemon(True)
         self.playThread.start()
@@ -154,4 +232,15 @@ class Player():
 
         #reset the runtime value
         self.runtime = 0
+        self._getRunTime()
         self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
+
+
+
+if __name__ == "__main__":
+    player = MpvPlayer()
+    player._conectToSocker("/tmp/socket")
+
+    #player.togglePause()
+    #player.stop()
+    player.getRunningTime()

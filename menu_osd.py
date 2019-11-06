@@ -76,24 +76,26 @@ class MenuOSD(StackLayout, Select):
 
         return False
 
+    onEnterPlay = None
+    # def onEnterPlay(self, args):
+    #     #'''These are the callback functions which are triggered when play button is pressed'''
+    #     #logging.error("MenuOSD: onEnterPlay needs to be assigned to playlist callback!")
+    #     pass
 
-    def onEnterPlay(self):
-        '''These are the callback functions which are triggered when play button is pressed'''
-        logging.debug("MenuOSD: onEnterPlay")
-
-    def onEnterPause(self):
+    def onEnterPause(self, args):
         '''Callback function which needs to be set by parent to execute pause fct of player'''
-        logging.debug("MenuOSD: onEnterPause needs to be assigned to playlist callback!")
+        logging.error("MenuOSD: onEnterPause needs to be assigned to playlist callback!")
 
-    def onEnterPrevious(self):
+
+    def onEnterPrevious(self, args):
         '''called when previous button on OSD is pressed'''
         self.playlistPrevious(None)
 
-    def onEnterNext(self):
+    def onEnterNext(self, args):
         '''called when next button on OSD is pressed'''
         self.playlistNext(None)
 
-    def onEnterStop(self):
+    def onEnterStop(self, args):
         '''This function is executed when we hit stop'''
         self.disable(None)
         self.playlistAbort(None)
@@ -113,6 +115,7 @@ class MenuOSD(StackLayout, Select):
                 for wid in self.widgets:
                     wid.opacity = 0
                     wid.disable(None)
+
                 self.runtime.opacity = 0
                 self.isVisible = False
 
@@ -141,35 +144,52 @@ class MenuOSD(StackLayout, Select):
 
                     self.runtime.opacity = 0.0
                     self.isVisible = False
+                elif cmd['cmd'] == 'resetCnt':
+                    self.idleCounter = 0
 
     def left(self, args):
         '''Logic to select next OSD element to the left from currently selected item'''
-        self.enable(None)
 
-        if self.wId <= len(self.widgets) and self.wId > 1:
-            self.widgets[self.wId-1].disable(None)
+        if not self.isVisible:
+            self.enable(None)
+            self.wId = 0
+            self.widgets[self.wId].enable(None)
+            return
 
-            if self.wId >= 2:
-                self.widgets[self.wId - 2].enable(None)
+        self._resetCnt()
 
-                self.wId = self.wId - 1
+        if self.wId < len(self.widgets) and self.wId >= 0:
+            if self.wId > 0:
+                self.widgets[self.wId].disable(None)
+
+            self.wId = includes.clipInt(self.wId - 1, min=0, max=4)
+            self.widgets[self.wId].enable(None)
 
     def right(self, args):
         '''Logic to select next OSD element to the right from currently selected item'''
-        self.enable(None)
-
-        if self.wId < len(self.widgets):
+        if not self.isVisible:
+            self.enable(None)
+            self.wId = 0
             self.widgets[self.wId].enable(None)
 
-            if self.wId >= 1:
-                self.widgets[self.wId - 1].disable(None)
+            return
 
-            self.wId = self.wId + 1
+        self._resetCnt()
 
+        if self.wId < len(self.widgets):
+            self.widgets[self.wId].disable(None)
+
+            self.wId = includes.clipInt(self.wId + 1, min=0, max=4)
+            self.widgets[self.wId].enable(None)
+
+    def _resetCnt(self):
+        self.ctrlQueue.put({'cmd':'resetCnt'})
 
     def enable(self, args):
         #logging.debug("MenuOSD: enable function called")
         self.ctrlQueue.put({'cmd':'visible'})
+        while not self.isVisible:
+            time.sleep(0.01)
 
 
 
@@ -178,10 +198,15 @@ class MenuOSD(StackLayout, Select):
 
 
     def enter(self, args):
-        '''When enter is pressed it will make OSD visible or activate button functions'''
+        '''
+            If OSD is visible enter will activate button press, otherwise
+            enter will be forwarded to playlist controller
+        '''
         if self.isVisible:
-            self.widgets[self.wId-1].onEnter()
+            self.widgets[self.wId].onEnter(args)
         else:
+            #when OSD is not active, enter button will be forwareded to the player
+            #this is used to switch to the next media file in playlist mode
             if self.onPlaylistEnter is not None:
                 self.onPlaylistEnter(None)
 
@@ -329,12 +354,6 @@ class MenuOSD(StackLayout, Select):
             mode='line'
         )
 
-        self.btnPlay.onEnter = self.onEnterPlay
-        self.btnPause.onEnter = self.onEnterPause
-        self.btnStop.onEnter = self.onEnterStop
-        self.btnNext.onEnter = self.onEnterNext
-        self.btnPrevious.onEnter = self.onEnterPrevious
-
         self._addAllWidgets()
 
         #add a colored 5px indicator bar at the bottom of the OSD to show status
@@ -361,6 +380,8 @@ class MenuOSD(StackLayout, Select):
         self.thread = threading.Thread(target=self._worker)
         self.thread.setDaemon(True)
         self.thread.start()
+
+        self.wId = 0
 
 class OSDMain(App):
     '''This is just a Kivy app for testing the OSD on its own - do not rely on this!'''

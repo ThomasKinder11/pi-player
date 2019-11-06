@@ -65,7 +65,10 @@ class MenuPlaylist(StackLayout, Select):
         return includes.player.isPlaying
 
     def pause(self, args):
-        includes.player.pause(args)
+        includes.player.pause()
+
+    def play(self, args):
+        includes.player.play()
 
     def enable(self, args):#down
         if self.mode == self._fileList  and len(self.fileList.widgets) > 0:
@@ -305,7 +308,7 @@ class MenuPlaylist(StackLayout, Select):
             else:
                 tSeek = 0
 
-            includes.player.play(playlist[item]['path'], tSeek)
+            includes.player.start(playlist[item]['path'], tSeek)
 
             ret = self._waitForCmd('event', 'end')
             if 'abort' in ret:
@@ -437,7 +440,7 @@ class MenuPlaylist(StackLayout, Select):
 
     def abort(self, args):
         includes.player.stop()
-        self.ctrlQueue.put({'cmd':{'abort':None}})
+        #self.ctrlQueue.put({'cmd':{'abort':None}})
 
     def next(self, args):
         self.ctrlQueue.put({'cmd':{'next':None}})

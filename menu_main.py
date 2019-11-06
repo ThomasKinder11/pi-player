@@ -318,19 +318,17 @@ class Menu(StackLayout, TabbedPanel):
         self.screenSaver.enable()
         includes.screenSaver = self.screenSaver
 
-        #set player
+        #set player callbacks
         includes.player.onPlayEnd = self.selectableWidgets[40000].onPlayerEnd
         includes.player._onUpdateRunTime = self._onUpdateRunTime
 
         #Setup OSD callback for passing enter command to playlist
         self.osd.onPlaylistEnter = self.selectableWidgets[40000].enter
-        self.osd.playlistAbort = self.selectableWidgets[40000].abort
-        self.osd.playlistPrevious = self.selectableWidgets[40000].previous
-        self.osd.playlistNext = self.selectableWidgets[40000].next
-        self.osd.onEnterPause = self.selectableWidgets[40000].pause
-        self.osd.isPaused = self.selectableWidgets[40000].isPaused
-        self.osd.hasNextTrack = self.selectableWidgets[40000].hasNextTrack
-        self.osd.hasPreviousTrack = self.selectableWidgets[40000].hasPreviousTrack
+        self.osd.btnPlay.onEnter =  self.selectableWidgets[40000].play
+        self.osd.btnPause.onEnter =  self.selectableWidgets[40000].pause
+        self.osd.btnPrevious.onEnter =  self.selectableWidgets[40000].previous
+        self.osd.btnNext.onEnter =  self.selectableWidgets[40000].next
+        self.osd.btnStop.onEnter =  self.selectableWidgets[40000].abort
 
         #Setup video/audio view callbacks
         tmp = self.selectableWidgets[40000].startVirtualSingle
