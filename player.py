@@ -1,5 +1,6 @@
 #from player import *
 import logging
+import subprocess
 import os
 import socket
 import json
@@ -28,6 +29,7 @@ class Player():
     path = None
     runtime = 0
     vlcPl = None
+    semaExec = threading.Semaphore()
 
     #
     # Playback functions the user need to set up if needed
@@ -44,34 +46,61 @@ class Player():
 
     def _getRunTime(self):
         ret = self._execute({'command': ["get_property", "time-pos"]})
+        if ret is None:
+            return
+
         tmp = json.loads(ret[0])
         if 'data' in tmp:
-            self.runtime(int(tmp['data']))
+
+            self.runtime = int(tmp['data'])
+            #logging.error("runtime value set.... = {}".format(self.runtime))
 
     def pause(self):
+        # cmd = 'echo \'{ "command": ["cycle", "pause"] }\''
+        # cmd = cmd + "| socat - " + includes.config['tmpdir'] + "/socket"
+        # logging.error(cmd)
+        # os.system(cmd)
         self._execute({'command': ["set_property", "pause", True]})
 
+
+
     def play(self):
+        # cmd = 'echo \'{ "command": ["set_property", "pause", false] }\''
+        # cmd = cmd + "| socat - " + includes.config['tmpdir'] + "/socket"
+        # os.system(cmd)
         self._execute({'command': ["set_property", "pause", False]})
 
-    def start(self):
-        self._execute({'command': ["set_property", "pause", False]})
-
-    def togglePause(self):
-        self.isPaused = True
+    def isPaused(self):
         ret = self._execute({'command': ["get_property", "pause"]})
-        logging.error("Ret= {}".format(ret))
+        if ret is None:
+            return
+
+        #logging.error("Ret= {}".format(ret))
         tmp = json.loads(ret[0])
 
         if 'data' in tmp:
-            val = not tmp['data']
-            self._execute({'command': ["set_property", "pause", val]})
+            return tmp['data']
+        else:
+            return None
+
+    def togglePause(self):
+
+        #self.isPaused = True
+        val = self.isPaused()
+        if value is not None:
+            self._execute({'command': ["set_property", "pause", not val]})
 
     #
     # Private methods
     #
     socket = None
-    def _conectToSocker(self, path):
+    sockPath = None
+    def _conectToSocket(self, path):
+
+        while not os.path.exists(path):
+            time.sleep(0.5)
+
+        self.sockPath = path
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
             self.socket.connect(path)
@@ -80,7 +109,9 @@ class Player():
             #raise SocketError from e
             logging.error("SockerError")
 
+
     def _execute(self, command):
+        self.semaExec.acquire()
         data = json.dumps(command) + "\r\n"
         data = bytes(data, encoding='utf-8')
 
@@ -88,24 +119,32 @@ class Player():
             if self.socket:
                 self.socket.send(data)
                 buf = self.socket.recv(1024)
+                if "error" not in str(buf):#we got event see read again... retry
+                     buf = self.socket.recv(1024)
             else:
                 logging.error("No socket in commmand")
+                self.semaExec.release()
                 return None
-        except OSError as e:
-            raise SocketError from e
+        except:
+            logging.error("Problems in socket....")
+            self.semaExec.release()
+            return None
 
         #logging.error('DEBUG:data:: {}'.format(data))
         #logging.error('DEBUG:buffer:: {}'.format(buf))
 
 
         tmp = buf.decode('utf-8').split('\n')
+
         for item in tmp:
             result = json.loads(item)
             status = result['error']
             if status == 'success':
+                self.semaExec.release()
                 return tmp
 
         logging.error("Player: error value returned from player...")
+        self.semaExec.release()
 
     def _command(self, command, *args):
         return self._execute({'command': [command, *args]})
@@ -119,7 +158,7 @@ class Player():
     def _playWorkThread(self, mode):
         logging.debug("Thread mode = {}.....".format(mode))
         time.sleep(2)
-        self._conectToSocker(os.path.join(includes.config['tmpdir'],"socket"))
+        self._conectToSocket(os.path.join(includes.config['tmpdir'],"socket"))
 
         self.isPlaying = True
         if self.process == None:
@@ -132,6 +171,7 @@ class Player():
             time.sleep(1)
 
             #self.runtime = self.runtime + 1
+            self._getRunTime()
             self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
 
             if self.runtime % includes.config['settings']['runtimeInterval'] == 0:
@@ -195,10 +235,10 @@ class Player():
                             "--no-border",
                             "--no-input-default-bindings",
                             path,
-                            #"--really-quiet",
-                            #"--no-osc",
-                            "--pause", #TODO: remove !!! ::TK::
-                            "--ontop",
+                            "--really-quiet",
+                            "--no-osc",
+                            #"--pause", #TODO: remove !!! ::TK:: 
+                            "--no-input-terminal",
                             "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
 
                             ])
@@ -232,14 +272,13 @@ class Player():
 
         #reset the runtime value
         self.runtime = 0
-        self._getRunTime()
         self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
 
 
 
 if __name__ == "__main__":
     player = MpvPlayer()
-    player._conectToSocker("/tmp/socket")
+    player._conectToSocket("/tmp/socket")
 
     #player.togglePause()
     #player.stop()
