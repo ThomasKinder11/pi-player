@@ -23,6 +23,22 @@ colors = {
     'lightblue' : hexColor('#035972'),
     'orange' : (1,0.5,0.2,0.5),
     'ishaOrange' : hexColor('#F15B28'),
+    #error message colors
+    'errMsgHead' : hexColor('#ffc8be'),
+    'errMsgText' : hexColor('#000000'),
+    'errMsgSidebar' : hexColor('#fda798'),
+    'errMsgContent' : hexColor('#ffd8d2'),
+    #warning message colors
+    'warnMsgHead' : hexColor('#ffe78d'),
+    'warnMsgText' : hexColor('#000000'),
+    'warnMsgSidebar' : hexColor('#ffd965'),
+    'warnMsgContent' : hexColor('#ffeeaa'),
+    #info message colors
+    'infoMsgHead' : hexColor('#5599ff'),
+    'infoMsgText' : hexColor('#000000'),
+    'infoMsgSidebar' : hexColor('#2a7fff'),
+    'infoMsgContent' : hexColor('#80b3ff'),
+    'msgBorder' : hexColor('#666666')
 }
 
 styles = {
@@ -44,8 +60,11 @@ styles = {
     #sizes
     'selectItemHeight': 80,
     "fontSize": "25sp",
-    "playlistHeadHeight": 40
+    "playlistHeadHeight": 40,
+    #Dailogs
+    'dialogBorderHeight': 5
 }
+
 
 
 
@@ -59,7 +78,7 @@ config = None
 with open(cfgPath) as config_file:
     config = json.load(config_file)
 
-logging.error(config)
+#logging.error(config)
 
 def writeJson(path, dict):
         f = open(path, "w")

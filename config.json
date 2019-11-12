@@ -1,15 +1,15 @@
 {
     "tmpdir": "/home/thomas/tmp",
     "audio": {
-        "rootdir": "/home/thomas/tmp/audios/empty",
+        "rootdir": "/home/thomas/multimedia/audios",
         "types": "mp3,wav"
     },
     "playlist": {
-        "rootdir": "/home/thomas/tmp/playlists",
+        "rootdir": "/home/thomas/multimedia/playlists",
         "types": "json"
     },
     "video": {
-        "rootdir": "/home/thomas/tmp/videos",
+        "rootdir": "/home/thomas/multimedia/videos",
         "types": "mp4"
     },
     "settings": {

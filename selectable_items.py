@@ -218,7 +218,7 @@ class SelectSlider(Select, GridLayout):
             height=50,
             font_size=textSize
         )
-    
+
         self.selected = False
         self.type = "selectslider"
         self.defaultColor = self.label.color
@@ -234,9 +234,13 @@ class SelectSlider(Select, GridLayout):
 class SelectLabelBg(SelectLabel):
     background_color = ObjectProperty(includes.styles['defaultBg'])
 
-    def size_change(self, widget, value):
-        self.back.size = (self.width, self.height)
-        self.back.pos = self.pos
+    def size_change(self, widget, value):  #TODO: we should use the value passed to the function not global parameters, this could be the reason why rescaling does not work properly. Separate pos and size change and update canvas like in the dialog
+        self.back.size = value
+        self.text_size = (value[0], self.text_size[1]) 
+
+
+    def pos_change(self, widget, value):
+        self.back.pos = value
 
     def enable(self, args):
         self.tmpColor = self.background_color
@@ -256,15 +260,12 @@ class SelectLabelBg(SelectLabel):
         self.background_color = kwargs.pop('background_color', includes.styles['defaultBg'])
         super(SelectLabelBg, self).__init__(**kwargs)
 
-        self.size_hint_x = None
-        self.size_hint_y = None
-
         with self.canvas.before:
             Color(*self.background_color)
             self.back = Rectangle(size=self.size, pos=self.pos)
 
         self.bind(size=self.size_change)
-        self.bind(pos=self.size_change)
+        self.bind(pos=self.pos_change)
         self.bind(background_color=self.updateBg)
         self.bind(enaColor=self.updateBg)
 
