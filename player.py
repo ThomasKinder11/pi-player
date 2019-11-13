@@ -132,10 +132,6 @@ class Player():
             self.semaExec.release()
             return None
 
-        #logging.error('DEBUG:data:: {}'.format(data))
-        #logging.error('DEBUG:buffer:: {}'.format(buf))
-
-
         tmp = buf.decode('utf-8').split('\n')
 
         for item in tmp:
@@ -175,8 +171,6 @@ class Player():
 
         while self.process.poll() == None:
             time.sleep(1)
-
-            #self.runtime = self.runtime + 1
             self._getRunTime()
             self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
 
@@ -236,14 +230,12 @@ class Player():
 
             self.process = Popen(["mpv",
                             "--geometry={}+{}+{}".format(playerWidth, posx, posy),
-                            #"--geometry=1244+98+0",
                             "--start=+{}".format(tSeek),
                             "--no-border",
                             "--no-input-default-bindings",
                             path,
                             "--really-quiet",
-                            #"--no-osc",
-                            #"--pause", #TODO: remove !!! ::TK::
+                            "--no-osc",
                             "--no-input-terminal",
                             "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
 
@@ -288,10 +280,3 @@ class Player():
         #reset the runtime value
         self.runtime = 0
         self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
-
-
-
-if __name__ == "__main__":
-    player = MpvPlayer()
-    player._conectToSocket("/tmp/socket")
-    player.getRunningTime()
