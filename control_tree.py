@@ -85,14 +85,17 @@ CONTROL_TREE = {
             {'func':'switch', 'id':0},
             {'nextid':0}
         ],
-        "up": [
-            {'func':'disable', 'id':40000},
-            {'nextid':40000}
-        ],
         "down": [
-            {'func':'enable', 'id':40000},
-            {'func':'disable', 'id':3},
-            {'nextid':40000}
+             {'func':'disable', 'id':3},
+             {
+                 'func':'enable',
+                 'id':40000,
+                 'true':[
+                     {'func':'disable', 'id':40000},
+                     {'func':'enable', 'id':3},
+                     {'nextid':3}
+                 ]
+             },
         ],
         "note":"playlist",
     },

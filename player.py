@@ -56,7 +56,8 @@ class Player():
             #logging.error("runtime value set.... = {}".format(self.runtime))
 
     def pause(self):
-        # cmd = 'echo \'{ "command": ["cycle", "pause"] }\''
+        # from random import randint as random
+        # cmd = 'echo \'{ "command": ["cycle", "pause"], "request_id": %s }\'' % str(random(0,100))
         # cmd = cmd + "| socat - " + includes.config['tmpdir'] + "/socket"
         # logging.error(cmd)
         # os.system(cmd)
@@ -65,7 +66,8 @@ class Player():
 
 
     def play(self):
-        # cmd = 'echo \'{ "command": ["set_property", "pause", false] }\''
+        # from random import randint as random
+        # cmd = 'echo \'{ "command": ["set_property", "pause", false], "request_id": %s }\'' % str(random(100,200))
         # cmd = cmd + "| socat - " + includes.config['tmpdir'] + "/socket"
         # os.system(cmd)
         self._execute({'command': ["set_property", "pause", False]})
@@ -138,6 +140,10 @@ class Player():
 
         for item in tmp:
             result = json.loads(item)
+            if not 'error' in result:
+                self.semaExec.release()
+                return None
+
             status = result['error']
             if status == 'success':
                 self.semaExec.release()
@@ -236,22 +242,31 @@ class Player():
                             "--no-input-default-bindings",
                             path,
                             "--really-quiet",
-                            "--no-osc",
-                            #"--pause", #TODO: remove !!! ::TK:: 
+                            #"--no-osc",
+                            #"--pause", #TODO: remove !!! ::TK::
                             "--no-input-terminal",
                             "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
 
                             ])
 
 
+
         elif path.lower().endswith(audioFormats):
             self.isPlaying = True
             mode = "audio"
-            logging.debug("Player: start playing audio with vlc...")
+            logging.debug("Player: start playing audio")
 
-            #self.vlcPl = vlc.MediaPlayer(path)
-            #self.vlcPl.play()
-            #self.process = Popen(['vlc', path, "-I dummy --dummy-quiet"])
+            self.isPlaying = True
+            self.process = Popen(["mpv",
+                            "--start=+{}".format(tSeek),
+                            "--no-border",
+                            "--no-input-default-bindings",
+                            path,
+                            "--really-quiet",
+                            "--no-osc",
+                            "--no-input-terminal",
+                            "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
+                            ])
         else:
             logging.debug("Player: no video nor audio file... {}".format(path))
 
@@ -279,7 +294,4 @@ class Player():
 if __name__ == "__main__":
     player = MpvPlayer()
     player._conectToSocket("/tmp/socket")
-
-    #player.togglePause()
-    #player.stop()
     player.getRunningTime()

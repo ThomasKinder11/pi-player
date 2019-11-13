@@ -264,7 +264,7 @@ class MenuOSD(StackLayout, Select):
         super(MenuOSD, self).__init__()
 
         self.btnPrevious = SelectButton(
-            imgPath="./resources/img/previous",
+            imgPath="atlas://resources/img/pi-player/previous",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -273,7 +273,7 @@ class MenuOSD(StackLayout, Select):
         )
 
         self.btnNext = SelectButton(
-            imgPath="./resources/img/next",
+            imgPath="atlas://resources/img/pi-player/next",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -282,7 +282,7 @@ class MenuOSD(StackLayout, Select):
         )
 
         self.btnPlay = SelectButton(
-            imgPath="./resources/img/play",
+            imgPath="atlas://resources/img/pi-player/play",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -293,7 +293,7 @@ class MenuOSD(StackLayout, Select):
 
 
         self.btnPause = SelectButton(
-            imgPath="./resources/img/pause",
+            imgPath="atlas://resources/img/pi-player/pause",
             size_hint_y=None,
             size_hint_x=None,
             height=50,
@@ -302,7 +302,7 @@ class MenuOSD(StackLayout, Select):
         )
 
         self.btnStop = SelectButton(
-            imgPath="./resources/img/stop",
+            imgPath="atlas://resources/img/pi-player/stop",
             size_hint_y=None,
             size_hint_x=None,
             height=50,

@@ -71,6 +71,9 @@ class MenuPlaylist(StackLayout, Select):
         includes.player.play()
 
     def enable(self, args):#down
+        if self.fileList.widgets is None or len(self.fileList.widgets) <= 0:
+            return True
+
         if self.mode == self._fileList  and len(self.fileList.widgets) > 0:
             tmpId = self.fileList.wId + 1
 
@@ -91,6 +94,8 @@ class MenuPlaylist(StackLayout, Select):
         return False
 
     def disable(self, args):#up
+        if self.fileList.widgets is None or len(self.fileList.widgets) <= 0:
+            return True
 
         if self.mode == self._fileList and len(self.fileList.widgets) > 0:
             tmpId = self.fileList.wId - 1
