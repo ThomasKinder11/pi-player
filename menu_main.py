@@ -20,6 +20,8 @@ from menu_video import FileList
 from menu_osd import MenuOSD
 from menu_playlist import MenuPlaylist
 from key_handler import KeyHandler
+from dialog import DialogHandler
+from menu_system import MenuSystem
 
 
 class IshaGui(StackLayout):
@@ -151,6 +153,9 @@ class Menu(StackLayout, TabbedPanel):
                 if ret and 'true' in cmd: #execute ret functions if specified
                     self._keyHanlder(cmd['true'])
 
+                if not ret and 'false' in cmd: #execute ret functions if specified
+                    self._keyHanlder(cmd['false'])
+
 
     def osdDisable(self, args):
         '''Switche control back to last element after OSD was displayed'''
@@ -199,6 +204,9 @@ class Menu(StackLayout, TabbedPanel):
     def _onUpdateRunTime(self, value):
         self.osd.runtime.text = value
 
+    def _warningPlay(self, args):
+        logging.error("Warning: play somthing something something")
+
 
     def __init__(self, **kwargs):
         self.root = kwargs.pop('root', "None")
@@ -218,32 +226,32 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[0] = SelectableTabbedPanelHeader(
             id="000",
         )
-        self.selectableWidgets[0].background_normal = "./resources/img/settings.png"
-        self.selectableWidgets[0].background_down = "./resources/img/settings_select.png"
+        self.selectableWidgets[0].background_normal = "atlas://resources/img/pi-player/settings"
+        self.selectableWidgets[0].background_down = "atlas://resources/img/pi-player/settings_select"
 
         self.selectableWidgets[1] = SelectableTabbedPanelHeader(
             id="001",
         )
-        self.selectableWidgets[1].background_normal = "./resources/img/video.png"
-        self.selectableWidgets[1].background_down = "./resources/img/video_select.png"
+        self.selectableWidgets[1].background_normal = "atlas://resources/img/pi-player/video"
+        self.selectableWidgets[1].background_down = "atlas://resources/img/pi-player/video_select"
 
 
         self.selectableWidgets[2] = SelectableTabbedPanelHeader(
             id="002",
         )
-        self.selectableWidgets[2].background_normal = "./resources/img/music.png"
-        self.selectableWidgets[2].background_down = "./resources/img/music_select.png"
+        self.selectableWidgets[2].background_normal = "atlas://resources/img/pi-player/music"
+        self.selectableWidgets[2].background_down = "atlas://resources/img/pi-player/music_select"
 
         self.selectableWidgets[3] = SelectableTabbedPanelHeader(
             id="003",
         )
-        self.selectableWidgets[3].background_normal = "./resources/img/playlist.png"
-        self.selectableWidgets[3].background_down = "./resources/img/playlist_select.png"
+        self.selectableWidgets[3].background_normal = "atlas://resources/img/pi-player/playlist"
+        self.selectableWidgets[3].background_down = "atlas://resources/img/pi-player/playlist_select"
 
         self.selectableWidgets[4] = SelectableTabbedPanelHeader(id="004")
 
-        self.selectableWidgets[4].background_normal = "./resources/img/power.png"
-        self.selectableWidgets[4].background_down = "./resources/img/power_select.png"
+        self.selectableWidgets[4].background_normal = "atlas://resources/img/pi-player/power"
+        self.selectableWidgets[4].background_down = "atlas://resources/img/pi-player/power_select"
 
 
         #for i in range(len(self.selectableWidgets)):
@@ -295,6 +303,13 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[40000].osdColorIndicator = self.osd.setColorIndicator
 
         self.selectableWidgets[3].content = self.selectableWidgets[40000]
+
+
+        #Setup the menu for system notifications and system operations like shutdown
+        self.menuSystem = MenuSystem()
+        self.selectableWidgets[4].content = self.menuSystem #self.handler
+        self.selectableWidgets[50000] = self.menuSystem.handler
+        self.selectableWidgets[50001] = self.menuSystem.btn
 
         #Find all the children which are selectble and can be controlled by keyboard
         self._findSelectableChildren(self.selectableWidgets[0].content.children)

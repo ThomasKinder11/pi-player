@@ -101,7 +101,7 @@ class SelectButton(Button, Select):
             self.color = self.enaColor
 
         elif self.btnType == "image":
-            self.background_normal = self.imgPath + "_select.png"
+            self.background_normal = self.imgPath + "_select" #TODO:.png"
 
         return True
 
@@ -112,7 +112,7 @@ class SelectButton(Button, Select):
             self.color = self.defaultColor
 
         elif self.btnType == "image":
-            self.background_normal = self.imgPath + ".png"
+            self.background_normal = self.imgPath #TODO: + ".png"
 
         return True
 
@@ -127,7 +127,7 @@ class SelectButton(Button, Select):
 
         if self.imgPath:
             self.btnType = "image"
-            self.background_normal = self.imgPath + ".png"
+            self.background_normal = self.imgPath #TODO: + ".png"
         else:
             self.btnType = "text"
 
@@ -236,7 +236,7 @@ class SelectLabelBg(SelectLabel):
 
     def size_change(self, widget, value):  #TODO: we should use the value passed to the function not global parameters, this could be the reason why rescaling does not work properly. Separate pos and size change and update canvas like in the dialog
         self.back.size = value
-        self.text_size = (value[0], self.text_size[1]) 
+        self.text_size = (value[0], self.text_size[1])
 
 
     def pos_change(self, widget, value):
@@ -511,10 +511,10 @@ class SelectListView(Select, ScrollView):
 
         source = None
         if isDir:
-            source = "./resources/img/dir.png"
+            source = "atlas://resources/img/pi-player/dir"
             #imgWidth, imgHeight = includes.styles['selectItemHeight'], includes.styles['selectItemHeight']
         else:
-            source =  "./resources/img/dot.png"
+            source =  "atlas://resources/img/pi-player/dot"
 
         bg = None
         if len(self.widgets) % 2 == 0:

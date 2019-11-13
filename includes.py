@@ -24,21 +24,37 @@ colors = {
     'orange' : (1,0.5,0.2,0.5),
     'ishaOrange' : hexColor('#F15B28'),
     #error message colors
-    'errMsgHead' : hexColor('#ffc8be'),
-    'errMsgText' : hexColor('#000000'),
-    'errMsgSidebar' : hexColor('#fda798'),
-    'errMsgContent' : hexColor('#ffd8d2'),
+    'errMsgHead' : hexColor('#6c5d53'),
+    'errMsgText' : hexColor('#ffffff'),
+    'errMsgSidebar' : hexColor('#483e37'),
+    'errMsgContent' : hexColor('#917c6f'),
     #warning message colors
-    'warnMsgHead' : hexColor('#ffe78d'),
-    'warnMsgText' : hexColor('#000000'),
-    'warnMsgSidebar' : hexColor('#ffd965'),
-    'warnMsgContent' : hexColor('#ffeeaa'),
+    'warnMsgHead' : hexColor('#536c5d'),
+    'warnMsgText' : hexColor('#ffffff'),
+    'warnMsgSidebar' : hexColor('#37483e'),
+    'warnMsgContent' : hexColor('#6f917c'),
     #info message colors
-    'infoMsgHead' : hexColor('#5599ff'),
-    'infoMsgText' : hexColor('#000000'),
-    'infoMsgSidebar' : hexColor('#2a7fff'),
-    'infoMsgContent' : hexColor('#80b3ff'),
-    'msgBorder' : hexColor('#666666')
+    'infoMsgHead' : hexColor('#216778'),
+    'infoMsgText' : hexColor('#ffffff'),
+    'infoMsgSidebar' : hexColor('#164450'),
+    'infoMsgContent' : hexColor('#2c89a0'),
+    'msgBorder' : hexColor('#303030'),
+    # #error message colors
+    # 'errMsgHead' : hexColor('#ffc8be'),
+    # 'errMsgText' : hexColor('#000000'),
+    # 'errMsgSidebar' : hexColor('#fda798'),
+    # 'errMsgContent' : hexColor('#ffd8d2'),
+    # #warning message colors
+    # 'warnMsgHead' : hexColor('#ffe78d'),
+    # 'warnMsgText' : hexColor('#000000'),
+    # 'warnMsgSidebar' : hexColor('#ffd965'),
+    # 'warnMsgContent' : hexColor('#ffeeaa'),
+    # #info message colors
+    # 'infoMsgHead' : hexColor('#5599ff'),
+    # 'infoMsgText' : hexColor('#000000'),
+    # 'infoMsgSidebar' : hexColor('#2a7fff'),
+    # 'infoMsgContent' : hexColor('#80b3ff'),
+    # 'msgBorder' : hexColor('#666666')
 }
 
 styles = {

@@ -25,8 +25,24 @@ class KeyHandler():
 	def onRelease(self, args):
 		pass
 
+	def _setScancodes(self):
+		self.scancodes = {}
+		self.scancodes[106] = "right"
+		self.scancodes[105] = "left"
+		self.scancodes[103] = "up"
+		self.scancodes[108] = "down"
+		self.scancodes[158] = "browser back"
+		self.scancodes[115] = "volume up"
+		self.scancodes[114] = "volume down"
+		self.scancodes[113] = "volume mute"
+		self.scancodes[28] = "enter"
+		self.scancodes[27] = "+"
+		self.scancodes[53] = "-"
+		self.scancodes[50] = "m"
+
 
 	def _worker(self):
+		self._setScancodes()
 		while True:
 			try:
 				for key,mask in self.selector.select():
@@ -39,23 +55,13 @@ class KeyHandler():
 						#elif event.value == 0:#key pressed
 						else:
 							try:
-								scancodes = {}
-								#print("press {}".format((evdev.ecodes.KEY[event.code],event.code)))
-								scancodes[106] = "right"
-								scancodes[105] = "left"
-								scancodes[103] = "up"
-								scancodes[108] = "down"
-								scancodes[158] = "browser back"
-								scancodes[115] = "volume up"
-								scancodes[114] = "volume down"
-								scancodes[113] = "volume mute"
-								scancodes[28] = "enter"
-								scancodes[27] = "+"
-								scancodes[53] = "-"
-								scancodes[50] = "m"
-								self.onPress((event.code, scancodes[event.code]))
+								self.onPress((event.code, self.scancodes[event.code]))
+							except AttributeError as e:
+								logging.error("keyHandler: {}".format(e))
+							except TypeError as e:
+								logging.error("keyHandler: {}".format(e))
 							except:
-								logging.debug("keyHandler: unsupported key code = {}".format(event.code))
+								logging.debug("keyHandler: [unhandled exception] unsupported key code = {}".format(event.code))
 
 			except BlockingIOError:
 				pass

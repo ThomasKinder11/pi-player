@@ -101,6 +101,11 @@ CONTROL_TREE = {
             {'func':'switch', 'id':1},
             {'nextid':1}
         ],
+        "down":[
+            {'func':'disable', 'id':4},
+            {'func':'enable', 'id':50001},
+            {'nextid':50001}
+        ],
         "note":"power control",
     },
     100:{
@@ -222,4 +227,64 @@ CONTROL_TREE = {
         ],
         "type":"playlists",
         },
+    50000:{
+        "down":[
+            {
+                'func':'enable',
+                'id':50000,
+                'true':[
+                    {'func':'enable', 'id':4},
+                    {'nextid':4}
+                ]
+            }
+
+        ],
+        "up":[
+            {
+                'func':'disable',
+                'id':50000,
+                'true':[
+                    {'func':'enable', 'id':50001},
+                    {'nextid':50001}
+                ]
+            }
+
+        ],
+        "enter":[
+            {
+                'func':'enter',
+                'id':50000,
+                'true':[
+                    {'func':'enable', 'id':50001},
+                    {'nextid':50001}
+                ]
+            }
+        ],
+        "left":[{'func':'left', 'id':50000}],
+        "right":[{'func':'right', 'id':50000}],
+    },
+    50001:{
+        "down":[
+            {'func':'disable', 'id':50001},
+            {
+                'func':'enable',
+                'id':50000,
+                'true':[
+                    {'func':'enable', 'id':50001},
+                    {'nextid':50001}
+                ],
+                'false':[
+                    {'nextid':50000}
+                ]
+            }
+        ],
+        "left":[{'func':'left', 'id':50001}],
+        "right":[{'func':'right', 'id':50001}],
+        "up":[
+            {'func':'disable', 'id':50001},
+            {'func':'enable', 'id':4},
+            {'nextid':4}
+        ],
+        "enter":[{'func':'enter', 'id':50001}]
+    },
 }
