@@ -68,13 +68,7 @@ class MenuOSD(StackLayout, Select):
 
     def setColorIndicator(self, color):
         '''Set the color of the 5px high indicator border at the bottom of OSD'''
-        logging.debug("setColorIndicator: called function....")
-        if color in includes.colors:
-            logging.debug("setColorIndicator: color is in color palet....")
-            self.colorIndicator.background_color = includes.colors[color]
-            return True
-
-        return False
+        self.colorIndicator.background_color = color
 
     onEnterPlay = None
     # def onEnterPlay(self, args):
@@ -107,7 +101,7 @@ class MenuOSD(StackLayout, Select):
             #logging.debug("MenuOSD: alive...")
             time.sleep(self.timeStep)
             self.idleCounter = self.idleCounter + self.timeStep
-        
+
             #just limit the counter value
             if self.idleCounter > includes.config['settings']['osdTime']:
                 self.idleCounter = includes.config['settings']['osdTime']
@@ -358,8 +352,8 @@ class MenuOSD(StackLayout, Select):
 
         #add a colored 5px indicator bar at the bottom of the OSD to show status
         self.colorIndicator = SelectLabelBg(
-            height=5,
-            size_hint_y=None,
+            # height=50,#includes.styles['pListIndiactorHeight'],
+            # size_hint_y=None,
             size_hint_x=None,
             width=Window.width,
             background_color=includes.colors['black'],

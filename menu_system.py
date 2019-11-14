@@ -1,4 +1,5 @@
 import logging
+import os
 
 import includes
 from kivy.uix.stacklayout import StackLayout
@@ -13,9 +14,11 @@ class MenuSystem(StackLayout):
 
     def _reboot(self, args):
         logging.error("TODO: reboot the system")
+        os.system("/sbin/reboot")
 
     def _shutdown(self, args):
         logging.error("TODO: shutdown the system")
+        os.system("/sbin/poweroff")
 
     def __init__(self, **kwargs):
         super(MenuSystem, self).__init__(**kwargs)

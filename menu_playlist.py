@@ -36,6 +36,21 @@ class MenuPlaylist(StackLayout, Select):
     pListStartId = 0
     prevTimestamp = None
 
+    def size_change(self, widget, value):
+        columnWidth0 = Window.width * 0.3
+        columnWidth1 = Window.width - columnWidth0
+        headerHeight = includes.styles['playlistHeadHeight']
+
+        self.header0.size = (columnWidth0, headerHeight)
+        self.header1.size = (columnWidth1, headerHeight)
+
+        self.fileList.size = (columnWidth0, value[1])
+        self.files.size = (columnWidth1, value[1]) 
+
+
+    def pos_change(self, widget, value):
+        pass
+
     def osdEnable(self, args):
         #callback function to enable osd
         pass
@@ -292,10 +307,11 @@ class MenuPlaylist(StackLayout, Select):
 
             if 'pre' in playlist[item] and not skipPre:
                 if playlist[item]['pre'] == 'BLACKSCREEN':
-                    self.osdColorIndicator('red')
+                    self.osdColorIndicator(includes.styles['plistIndicatorColor'])
 
                     ret = self._waitForCmd('key', 'enter')
-                    self.osdColorIndicator('black')
+
+                    self.osdColorIndicator(includes.colors['black'])
                     if 'abort' in ret:
                         return
 
@@ -506,6 +522,7 @@ class MenuPlaylist(StackLayout, Select):
         #enaColor0 = includes.colors['blue']
         #enaColor1 = includes.colors['orange']
 
+
         self.header0 = SelectLabelBg(
             background_color=includes.styles['headerColor0'],
             text_size=(columnWidth0-20, headerHeight),
@@ -574,3 +591,7 @@ class MenuPlaylist(StackLayout, Select):
 
 
         self.prevTimestamp = time.time()
+
+
+        self.bind(size=self.size_change)
+        self.bind(size=self.pos_change)

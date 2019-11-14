@@ -78,7 +78,10 @@ styles = {
     "fontSize": "25sp",
     "playlistHeadHeight": 40,
     #Dailogs
-    'dialogBorderHeight': 5
+    'dialogBorderHeight': 5,
+    #Playlist color Indicator
+    'pListIndiactorHeight':15,
+    'plistIndicatorColor':colors['oldblue']
 }
 
 
