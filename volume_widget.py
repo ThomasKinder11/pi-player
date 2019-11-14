@@ -2,6 +2,7 @@ import logging
 import threading
 import time
 import queue
+import os
 
 from kivy.graphics import Color, Line, Rectangle
 from kivy.app import App
@@ -90,11 +91,10 @@ class VolumeIndicator(RelativeLayout):
         if self.muteState:
             self.muteState = False
 
-        if self.value >= 100:
-            self.value = 100
-            return
 
-        self.value = (self.value + self.incVal)
+
+        self.value = includes.clipInt(self.value + self.incVal, 0, 100)
+        os.system("amixer sset \'Master\' {}%".format(self.value))
 
 
     def volumeDown(self):
@@ -103,11 +103,8 @@ class VolumeIndicator(RelativeLayout):
         if self.muteState:
             self.muteState = False
 
-        if self.value <= 0:
-            self.value = 0
-            return
-
-        self.value = (self.value - self.incVal)
+        self.value = includes.clipInt(self.value - self.incVal, 0, 100)
+        os.system("amixer sset \'Master\' {}%".format(self.value))
 
     def mute(self, widget, value):
         if not self.muteState: #we are muted
@@ -116,6 +113,7 @@ class VolumeIndicator(RelativeLayout):
             if self.label:
                 self.label.color = self.labelColor
             self.value = self.oldVolume
+            os.system("amixer sset \'Master\' {}%".format(self.value))
         else:
             self.indicator.bgColor = (1, 0, 0, 1)
             self.indicator.color = (1, 0, 0, 1)
@@ -123,6 +121,7 @@ class VolumeIndicator(RelativeLayout):
                 self.label.color = (1, 0, 0, 1)
             self.oldVolume = self.value
             self.value = 0
+            os.system("amixer sset \'Master\' {}%".format(self.value))
 
     def changeLabelColor(self, widget, value):
         if not value:
