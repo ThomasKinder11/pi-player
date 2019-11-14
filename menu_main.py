@@ -22,6 +22,7 @@ from menu_playlist import MenuPlaylist
 from key_handler import KeyHandler
 from dialog import DialogHandler
 from menu_system import MenuSystem
+from control_tree import selectId as selectId
 
 
 class IshaGui(StackLayout):
@@ -35,7 +36,7 @@ class IshaGui(StackLayout):
     def __init__(self, **kwargs):
         super(IshaGui, self).__init__(**kwargs)
 
-        self.osd = MenuOSD(id="200")
+        self.osd = MenuOSD(id=str(selectId['osd']))
         self.screens = IshaPiScreens(osd=self.osd)
 
         self.screens.size_hint_y = None
@@ -100,7 +101,7 @@ class Menu(StackLayout, TabbedPanel):
 
         if keycode[1] == "m":
             self.osd.muteToggle(None)
-            self.selectableWidgets[40000].ctrlQueue.put({'cmd':'end'})
+            self.selectableWidgets[selectId['pFiles']].ctrlQueue.put({'cmd':'end'})
             return
 
     _keyHandledMextId = False
@@ -223,49 +224,50 @@ class Menu(StackLayout, TabbedPanel):
         self.tab_height = 60
 
 
-        self.selectableWidgets[0] = SelectableTabbedPanelHeader(
-            id="000",
+        self.selectableWidgets[selectId['settings']] = SelectableTabbedPanelHeader(
+            id=str(selectId['settings']),
         )
-        self.selectableWidgets[0].background_normal = "atlas://resources/img/pi-player/settings"
-        self.selectableWidgets[0].background_down = "atlas://resources/img/pi-player/settings_select"
+        self.selectableWidgets[selectId['settings']].background_normal = "atlas://resources/img/pi-player/settings"
+        self.selectableWidgets[selectId['settings']].background_down = "atlas://resources/img/pi-player/settings_select"
 
-        self.selectableWidgets[1] = SelectableTabbedPanelHeader(
-            id="001",
+        self.selectableWidgets[selectId['videos']] = SelectableTabbedPanelHeader(
+            id=str(selectId['videos']),
         )
-        self.selectableWidgets[1].background_normal = "atlas://resources/img/pi-player/video"
-        self.selectableWidgets[1].background_down = "atlas://resources/img/pi-player/video_select"
+        self.selectableWidgets[selectId['videos']].background_normal = "atlas://resources/img/pi-player/video"
+        self.selectableWidgets[selectId['videos']].background_down = "atlas://resources/img/pi-player/video_select"
 
 
-        self.selectableWidgets[2] = SelectableTabbedPanelHeader(
-            id="002",
+        self.selectableWidgets[selectId['music']] = SelectableTabbedPanelHeader(
+            id=str(selectId['music']),
         )
-        self.selectableWidgets[2].background_normal = "atlas://resources/img/pi-player/music"
-        self.selectableWidgets[2].background_down = "atlas://resources/img/pi-player/music_select"
+        self.selectableWidgets[selectId['music']].background_normal = "atlas://resources/img/pi-player/music"
+        self.selectableWidgets[selectId['music']].background_down = "atlas://resources/img/pi-player/music_select"
 
-        self.selectableWidgets[3] = SelectableTabbedPanelHeader(
-            id="003",
+
+        self.selectableWidgets[selectId['playlist']] = SelectableTabbedPanelHeader(
+            id=str(selectId['playlist']),
         )
-        self.selectableWidgets[3].background_normal = "atlas://resources/img/pi-player/playlist"
-        self.selectableWidgets[3].background_down = "atlas://resources/img/pi-player/playlist_select"
+        self.selectableWidgets[selectId['playlist']].background_normal = "atlas://resources/img/pi-player/playlist"
+        self.selectableWidgets[selectId['playlist']].background_down = "atlas://resources/img/pi-player/playlist_select"
 
-        self.selectableWidgets[4] = SelectableTabbedPanelHeader(id="004")
+        self.selectableWidgets[selectId['system']] = SelectableTabbedPanelHeader(id=str(selectId['system']))
 
-        self.selectableWidgets[4].background_normal = "atlas://resources/img/pi-player/power"
-        self.selectableWidgets[4].background_down = "atlas://resources/img/pi-player/power_select"
+        self.selectableWidgets[selectId['system']].background_normal = "atlas://resources/img/pi-player/power"
+        self.selectableWidgets[selectId['system']].background_down = "atlas://resources/img/pi-player/power_select"
 
 
         #for i in range(len(self.selectableWidgets)):
-        self.add_widget(self.selectableWidgets[4])
-        self.add_widget(self.selectableWidgets[1])
-        self.add_widget(self.selectableWidgets[2])
-        self.add_widget(self.selectableWidgets[3])
-        self.add_widget(self.selectableWidgets[0])
+        self.add_widget(self.selectableWidgets[selectId['system']])
+        self.add_widget(self.selectableWidgets[selectId['videos']])
+        self.add_widget(self.selectableWidgets[selectId['music']])
+        self.add_widget(self.selectableWidgets[selectId['playlist']])
+        self.add_widget(self.selectableWidgets[selectId['settings']])
 
-        self.selectableWidgets[0].content = MenuSettings()
+        self.selectableWidgets[selectId['settings']].content = MenuSettings()
 
         #Setup Video menu
-        self.selectableWidgets[20000] = FileList(
-            id="20000",
+        self.selectableWidgets[selectId['vFile']] = FileList(
+            id=str(selectId['vFile']),
             rootdir=includes.config['video']['rootdir'],
             enaColor=includes.styles['enaColor0'],
             bar_width=10,
@@ -276,11 +278,11 @@ class Menu(StackLayout, TabbedPanel):
             selectFirst=False,
             type="video"
         )
-        self.selectableWidgets[1].content = self.selectableWidgets[20000]
+        self.selectableWidgets[selectId['videos']].content = self.selectableWidgets[selectId['vFile']]
 
         #Setup Audio menu
-        self.selectableWidgets[30000] = FileList(
-            id="30000",
+        self.selectableWidgets[selectId['mFiles']] = FileList(
+            id=str(selectId['mFiles']),
             rootdir=includes.config['audio']['rootdir'],
             enaColor=includes.styles['enaColor0'],
             bar_width=10,
@@ -290,37 +292,37 @@ class Menu(StackLayout, TabbedPanel):
             screenmanager=self.root,
             selectFirst=False
         )
-        self.selectableWidgets[2].content = self.selectableWidgets[30000]
+        self.selectableWidgets[selectId['music']].content = self.selectableWidgets[selectId['mFiles']]
 
 
         #Setup Playlist menu
-        self.selectableWidgets[40000] = MenuPlaylist(
-            id="40000",
+        self.selectableWidgets[selectId['pFiles']] = MenuPlaylist(
+            id=str(selectId['pFiles']),
             screenmanager=self.root
         )
-        self.selectableWidgets[40000].osdEnable = self.osdEnable
-        self.selectableWidgets[40000].osdDisable = self.osdDisable
-        self.selectableWidgets[40000].osdColorIndicator = self.osd.setColorIndicator
+        self.selectableWidgets[selectId['pFiles']].osdEnable = self.osdEnable
+        self.selectableWidgets[selectId['pFiles']].osdDisable = self.osdDisable
+        self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.osd.setColorIndicator
 
-        self.selectableWidgets[3].content = self.selectableWidgets[40000]
+        self.selectableWidgets[selectId['playlist']].content = self.selectableWidgets[selectId['pFiles']]
 
 
         #Setup the menu for system notifications and system operations like shutdown
         self.menuSystem = MenuSystem()
-        self.selectableWidgets[4].content = self.menuSystem #self.handler
-        self.selectableWidgets[50000] = self.menuSystem.handler
-        self.selectableWidgets[50001] = self.menuSystem.btn
+        self.selectableWidgets[selectId['system']].content = self.menuSystem #self.handler
+        self.selectableWidgets[selectId['systemMsg']] = self.menuSystem.handler
+        self.selectableWidgets[selectId['systemBtn']] = self.menuSystem.btn
 
         #Find all the children which are selectble and can be controlled by keyboard
-        self._findSelectableChildren(self.selectableWidgets[0].content.children)
-        self._findSelectableChildren(self.selectableWidgets[1].content.children)
+        self._findSelectableChildren(self.selectableWidgets[selectId['settings']].content.children)
+        self._findSelectableChildren(self.selectableWidgets[selectId['videos']].content.children)
         self.selectableWidgets[200] = self.osd
 
         self.controlTree = control_tree.CONTROL_TREE
-        self.curId = 4 # set start id
+        self.curId = selectId['system'] # set start id
 
         #do not allow down press on empty list
-        if len(self.selectableWidgets[30000].layout.children) <= 0:
+        if len(self.selectableWidgets[selectId['mFiles']].layout.children) <= 0:
             self.controlTree[2]['down'] = None
 
         try:
@@ -334,18 +336,18 @@ class Menu(StackLayout, TabbedPanel):
         includes.screenSaver = self.screenSaver
 
         #set player callbacks
-        includes.player.onPlayEnd = self.selectableWidgets[40000].onPlayerEnd
+        includes.player.onPlayEnd = self.selectableWidgets[selectId['pFiles']].onPlayerEnd
         includes.player._onUpdateRunTime = self._onUpdateRunTime
 
         #Setup OSD callback for passing enter command to playlist
-        self.osd.onPlaylistEnter = self.selectableWidgets[40000].enter
-        self.osd.btnPlay.onEnter =  self.selectableWidgets[40000].play
-        self.osd.btnPause.onEnter =  self.selectableWidgets[40000].pause
-        self.osd.btnPrevious.onEnter =  self.selectableWidgets[40000].previous
-        self.osd.btnNext.onEnter =  self.selectableWidgets[40000].next
-        self.osd.btnStop.onEnter =  self.selectableWidgets[40000].abort
+        self.osd.onPlaylistEnter = self.selectableWidgets[selectId['pFiles']].enter
+        self.osd.btnPlay.onEnter =  self.selectableWidgets[selectId['pFiles']].play
+        self.osd.btnPause.onEnter =  self.selectableWidgets[selectId['pFiles']].pause
+        self.osd.btnPrevious.onEnter =  self.selectableWidgets[selectId['pFiles']].previous
+        self.osd.btnNext.onEnter =  self.selectableWidgets[selectId['pFiles']].next
+        self.osd.btnStop.onEnter =  self.selectableWidgets[selectId['pFiles']].abort
 
         #Setup video/audio view callbacks
-        tmp = self.selectableWidgets[40000].startVirtualSingle
-        self.selectableWidgets[20000]._onEnterPlayer = tmp
-        self.selectableWidgets[30000]._onEnterPlayer = tmp
+        tmp = self.selectableWidgets[selectId['pFiles']].startVirtualSingle
+        self.selectableWidgets[selectId['vFile']]._onEnterPlayer = tmp
+        self.selectableWidgets[selectId['mFiles']]._onEnterPlayer = tmp

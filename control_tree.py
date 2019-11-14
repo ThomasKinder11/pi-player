@@ -26,88 +26,112 @@ of the object with the ID=1 is executed. Then the nextid is set to one,
 meaning that this object will gain keyboard control
 """
 
+selectId = {
+    'settings':1,
+
+    'videos':2,
+    'vFile':20000,
+
+    'music':3,
+    'mFiles':30000,
+
+    'playlist':4,
+    'pFiles':40000,
+
+    'system':0,
+    'systemBtn':50001,
+    'systemMsg':50000,
+
+    'osd':200,
+
+}
+
+
+
+
 CONTROL_TREE = {
-    0:{
+    selectId['settings']:{
         "left": [
-            {'func':'switch', 'id':3},
-            {'nextid':3}
+            {'func':'switch', 'id':selectId['playlist']},
+            {'nextid':selectId['playlist']}
         ],
         "up": None,
         "down":[
             {'func':'enable', 'id':100},
-            {'func':'disable', 'id':0},
+            {'func':'disable', 'id':selectId['settings']},
             {'nextid':100}
         ],
         "info":"settings menu"
     },
-    1:{
+    selectId['videos']:{
         "left":  [
-            {'func':'switch', 'id':4},
-            {'nextid':4}
+            {'func':'switch', 'id':selectId['system']},
+            {'nextid':selectId['system']}
         ],
         "right": [
-            {'func':'switch', 'id':2},
-            {'nextid':2}
+            {'func':'switch', 'id':selectId['music']},
+            {'nextid':selectId['music']}
         ],
         "up": [
-            {'func':'disable', 'id':20000},
-            {'nextid':1}
+            {'func':'disable', 'id':selectId['vFile']},
+            {'nextid':selectId['videos']}
         ],
         "down": [
-            {'func':'enable', 'id':20000},
-            {'func':'disable', 'id':1},
-            {'nextid':20000}
+            {'func':'enable', 'id':selectId['vFile']},
+            {'func':'disable', 'id':selectId['videos']},
+            {'nextid':selectId['vFile']}
         ],
         "info":"video menu",
     },
-    2:{
+    selectId['music']:{
         "left":  [
-            {'func':'switch', 'id':1},
-            {'nextid':1}
+            {'func':'switch', 'id':selectId['videos']},
+            {'nextid':selectId['videos']}
         ],
         "right": [
-            {'func':'switch', 'id':3},
-            {'nextid':3}
+            {'func':'switch', 'id':selectId['playlist']},
+            {'nextid':selectId['playlist']}
         ],
         "down": [
-            {'func':'enable', 'id':30000},
-            {'func':'disable', 'id':2},
-            {'nextid':30000}
+            {'func':'enable', 'id':selectId['mFiles']},
+            {'func':'disable', 'id':selectId['music']},
+            {'nextid':selectId['mFiles']}
         ],
         "note":"audio menu",
     },
-    3:{
+    selectId['playlist']:{
         "left":  [
-            {'func':'switch', 'id':2},
-            {'nextid':2}
+            {'func':'switch', 'id':selectId['music']},
+            {'nextid':selectId['music']}
         ],
         "right": [
-            {'func':'switch', 'id':0},
-            {'nextid':0}
+            {'func':'switch', 'id':selectId['settings']},
+            {'nextid':selectId['settings']}
         ],
         "down": [
-             {'func':'disable', 'id':3},
+             {'func':'disable', 'id':selectId['playlist']},
              {
                  'func':'enable',
-                 'id':40000,
+                 'id':selectId['pFiles'],
                  'true':[
-                     {'func':'disable', 'id':40000},
-                     {'func':'enable', 'id':3},
-                     {'nextid':3}
+                     {'func':'disable', 'id':selectId['pFiles']},
+                     {'func':'enable', 'id':selectId['playlist']},
+                     {'nextid':selectId['playlist']}
                  ]
              },
+             {'nextid':selectId['pFiles']},
         ],
-        "note":"playlist",
+        "note":"pFiles",
     },
-    4:{
+    selectId['system']:{
         "right": [
-            {'func':'switch', 'id':1},
-            {'nextid':1}
+            {'func':'switch', 'id':selectId['videos']},
+            {'nextid':selectId['videos']}
         ],
         "down":[
-            {'func':'disable', 'id':4},
-            {'func':'enable', 'id':50001},
-            {'nextid':50001}
+            {'func':'disable', 'id':selectId['system']},
+            {'func':'enable', 'id':selectId['systemBtn']},
+            {'nextid':selectId['systemBtn']}
         ],
         "note":"power control",
     },
@@ -116,8 +140,8 @@ CONTROL_TREE = {
         "right":[{'func':'increment', 'id':100}],
         "up":[
             {'func':'disable', 'id':100},
-            {'func':'enable', 'id':0},
-            {'nextid':0}
+            {'func':'enable', 'id':selectId['settings']},
+            {'nextid':selectId['settings']}
         ],
         "down":[
             {'func':'enable', 'id':101},
@@ -168,76 +192,76 @@ CONTROL_TREE = {
             {'nextid':103}
         ],
     },
-    200:{
-        "left": [{'func':'left', 'id':200}],
-        "right":[{'func':'right', 'id':200}],
-        "enter":[{'func':'enter', 'id':200}],
-        "browser back": [{'func':'disable', 'id':200}],
-        "volume up": [{'func':'volumeUp', 'id':200}],
-        "volume down": [{'func':'volumeDown', 'id':200}],
-        "volume mute": [{'func':'muteToggle', 'id':200}],
+    selectId['osd']:{
+        "left": [{'func':'left', 'id':selectId['osd']}],
+        "right":[{'func':'right', 'id':selectId['osd']}],
+        "enter":[{'func':'enter', 'id':selectId['osd']}],
+        "browser back": [{'func':'disable', 'id':selectId['osd']}],
+        "volume up": [{'func':'volumeUp', 'id':selectId['osd']}],
+        "volume down": [{'func':'volumeDown', 'id':selectId['osd']}],
+        "volume mute": [{'func':'muteToggle', 'id':selectId['osd']}],
     },
-    20000:{
+    selectId['vFile']:{
         "up":[{
             'func':'disable',
-            'id':20000,
+            'id':selectId['vFile'],
             'true':[
-                {'func':'enable', 'id':1},
-                {'nextid':1}]
+                {'func':'enable', 'id':selectId['videos']},
+                {'nextid':selectId['videos']}]
             }],
-        "down":[{'func':'enable', 'id':20000}],
-        "enter":[{'func':'enter', 'id':20000}],
+        "down":[{'func':'enable', 'id':selectId['vFile']}],
+        "enter":[{'func':'enter', 'id':selectId['vFile']}],
         },
-    30000:{
+    selectId['mFiles']:{
         "up":[
             {
                 'func':'disable',
-                'id':30000,
+                'id':selectId['mFiles'],
                 'true':[
-                    {'func':'enable', 'id':2},
-                    {'nextid':2}
+                    {'func':'enable', 'id':selectId['music']},
+                    {'nextid':selectId['music']}
                 ]
             }
         ],
-        "down":[{'func':'enable', 'id':30000}],
+        "down":[{'func':'enable', 'id':selectId['mFiles']}],
         "enter":[
-            {'func':'enter', 'id':30000},
-            {'nextid':30000}
+            {'func':'enter', 'id':selectId['mFiles']},
+            {'nextid':selectId['mFiles']}
         ],
     },
-    40000:{
+    selectId['pFiles']:{
         "left":  [
-            {'func':'left', 'id':40000},
+            {'func':'left', 'id':selectId['pFiles']},
         ],
         "down": [
-            {'func':'enable', 'id':40000},
-            {'nextid':40000}
+            {'func':'enable', 'id':selectId['pFiles']},
+            {'nextid':selectId['pFiles']}
         ],
         "up":[{
             'func':'disable',
-            'id':40000,
+            'id':selectId['pFiles'],
             'true':[
-                {'func':'enable', 'id':3},
-                {'nextid':3}
+                {'func':'enable', 'id':selectId['playlist']},
+                {'nextid':selectId['playlist']}
             ]
         }],
         "right": [
-            {'func':'right', 'id':40000},
-            {'nextid':40000}
+            {'func':'right', 'id':selectId['pFiles']},
+            {'nextid':selectId['pFiles']}
         ],
         "enter": [
-            {'func':'enter', 'id':40000}
+            {'func':'enter', 'id':selectId['pFiles']}
         ],
-        "type":"playlists",
+        "type":"pFiless",
         },
-    50000:{
+    selectId['systemMsg']:{
         "down":[
             {
                 'func':'enable',
-                'id':50000,
+                'id':selectId['systemMsg'],
                 'true':[
-                    {'func':'enable', 'id':4},
-                    {'nextid':4}
+                    {'func':'enable', 'id':selectId['system']},
+                    {'nextid':selectId['system']}
                 ]
             }
 
@@ -245,10 +269,10 @@ CONTROL_TREE = {
         "up":[
             {
                 'func':'disable',
-                'id':50000,
+                'id':selectId['systemMsg'],
                 'true':[
-                    {'func':'enable', 'id':50001},
-                    {'nextid':50001}
+                    {'func':'enable', 'id':selectId['systemBtn']},
+                    {'nextid':selectId['systemBtn']}
                 ]
             }
 
@@ -256,38 +280,38 @@ CONTROL_TREE = {
         "enter":[
             {
                 'func':'enter',
-                'id':50000,
+                'id':selectId['systemMsg'],
                 'true':[
-                    {'func':'enable', 'id':50001},
-                    {'nextid':50001}
+                    {'func':'enable', 'id':selectId['systemBtn']},
+                    {'nextid':selectId['systemBtn']}
                 ]
             }
         ],
-        "left":[{'func':'left', 'id':50000}],
-        "right":[{'func':'right', 'id':50000}],
+        "left":[{'func':'left', 'id':selectId['systemMsg']}],
+        "right":[{'func':'right', 'id':selectId['systemMsg']}],
     },
-    50001:{
+    selectId['systemBtn']:{
         "down":[
-            {'func':'disable', 'id':50001},
+            {'func':'disable', 'id':selectId['systemBtn']},
             {
                 'func':'enable',
-                'id':50000,
+                'id':selectId['systemMsg'],
                 'true':[
-                    {'func':'enable', 'id':50001},
-                    {'nextid':50001}
+                    {'func':'enable', 'id':selectId['systemBtn']},
+                    {'nextid':selectId['systemBtn']}
                 ],
                 'false':[
-                    {'nextid':50000}
+                    {'nextid':selectId['systemMsg']}
                 ]
             }
         ],
-        "left":[{'func':'left', 'id':50001}],
-        "right":[{'func':'right', 'id':50001}],
+        "left":[{'func':'left', 'id':selectId['systemBtn']}],
+        "right":[{'func':'right', 'id':selectId['systemBtn']}],
         "up":[
-            {'func':'disable', 'id':50001},
-            {'func':'enable', 'id':4},
-            {'nextid':4}
+            {'func':'disable', 'id':selectId['systemBtn']},
+            {'func':'enable', 'id':selectId['system']},
+            {'nextid':selectId['system']}
         ],
-        "enter":[{'func':'enter', 'id':50001}]
+        "enter":[{'func':'enter', 'id':selectId['systemBtn']}]
     },
 }

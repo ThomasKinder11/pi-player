@@ -1,5 +1,4 @@
 {
-    "tmpdir": "/home/thomas/tmp",
     "audio": {
         "rootdir": "/home/thomas/multimedia/audios",
         "types": "mp3,wav"
@@ -8,13 +7,14 @@
         "rootdir": "/home/thomas/multimedia/playlists",
         "types": "json"
     },
+    "settings": {
+        "osdTime": 4,
+        "runtimeInterval": 1,
+        "screensaverTime": 7
+    },
+    "tmpdir": "/home/thomas/tmp",
     "video": {
         "rootdir": "/home/thomas/multimedia/videos",
         "types": "mp4"
-    },
-    "settings": {
-        "osdTime": 3,
-        "runtimeInterval": 1,
-        "screensaverTime": 8
     }
 }
