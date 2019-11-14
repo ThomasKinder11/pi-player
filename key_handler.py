@@ -60,8 +60,10 @@ class KeyHandler():
 								logging.error("keyHandler: {}".format(e))
 							except TypeError as e:
 								logging.error("keyHandler: {}".format(e))
-							#except:
-							#	logging.debug("keyHandler: [unhandled exception] unsupported key code = {}".format(event.code))
+							except KeyError as e:
+								logging.error("keyHandler: {}".format(e))
+							except:
+								logging.debug("keyHandler: [unhandled exception] unsupported key code = {}".format(event.code))
 
 			except BlockingIOError:
 				pass

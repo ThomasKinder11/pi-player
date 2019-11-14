@@ -49,11 +49,13 @@ class Player():
         if ret is None:
             return
 
-        tmp = json.loads(ret[0])
-        if 'data' in tmp:
-
-            self.runtime = int(tmp['data'])
-            #logging.error("runtime value set.... = {}".format(self.runtime))
+        try:
+            tmp = json.loads(ret[0])
+            if 'data' in tmp:
+                self.runtime = int(tmp['data'])
+                
+        except json.decoder.JSONDecodeError as e:
+            logging.error("Player: {}".format(e))
 
     def pause(self):
         # from random import randint as random

@@ -36,7 +36,7 @@ class MenuOSD(StackLayout, Select):
     colorIndicator = None
     id = None
     gap = None
-    timeStep = 0.0091
+    timeStep = 0.1
     thread = None
     idleCounter = 0
     #ena = True
@@ -107,7 +107,7 @@ class MenuOSD(StackLayout, Select):
             #logging.debug("MenuOSD: alive...")
             time.sleep(self.timeStep)
             self.idleCounter = self.idleCounter + self.timeStep
-
+        
             #just limit the counter value
             if self.idleCounter > includes.config['settings']['osdTime']:
                 self.idleCounter = includes.config['settings']['osdTime']

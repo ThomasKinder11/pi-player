@@ -20,7 +20,7 @@ class VolumeIndicator(RelativeLayout):
     label = None
     labelColor = ObjectProperty(includes.styles['volumeIndicatorColor'])
     muteState = ObjectProperty(False)
-    value = ObjectProperty(None, allownone=True)
+    value = ObjectProperty(100, allownone=True)
     bgColor = None
     oldVolume = 0
     incVal = 5
@@ -67,7 +67,6 @@ class VolumeIndicator(RelativeLayout):
     def _enable(self):
         self.ctrlQueue.put({'cmd':"reset"})
 
-
         if not self.visible:
             self._drawCanvas()
             if self.muteState:
@@ -91,10 +90,8 @@ class VolumeIndicator(RelativeLayout):
         if self.muteState:
             self.muteState = False
 
-
-
         self.value = includes.clipInt(self.value + self.incVal, 0, 100)
-        os.system("amixer sset \'Master\' {}%".format(self.value))
+
 
 
     def volumeDown(self):
@@ -104,7 +101,7 @@ class VolumeIndicator(RelativeLayout):
             self.muteState = False
 
         self.value = includes.clipInt(self.value - self.incVal, 0, 100)
-        os.system("amixer sset \'Master\' {}%".format(self.value))
+
 
     def mute(self, widget, value):
         if not self.muteState: #we are muted
@@ -113,7 +110,7 @@ class VolumeIndicator(RelativeLayout):
             if self.label:
                 self.label.color = self.labelColor
             self.value = self.oldVolume
-            os.system("amixer sset \'Master\' {}%".format(self.value))
+
         else:
             self.indicator.bgColor = (1, 0, 0, 1)
             self.indicator.color = (1, 0, 0, 1)
@@ -121,7 +118,7 @@ class VolumeIndicator(RelativeLayout):
                 self.label.color = (1, 0, 0, 1)
             self.oldVolume = self.value
             self.value = 0
-            os.system("amixer sset \'Master\' {}%".format(self.value))
+
 
     def changeLabelColor(self, widget, value):
         if not value:
@@ -136,8 +133,11 @@ class VolumeIndicator(RelativeLayout):
         if self.label:
             self.label.text = str(value)
 
-        self.indicator.value = value
+        if self.indicator is not None:
+            self.indicator.value = value
+
         self.value = value
+        os.system("amixer sset \'Master\' {}%".format(self.value))
 
         return 0
 
@@ -184,6 +184,10 @@ class VolumeIndicator(RelativeLayout):
 
         self.timeoutThread.start()
         self.muteState = False
+
+        self.value = 100
+
+
 
 
 class LinearIndicator(Widget):
@@ -286,6 +290,9 @@ class Indicator(Widget):
         self.bind(value=self.updateVal)
         self.bind(bgColor=self.changeBG)
         self.bind(color=self.changeColor)
+
+        #set volume to 100% which each start of the application
+
 
 
 
