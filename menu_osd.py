@@ -376,12 +376,26 @@ class MenuOSD(StackLayout, Select):
         self.thread.start()
 
         self.wId = 0
-
+#-------------------
+#
+from key_handler import KeyHandler
 class OSDMain(App):
+    def onPress(self, args):
+        scancode = args[1]
+        if scancode == 'left':
+            self.osd.left(None)
+        elif scancode == 'right':
+            self.osd.right(None)
+
     '''This is just a Kivy app for testing the OSD on its own - do not rely on this!'''
     def build(self):
-        return MenuOSD(id="0")
+        self.osd = MenuOSD(id="0")
+        return self.osd
 
 if __name__ == "__main__":
+    handler = KeyHandler()
+
+    main = OSDMain()
+    handler.onPress = main.onPress
     #Window.size = (Window.width, 50)
-    OSDMain().run()
+    main.run()

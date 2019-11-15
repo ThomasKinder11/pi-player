@@ -53,7 +53,7 @@ class Player():
             tmp = json.loads(ret[0])
             if 'data' in tmp:
                 self.runtime = int(tmp['data'])
-                
+
         except json.decoder.JSONDecodeError as e:
             logging.error("Player: {}".format(e))
 
@@ -231,7 +231,7 @@ class Player():
             self.runtime = tSeek
 
             self.process = Popen(["mpv",
-                            "--geometry={}+{}+{}".format(playerWidth, posx, posy),
+                            #"--geometry={}+{}+{}".format(playerWidth, posx, posy),
                             "--start=+{}".format(tSeek),
                             "--no-border",
                             "--no-input-default-bindings",

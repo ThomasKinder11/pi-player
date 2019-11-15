@@ -50,7 +50,7 @@ class KeyHandler():
 				for event in device.read():
 					if event.type == 1:
 						if event.value == 0:#key released
-							self.onRelease((evdev.ecodes.KEY[event.code],event.code))
+							self.onRelease((evdev.ecodes.KEY[event.code], event.code))
 
 						#elif event.value == 0:#key pressed
 						else:
