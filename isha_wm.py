@@ -14,34 +14,27 @@ class IshaWm():
     root = None
     activeWindow = None
     osdWin = None
-    curState = 0
+
 
     def __init__(self):
-            print("init called")
             self.display = Xlib.display.Display()
             self.root = self.display.screen().root
             self.displayWidth = self.root.get_geometry().width
             self.displayHeight = self.root.get_geometry().height
             self.root.change_attributes(event_mask = Xlib.X.SubstructureRedirectMask)
-            #print("width = {} height = {}".format(self.displayWidth, self.displayHeight))
+            self.handleActive = False
+            self.mainGuiMapped = False
+            self.state = 0
 
     first = True
     mainWin = None
     def handleEvents(self):
         if self.display.pending_events() > 0:
             event = self.display.next_event()
-            print("Event type = {}".format(event.type))
         else:
             return
 
         if event.type == Xlib.X.MapRequest:
-            print("IshaWM: map request received")
-            print("name = {}".format(event.window.get_wm_name()))#Kivy does not set name somehow
-            print("icnname = {}".format(event.window.get_wm_icon_name()))
-            print("class = {}".format(event.window.get_wm_class()))
-            print("geometry = {}".format(event.window.get_geometry()))
-            print("properties = {}".format(event.window.list_properties()))
-
             xClass = event.window.get_wm_class()
 
             #The first map request that comes from python is considered kivy root window
@@ -54,6 +47,7 @@ class IshaWm():
                     y=0
                 )
                 event.window.map()
+                self.mainGuiMapped = True
                 self.state = 1
 
             elif self.state == 1:
@@ -75,7 +69,7 @@ class IshaWm():
                 else:
                     #any other window will be just mapped as is like mpv player
                     event.window.map()
-                    #bring osd menu on top if we press a key
+
 
 
     def osdTop(self):
@@ -83,14 +77,13 @@ class IshaWm():
             logging.error("Bring OSD to the top 1")
             self.osdWin.configure(stack_mode=Xlib.X.Above)
             #self.osdWin.configure(stack_mode=Xlib.X.TopIf)
-            #self.osdWin.configure(stack_mode=Xlib.X.BottomIf)
+
 
     def osdBackground(self):
         if self.osdWin is not None:
             logging.error("Bring OSD to the bottom")
             self.osdWin.configure(stack_mode=Xlib.X.BottomIf)
-            #self.osdWin.configure(stack_mode=Xlib.X.TopIf)
-            #self.osdWin.configure(stack_mode=Xlib.X.BottomIf)
+
 
     def server(self):
         address = ('localhost', 6002)     # family is deduced to be 'AF_INET'
@@ -123,11 +116,12 @@ class IshaWm():
         listener.close()
 
     def main(self):
-        self.state = 0
 
         self.thread = threading.Thread(target=self.server)
         self.thread.setDaemon(True)
         self.thread.start()
+
+        self.handleActive = True
 
         while True:
             self.handleEvents()
@@ -136,39 +130,35 @@ class IshaWm():
 
 def guiWorker():
     from main import Main
-    logging.error("start Main()....")
     Main().run()
 
 
 if __name__ == "__main__":
-    print("IshaWM: handleEvents: called")
-    #IshaWm().main()
-
-
-
-    #from menu_osd import OSDMain
     wm = IshaWm()
     wmThread = threading.Thread(target=wm.main)
     wmThread.setDaemon(True)
     wmThread.start()
-    time.sleep(5)
+
+    while not wm.handleActive:
+        time.sleep(0.1)
+
 
     guiPro = Popen(["python3", "main.py"])
 
+    while not wm.mainGuiMapped:
+        time.sleep(0.1) #Wait so that everything opens in order
+
     osdPro = Popen(["python3", "menu_osd.py"])
-    #wm.osdBackground()
+    while wm.osdWin == None:
+        time.sleep(0.1)
 
 
-    # guiThread = threading.Thread(target=guiWorker)
-    # guiThread.setDaemon(False)
-    # guiThread.start()
-
-    while guiPro.poll() == None:
+    time.sleep(5)
+    while guiPro.poll() == None and osdPro.poll() == None:
         time.sleep(1)
 
     if osdPro.poll() == None:
         osdPro.kill()
 
-    #th1 = threading.Thread(target=OSDMain().run)
-    #th1.setDaemon(True)
-    #+th1.start()
+    if guiPro.poll() == None:
+        guiPro.kill()
