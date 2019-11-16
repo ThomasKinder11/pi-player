@@ -64,30 +64,8 @@ class MenuOSD(StackLayout, Select):
     enableDone = False
     widgets = []
     isSelectable = True
-<<<<<<< HEAD
-    osdCtrl = None
 
-
-    #Empty functions for callbacks which need to be setup
-    def onPlaylistEnter(self, args):
-        '''callback that is executed when we press enter button while osd is active'''
-
-
-    def playlistAbort(self, args):
-        '''callback to stop current execution of media playback'''
-
-
-    def playlistPrevious(self, args):
-        '''callback to swicht to previous media file in playlist mode'''
-
-
-    def playlistNext(self, args):
-        '''callback to swicht to next media file in playlist mode'''
-
-
-=======
     _jsonCmdCallback = None
->>>>>>> remote-keyboard
 
     def setColorIndicator(self, color):
         '''Set the color of the 5px high indicator border at the bottom of OSD'''
@@ -386,20 +364,12 @@ class MenuOSD(StackLayout, Select):
         self.wId = 0
         self.osdCtrl = OsdController()
 
-
-<<<<<<< HEAD
-
-#-------------------
-#
-from key_handler import KeyHandler
-=======
         self.btnPlay.onEnter =  self.onEnterPlay
         self.btnPause.onEnter =  self.onEnterPause
         self.btnPrevious.onEnter =  self.onEnterPrevious
         self.btnNext.onEnter = self.onEnterNext
         self.btnStop.onEnter =  self.onEnterStop
 
->>>>>>> remote-keyboard
 class OSDMain(App):
     def onPress(self, args):
         scancode = args[1]

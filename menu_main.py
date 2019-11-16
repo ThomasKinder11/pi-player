@@ -330,11 +330,6 @@ class Menu(StackLayout, TabbedPanel):
         #Of selecting the right elements depending on key press. This makes the controll_tree
         #more simplistic and settings creen is anyway not proper
         self._findSelectableChildren(self.selectableWidgets[selectId['settings']].content.children)
-<<<<<<< HEAD
-        self._findSelectableChildren(self.selectableWidgets[selectId['videos']].content.children)
-        self.selectableWidgets[selectId['osd']] = OsdController() #TODO: see if this ican be remover :: self.osd
-=======
->>>>>>> remote-keyboard
 
         #TODO: this OSD should be replaced by a different version of OSD wich
         #only shows the volume indicator. Maybe we can implement an option
@@ -370,17 +365,6 @@ class Menu(StackLayout, TabbedPanel):
         includes.player.onPlayEnd = self.selectableWidgets[selectId['pFiles']].onPlayerEnd
         includes.player._onUpdateRunTime = self._onUpdateRunTime
 
-<<<<<<< HEAD
-        #Setup OSD callback for passing enter command to playlist
-        # self.osd.onPlaylistEnter = self.selectableWidgets[selectId['pFiles']].enter
-        # self.osd.btnPlay.onEnter =  self.selectableWidgets[selectId['pFiles']].play
-        # self.osd.btnPause.onEnter =  self.selectableWidgets[selectId['pFiles']].pause
-        # self.osd.btnPrevious.onEnter =  self.selectableWidgets[selectId['pFiles']].previous
-        # self.osd.btnNext.onEnter =  self.selectableWidgets[selectId['pFiles']].next
-        # self.osd.btnStop.onEnter =  self.selectableWidgets[selectId['pFiles']].abort
-
-=======
->>>>>>> remote-keyboard
         #Setup video/audio view callbacks
         tmp = self.selectableWidgets[selectId['pFiles']].startVirtualSingle
         self.selectableWidgets[selectId['vFile']]._onEnterPlayer = tmp

@@ -163,18 +163,10 @@ class DialogButtons(GridLayout):
         self.btnList[self.hId].enable(None)
 
     def size_change(self, widget, value):
-<<<<<<< HEAD
-        #logging.error("Size change  value = {}".format(value))
-=======
->>>>>>> remote-keyboard
         if self.back is not None:
             self.back.size = value
 
     def pos_change(self, widget, value):
-<<<<<<< HEAD
-        #logging.error("pos change  value = {}".format(value))
-=======
->>>>>>> remote-keyboard
         if self.back is not None:
             self.back.pos = value
 
@@ -183,11 +175,6 @@ class DialogButtons(GridLayout):
         self.bgColor = kwargs.pop('bgColor', (1,1,1,1))
         buttonDesc = kwargs.pop('buttonDesc', [{}])
 
-<<<<<<< HEAD
-        #logging.error("Thomas:: kwargs = {}".format(kwargs))
-
-=======
->>>>>>> remote-keyboard
         super(DialogButtons, self).__init__(**kwargs)
         self.rows = 1
         self.spacing = 5
