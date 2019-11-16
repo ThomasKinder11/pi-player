@@ -137,7 +137,7 @@ class VolumeIndicator(RelativeLayout):
             self.indicator.value = value
 
         self.value = value
-        os.system("amixer sset \'Master\' {}%".format(self.value))
+        
 
         return 0
 

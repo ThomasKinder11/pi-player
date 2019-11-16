@@ -55,16 +55,17 @@ class KeyHandler():
 
 						#elif event.value == 0:#key pressed
 						else:
-							try:
-								self.onPress((event.code, self.scancodes[event.code]))
-							except AttributeError as e:
-								logging.error("keyHandler: {}".format(e))
-							except TypeError as e:
-								logging.error("keyHandler: {}".format(e))
-							except KeyError as e:
-								logging.error("keyHandler: {}".format(e))
-							except:
-								logging.debug("keyHandler: [unhandled exception] unsupported key code = {}".format(event.code))
+							self.onPress((event.code, self.scancodes[event.code]))
+							# try:
+							# 	self.onPress((event.code, self.scancodes[event.code]))
+							# except AttributeError as e:
+							# 	logging.error("keyHandler: {}".format(e))
+							# except TypeError as e:
+							# 	logging.error("keyHandler: {}".format(e))
+							# except KeyError as e:
+							# 	logging.error("keyHandler: {}".format(e))
+							# except:
+							# 	logging.debug("keyHandler: [unhandled exception] unsupported key code = {}".format(event.code))
 
 			except BlockingIOError:
 				pass
