@@ -5,6 +5,8 @@ and key processing for all selectable elements in the GUI
 '''
 import logging
 import os
+import  http.server
+import threading
 
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.stacklayout import StackLayout
@@ -13,6 +15,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
 import control_tree
 import includes
+
 from selectable_items import SelectableTabbedPanelHeader
 from screensaver import ScreenSaver
 from menu_settings import MenuSettings
@@ -23,7 +26,8 @@ from key_handler import KeyHandler
 from dialog import DialogHandler
 from menu_system import MenuSystem
 from control_tree import selectId as selectId
-
+# from server import WebServer, cmdCallback
+import server
 
 class IshaGui(StackLayout):
     '''This is the top object of the Gui'''
@@ -92,15 +96,21 @@ class Menu(StackLayout, TabbedPanel):
 
         #volume control
         if keycode[1] == "+":
-            self.osd.volumeUp(None)
+            #self.osd.volumeUp(None)
+            data ={}
+            data['cmd']= {'func':'volumeUp'}
+            self._jsonCmdCallback(data)
             return
 
         if keycode[1] == "-":
-            self.osd.volumeDown(None)
+            #self.osd.volumeDown(None)
+            data ={}
+            data['cmd']= {'func':'volumeDown'}
+            self._jsonCmdCallback(data)
             return
 
         if keycode[1] == "m":
-            self.osd.muteToggle(None)
+            #self.osd.muteToggle(None)
             self.selectableWidgets[selectId['pFiles']].ctrlQueue.put({'cmd':'end'})
             return
 
@@ -165,7 +175,7 @@ class Menu(StackLayout, TabbedPanel):
     def osdEnable(self, args):
         '''Before switching to the OSD remember the current selected element'''
         self.lastId = self.curId
-        self.curId = 200
+        self.curId = selectId['osd']
 
     def _keyDown(self, keycode):
         '''Callback function for keyboard events. All key handling is done here.'''
@@ -351,3 +361,61 @@ class Menu(StackLayout, TabbedPanel):
         tmp = self.selectableWidgets[selectId['pFiles']].startVirtualSingle
         self.selectableWidgets[selectId['vFile']]._onEnterPlayer = tmp
         self.selectableWidgets[selectId['mFiles']]._onEnterPlayer = tmp
+
+        #webserver for remote control
+        self.serverThread = threading.Thread(target=self._jsonServer)
+        self.serverThread.setDaemon(True)
+        self.serverThread.start()
+
+
+    serverSemaphore = threading.Semaphore()
+    def _jsonCmdCallback(self, data):
+        """
+        This function is the only function that has control over the application
+        As this is the http server callback where recieved json commands will be
+        passed towards. All other modules should request functions via the json
+        rpc server with local socket connection. This way handling race conditions
+        remote and local control will be eaiser.
+
+        This is thread save so it cannot only be called from the server but from
+        all components within the main menu if they want to. For example "+", "-"
+        and mute button are calling this function so volume can potentially be set with less
+        latency.
+
+        TODO: The old OSD will be replaced by a shadow OSD which only contains the
+              volumen widget as of now.
+        TODO: Remove all OSD callbacks and implement the corresponding functionality
+             with the webinterface.
+         """
+        self.serverSemaphore.acquire()
+        if includes.isRemoteCtrlCmd(data): # check if valid command or not
+            cmd = data['cmd']
+
+            if cmd['func'] == "muteToggle":
+                self.osd.muteToggle(None) #TODO: This should not be in OSD as we have OSD and dummy osd....
+
+            elif cmd['func'] == "volumeUp":
+                self.osd.volumeUp(None) #TODO: This should not be in OSD as we have OSD and dummy osd....
+
+            elif cmd['func'] == "volumeDown":
+                self.osd.volumeDown(None) #TODO: This should not be in OSD as we have OSD and dummy osd....
+
+
+        #Set return status and TODO: should we do this as Kodi so we do not need to update the app?
+        ret = {}
+        ret['status'] = "ok"
+
+        self.serverSemaphore.release()
+        return ret
+
+
+    def _jsonServer(self):
+        self.httpd = http.server.HTTPServer(('127.0.0.1', 12345), server.WebServer) #Todo: set port and ip from configuration file
+        server.cmdCallback = self._jsonCmdCallback
+
+        try:
+            self.httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.httpd.server_close()
