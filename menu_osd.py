@@ -64,6 +64,7 @@ class MenuOSD(StackLayout, Select):
     enableDone = False
     widgets = []
     isSelectable = True
+<<<<<<< HEAD
     osdCtrl = None
 
 
@@ -84,34 +85,44 @@ class MenuOSD(StackLayout, Select):
         '''callback to swicht to next media file in playlist mode'''
 
 
+=======
+    _jsonCmdCallback = None
+>>>>>>> remote-keyboard
 
     def setColorIndicator(self, color):
         '''Set the color of the 5px high indicator border at the bottom of OSD'''
         self.colorIndicator.background_color = color
 
-    onEnterPlay = None
-    # def onEnterPlay(self, args):
-    #     #'''These are the callback functions which are triggered when play button is pressed'''
-    #     #logging.error("MenuOSD: onEnterPlay needs to be assigned to playlist callback!")
-    #     pass
+    def onEnterPlay(self, args):
+        data = {}
+        data['cmd'] = {'func':'play'}
+        self._jsonCmdCallback(data)
 
     def onEnterPause(self, args):
         '''Callback function which needs to be set by parent to execute pause fct of player'''
-        logging.error("MenuOSD: onEnterPause needs to be assigned to playlist callback!")
-
+        data = {}
+        data['cmd'] = {'func':'pause'}
+        self._jsonCmdCallback(data)
 
     def onEnterPrevious(self, args):
         '''called when previous button on OSD is pressed'''
-        self.playlistPrevious(None)
+        data = {}
+        data['cmd'] = {'func':'previous'}
+        self._jsonCmdCallback(data)
 
     def onEnterNext(self, args):
         '''called when next button on OSD is pressed'''
-        self.playlistNext(None)
+        data = {}
+        data['cmd'] = {'func':'next'}
+        self._jsonCmdCallback(data)
 
     def onEnterStop(self, args):
         '''This function is executed when we hit stop'''
         self.disable(None)
-        self.playlistAbort(None)
+
+        data = {}
+        data['cmd'] = {'func':'stop'}
+        self._jsonCmdCallback(data)
 
     def _worker(self):
         logging.debug("MenuOSD: thread called...")
@@ -201,8 +212,6 @@ class MenuOSD(StackLayout, Select):
             #this is used to switch to the next media file in playlist mode
             if self.onPlaylistEnter is not None:
                 self.onPlaylistEnter(None)
-
-
 
     def changeSize(self, widget, value):
         '''resize the child attributes if widht or height changes'''
@@ -378,10 +387,19 @@ class MenuOSD(StackLayout, Select):
         self.osdCtrl = OsdController()
 
 
+<<<<<<< HEAD
 
 #-------------------
 #
 from key_handler import KeyHandler
+=======
+        self.btnPlay.onEnter =  self.onEnterPlay
+        self.btnPause.onEnter =  self.onEnterPause
+        self.btnPrevious.onEnter =  self.onEnterPrevious
+        self.btnNext.onEnter = self.onEnterNext
+        self.btnStop.onEnter =  self.onEnterStop
+
+>>>>>>> remote-keyboard
 class OSDMain(App):
     def onPress(self, args):
         scancode = args[1]

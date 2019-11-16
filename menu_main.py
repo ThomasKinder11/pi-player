@@ -5,6 +5,9 @@ and key processing for all selectable elements in the GUI
 '''
 import logging
 import os
+import  http.server
+import threading
+import subprocess
 
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.stacklayout import StackLayout
@@ -13,6 +16,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
 import control_tree
 import includes
+
 from selectable_items import SelectableTabbedPanelHeader
 from screensaver import ScreenSaver
 from menu_settings import MenuSettings
@@ -23,7 +27,7 @@ from key_handler import KeyHandler
 from dialog import DialogHandler
 from menu_system import MenuSystem
 from control_tree import selectId as selectId
-
+import server
 
 class IshaGui(StackLayout):
     '''This is the top object of the Gui'''
@@ -86,22 +90,28 @@ class Menu(StackLayout, TabbedPanel):
     root = None
     screenSaver = None
     menuOSD = None
-    #callbackPlayEnd = []
+    serverSemaphore = threading.Semaphore()
+
 
     def _globalKeyHandler(self, keycode):
+        """Key handler for global keys like volume up / volume down /mute etc."""
 
-        #volume control
         if keycode[1] == "+":
-            self.osd.volumeUp(None)
+            data = {}
+            data['cmd'] = {'func':'volumeUp'}
+            self._jsonCmdCallback(data)
             return
 
         if keycode[1] == "-":
-            self.osd.volumeDown(None)
+            data = {}
+            data['cmd'] = {'func':'volumeDown'}
+            self._jsonCmdCallback(data)
             return
 
         if keycode[1] == "m":
-            self.osd.muteToggle(None)
-            self.selectableWidgets[selectId['pFiles']].ctrlQueue.put({'cmd':'end'})
+            data = {}
+            data['cmd'] = {'func':'muteToggle'}
+            self._jsonCmdCallback(data)
             return
 
     _keyHandledMextId = False
@@ -144,7 +154,6 @@ class Menu(StackLayout, TabbedPanel):
                 for item in self.selectableWidgets[tmpId].user:
                     args[item] = self.selectableWidgets[tmpId].user[item]
 
-
             #Execute build in fucntions/object functions
             if func == "switch":#build-in-switch-tabpannel
                 self.switch_to(self.selectableWidgets[tmpId], False)
@@ -157,9 +166,11 @@ class Menu(StackLayout, TabbedPanel):
                 if not ret and 'false' in cmd: #execute ret functions if specified
                     self._keyHanlder(cmd['false'])
 
-
+	# This is not for enabling or disabling OSD but rather for playback
+    # mode or non playback mode. When playback mode is over we should give control
+    # back to the last selected element befor strting a video / audio /playlist
     def osdDisable(self, args):
-        '''Switche control back to last element after OSD was displayed'''
+        '''Switch control back to last element after OSD was displayed'''
         self.curId = self.lastId
 
     def osdEnable(self, args):
@@ -167,6 +178,9 @@ class Menu(StackLayout, TabbedPanel):
         self.lastId = self.curId
         self.curId = selectId['osd']
 
+
+    # Callback function triggered by the key handler. This is triggered when
+    #keyboard key is pressed.
     def _keyDown(self, keycode):
         '''Callback function for keyboard events. All key handling is done here.'''
         if self.screenSaver.active and self.screenSaver.ena:
@@ -294,7 +308,6 @@ class Menu(StackLayout, TabbedPanel):
         )
         self.selectableWidgets[selectId['music']].content = self.selectableWidgets[selectId['mFiles']]
 
-
         #Setup Playlist menu
         self.selectableWidgets[selectId['pFiles']] = MenuPlaylist(
             id=str(selectId['pFiles']),
@@ -303,28 +316,46 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[selectId['pFiles']].osdEnable = self.osdEnable
         self.selectableWidgets[selectId['pFiles']].osdDisable = self.osdDisable
         self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.osd.setColorIndicator
-
         self.selectableWidgets[selectId['playlist']].content = self.selectableWidgets[selectId['pFiles']]
-
 
         #Setup the menu for system notifications and system operations like shutdown
         self.menuSystem = MenuSystem()
-        self.selectableWidgets[selectId['system']].content = self.menuSystem #self.handler
+        self.selectableWidgets[selectId['system']].content = self.menuSystem
         self.selectableWidgets[selectId['systemMsg']] = self.menuSystem.handler
         self.selectableWidgets[selectId['systemBtn']] = self.menuSystem.btn
 
         #Find all the children which are selectble and can be controlled by keyboard
+        #TODO: If we simplify the settings menu then we can remove this. One ID per
+        #window has been enought so far and we give the window itself the responsibility
+        #Of selecting the right elements depending on key press. This makes the controll_tree
+        #more simplistic and settings creen is anyway not proper
         self._findSelectableChildren(self.selectableWidgets[selectId['settings']].content.children)
+<<<<<<< HEAD
         self._findSelectableChildren(self.selectableWidgets[selectId['videos']].content.children)
         self.selectableWidgets[selectId['osd']] = OsdController() #TODO: see if this ican be remover :: self.osd
+=======
+>>>>>>> remote-keyboard
 
+        #TODO: this OSD should be replaced by a different version of OSD wich
+        #only shows the volume indicator. Maybe we can implement an option
+        #which replaces all buttons with a label as a placeholder
+        self.selectableWidgets[selectId['osd']] = self.osd
+
+
+        #Get the globally defined controll tree used for processing keystrokes
         self.controlTree = control_tree.CONTROL_TREE
+
+        #set the first Tab to be selected, which is the system tab
         self.curId = selectId['system'] # set start id
 
+        #
+        # Dynamic modifications to the controll tree if needed
+        #
         #do not allow down press on empty list
         if len(self.selectableWidgets[selectId['mFiles']].layout.children) <= 0:
             self.controlTree[2]['down'] = None
 
+        #Try to enable the start widget
         try:
             self.selectableWidgets[self.curId].enable(None)
         except Exception as allExceptions:
@@ -339,6 +370,7 @@ class Menu(StackLayout, TabbedPanel):
         includes.player.onPlayEnd = self.selectableWidgets[selectId['pFiles']].onPlayerEnd
         includes.player._onUpdateRunTime = self._onUpdateRunTime
 
+<<<<<<< HEAD
         #Setup OSD callback for passing enter command to playlist
         # self.osd.onPlaylistEnter = self.selectableWidgets[selectId['pFiles']].enter
         # self.osd.btnPlay.onEnter =  self.selectableWidgets[selectId['pFiles']].play
@@ -347,7 +379,108 @@ class Menu(StackLayout, TabbedPanel):
         # self.osd.btnNext.onEnter =  self.selectableWidgets[selectId['pFiles']].next
         # self.osd.btnStop.onEnter =  self.selectableWidgets[selectId['pFiles']].abort
 
+=======
+>>>>>>> remote-keyboard
         #Setup video/audio view callbacks
         tmp = self.selectableWidgets[selectId['pFiles']].startVirtualSingle
         self.selectableWidgets[selectId['vFile']]._onEnterPlayer = tmp
         self.selectableWidgets[selectId['mFiles']]._onEnterPlayer = tmp
+
+        #webserver for remote control
+        self._cmdInitCallbackHandler()
+        self.serverThread = threading.Thread(target=self._jsonServer)
+        self.serverThread.setDaemon(True)
+        self.serverThread.start()
+
+        self.osd._jsonCmdCallback = self._jsonCmdCallback
+        self.osd.onPlaylistEnter = self.selectableWidgets[selectId['pFiles']].enter
+
+
+        #Set default system values such as volume etc.
+        data = {}
+        data['cmd'] = {'func':'setVolume', 'args':'100'}
+        self._jsonCmdCallback(data)
+
+    #---------------------------------------------------------------------------
+    # Callback functions for contriling the system like the player etc.
+    #---------------------------------------------------------------------------
+    def _cmdMuteToggle(self, args):
+        self.osd.volume.muteToggle() #TODO: This should not be in OSD as we have OSD and dummy osd....
+        subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
+
+    def _cmdSetVolume(self, args):
+        try:
+            self.osd.volume.value = int(args)
+            subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
+        except TypeError as e:
+            logging.error("setVolume: " + str(e))
+
+    def _cmdVolumeUp(self, args):
+         self.osd.volumeUp(None) #TODO: This should not be in OSD as we have OSD and dummy osd....
+         subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
+
+    def _cmdVolumeDown(self, args):
+         self.osd.volumeDown(None) #TODO: This should not be in OSD as we have OSD and dummy osd....
+         subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
+
+    def _cmdInitCallbackHandler(self):
+        self.funcList = {}
+        self.funcList['muteToggle'] = {'call':self._cmdMuteToggle, 'args':None}
+        self.funcList['setVolume'] = {'call':self._cmdSetVolume, 'args':None}
+        self.funcList['volumeUp'] = {'call':self._cmdVolumeUp, 'args':None}
+        self.funcList['volumeDown'] = {'call':self._cmdVolumeDown, 'args':None}
+        self.funcList['play'] = {'call':self.selectableWidgets[selectId['pFiles']].play, 'args':None}
+        self.funcList['pause'] = {'call':self.selectableWidgets[selectId['pFiles']].pause, 'args':None}
+        self.funcList['previous'] = {'call':self.selectableWidgets[selectId['pFiles']].previous, 'args':None}
+        self.funcList['next'] = {'call':self.selectableWidgets[selectId['pFiles']].next, 'args':None}
+        self.funcList['stop'] = {'call':self.selectableWidgets[selectId['pFiles']].abort, 'args':None}
+
+
+    def _jsonCmdCallback(self, data):
+        """
+        This function is the only function that has control over the application
+        As this is the http server callback where recieved json commands will be
+        passed towards. All other modules should request functions via the json
+        rpc server with local socket connection. This way handling race conditions
+        remote and local control will be eaiser.
+
+        This is thread save so it cannot only be called from the server but from
+        all components within the main menu if they want to. For example "+", "-"
+        and mute button are calling this function so volume can potentially be set with less
+        latency.
+
+        TODO: The old OSD will be replaced by a shadow OSD which only contains the
+              volumen widget as of now.
+        TODO: Remove all OSD callbacks and implement the corresponding functionality
+             with the webinterface.
+         """
+        self.serverSemaphore.acquire()
+        if includes.isRemoteCtrlCmd(data): # check if valid command or not
+            cmd = data['cmd']
+
+            if 'args' in cmd:
+                args = cmd['args']
+            else:
+                args = None
+
+            self.funcList[cmd['func']]['call'](args)
+
+            ret = {}
+            ret['status'] = "ok"
+
+            self.serverSemaphore.release()
+            return ret
+
+
+    def _jsonServer(self):
+        ip = includes.config['httpServerIp']['ip']
+        port = includes.config['httpServerIp']['port']
+        self.httpd = http.server.HTTPServer((ip, int(port)), server.WebServer)
+        server.cmdCallback = self._jsonCmdCallback
+
+        try:
+            self.httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.httpd.server_close()

@@ -141,3 +141,10 @@ def clipInt(value, min, max):
         return min
 
     return value
+
+
+def isRemoteCtrlCmd(cmd):
+    if not 'cmd' in cmd:
+        return False
+
+    return True

@@ -2,9 +2,11 @@ import os
 import sys
 import asyncio
 import evdev
-from selectors import DefaultSelector, EVENT_READ
 import threading
 import logging
+from selectors import DefaultSelector, EVENT_READ
+
+from ipc import Ipc
 
 class KeyHandler():
 	keyboards = []
@@ -42,7 +44,6 @@ class KeyHandler():
 
 
 	def _worker(self):
-		self._setScancodes()
 		while True:
 			try:
 				for key,mask in self.selector.select():
@@ -67,6 +68,8 @@ class KeyHandler():
 
 			except BlockingIOError:
 				pass
+
+
 
 	def __init__(self):
 		devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
@@ -93,10 +96,12 @@ class KeyHandler():
 		for kbd in self.keyboards:
 			self.selector.register(kbd, EVENT_READ)
 
-			self.thread = threading.Thread(target=self._worker)
-			self.thread.setDaemon(True)
-			self.thread.start()
+		#TODO: check if this still works it was under the for loop which does not make sense I think
+		self.thread = threading.Thread(target=self._worker)
+		self.thread.setDaemon(True)
+		self.thread.start()
 
+		self._setScancodes()
 
 
 #------------------------------------------------------------------------------

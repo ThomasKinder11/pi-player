@@ -8,7 +8,11 @@ class Ipc():
     def sendCmd(self, cmd, port):
         address = ('localhost', port)
         conn = Client(address, authkey=b'secret password')
+<<<<<<< HEAD
         conn.send(json.dumps({'cmd':cmd}))
+=======
+        conn.send(json.dumps(cmd))
+>>>>>>> remote-keyboard
         conn.close()
 
     def serverInit(self, port):
@@ -26,7 +30,11 @@ class Ipc():
 
 
 #
+<<<<<<< HEAD
 # Standalone test, not a real application 
+=======
+# Standalone test, not a real application
+>>>>>>> remote-keyboard
 #
 if __name__ == "__main__":
     ipc = Ipc()

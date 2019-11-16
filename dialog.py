@@ -75,7 +75,7 @@ class WarningDialog(DialogCommon, Select):
         ]
 
         btn = btn + buttonDesc
-        logging.error("Dump: {}".format(btn))
+
 
         self.dialog = Dialog(
             borderHeight=includes.styles['dialogBorderHeight'],
@@ -163,15 +163,19 @@ class DialogButtons(GridLayout):
         self.btnList[self.hId].enable(None)
 
     def size_change(self, widget, value):
+<<<<<<< HEAD
         #logging.error("Size change  value = {}".format(value))
+=======
+>>>>>>> remote-keyboard
         if self.back is not None:
-            logging.error("Size change1")
             self.back.size = value
 
     def pos_change(self, widget, value):
+<<<<<<< HEAD
         #logging.error("pos change  value = {}".format(value))
+=======
+>>>>>>> remote-keyboard
         if self.back is not None:
-            logging.error("pos change1")
             self.back.pos = value
 
     def __init__(self, **kwargs):
@@ -179,8 +183,11 @@ class DialogButtons(GridLayout):
         self.bgColor = kwargs.pop('bgColor', (1,1,1,1))
         buttonDesc = kwargs.pop('buttonDesc', [{}])
 
+<<<<<<< HEAD
         #logging.error("Thomas:: kwargs = {}".format(kwargs))
 
+=======
+>>>>>>> remote-keyboard
         super(DialogButtons, self).__init__(**kwargs)
         self.rows = 1
         self.spacing = 5
@@ -196,7 +203,6 @@ class DialogButtons(GridLayout):
             size = (tmpWidth, self.height)
             self.back = Rectangle(size=size, pos=self.pos)
 
-        #logging.error("thomas: Parent = {}".formatself.parent)
         self.btnList = []
         self.callbackList = []
         for node in buttonDesc:
@@ -205,7 +211,6 @@ class DialogButtons(GridLayout):
                 self.callbackList.append(node['callback'])
                 self.btnList.append(
                     SelectButton(
-                        #TODO: imgPath= "./resources/img/" + node['imgPath'],
                         imgPath= "atlas://resources/img/pi-player/" + node['imgPath'],
                         height=self.height,
                         size_hint_y=None,
@@ -248,7 +253,6 @@ class Dialog(GridLayout):
     buttonDesc = None
 
     def enable(self, args):
-        logging.error("ThomasDialog: btn = {}".format(self.btn))
         self.btn.enable(args)
 
     def disable(self, args):
@@ -258,7 +262,6 @@ class Dialog(GridLayout):
         self.btn.enter(args)
 
     def right(self, args):
-        logging.error("Dialog right called")
         self.btn.right(args)
 
     def left(self, args):
@@ -359,9 +362,6 @@ class Dialog(GridLayout):
         self.add_widget(self.content)
 
         if self.buttonDesc is not None:
-
-            #logging.error("WarningDialog: We want buttons = {}".format(self.buttonDesc))
-
             self.sidebarBtn = SelectLabelBg(
                 background_color=self.sidebarColor,
                 text="",
@@ -370,7 +370,7 @@ class Dialog(GridLayout):
                 height=37.5
             )
             self.add_widget(self.sidebarBtn)
-            #logging.error("Thomas Dialog:: slef.btn = {}".format(self.btn))
+
             self.btn = DialogButtons(
                 buttonDesc=self.buttonDesc,
                 bgColor=self.contentColor,
@@ -400,7 +400,6 @@ class DialogHandler(StackLayout, Select):
 
     def disable(self, args):
 
-        logging.info("THomas: disable wId = {}".format(self.wId))
         if self.wId >= 0 and self.wId < len(self.dialogList):
             self.dialogList[self.wId].disable(args)
             self.wId = self.wId - 1
@@ -410,9 +409,6 @@ class DialogHandler(StackLayout, Select):
             if self.wId >= 0:
                 self.dialogList[self.wId].enable(args)
 
-
-
-        logging.info("THomas: disable wId 2 = {}".format(self.wId))
         if self.wId < 0 or len(self.dialogList) == 0:
             self.wId = -1
             return True
@@ -423,7 +419,6 @@ class DialogHandler(StackLayout, Select):
 
 
         if len(self.dialogList) == 0:
-            logging.info("THomas: dailog list is 0 = {}".format(self.wId))
             return True
 
         if self.wId < 0:
@@ -460,7 +455,6 @@ class DialogHandler(StackLayout, Select):
 
     def _removeDialog(self, dialogId):
         if len(self.dialogList) <= 0:
-            logging.info("removeDialog: dialog list is empty")
             return
 
         widget = self.dialogList.pop(dialogId)
