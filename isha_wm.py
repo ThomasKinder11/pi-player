@@ -54,13 +54,12 @@ class IshaWm():
                 #the second pyton app that is started is considered to be the OSD
                 # and osd should be drawn on bottom of page with 50px fixed height
                 if 'python' in xClass[0]:
-                    osdHeight = 50
+                    osdHeight = 55
                     event.window.configure(
                         width=self.displayWidth,
                         height=osdHeight,
                         x=0,
-                        y=400
-                        #y=self.displayWidth-osdHeight-100
+                        y=self.displayHeight-osdHeight
                     )
                     event.window.map()
                     self.osdWin = event.window
@@ -75,8 +74,8 @@ class IshaWm():
     def osdTop(self):
         if self.osdWin is not None:
             logging.error("Bring OSD to the top 1")
-            self.osdWin.configure(stack_mode=Xlib.X.Above)
-            #self.osdWin.configure(stack_mode=Xlib.X.TopIf)
+            #self.osdWin.configure(stack_mode=Xlib.X.Above)
+            self.osdWin.configure(stack_mode=Xlib.X.TopIf)
 
 
     def osdBackground(self):
@@ -95,9 +94,11 @@ class IshaWm():
             logging.error('connection accepted from {}'.format(listener.last_accepted))
 
             while True:
+                #logging.error('data =')
                 try:
                     msg = conn.recv()
                     data = json.loads(msg)
+                    logging.error('data = {}'.format(data))
 
                     if 'cmd' in data:
                         cmd = data['cmd']

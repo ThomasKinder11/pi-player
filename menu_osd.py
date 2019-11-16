@@ -14,6 +14,9 @@ import threading
 import time
 import os
 import logging
+from multiprocessing.connection import Client
+import pickle
+import json
 
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.label import Label
@@ -24,6 +27,21 @@ from kivy.core.window import Window
 from selectable_items import Select, SelectButton, SelectLabel, SelectLabelBg
 import includes
 from volume_widget import VolumeIndicator
+from ipc import Ipc
+from selectable_items import Select
+
+
+class OsdController(Select):
+    def enable(self, args):
+        ipc = Ipc()
+        logging.error("Thomas: osd controller enable function called")
+        ipc.sendCmd('osdTop', 6002) #TODO: define port in config file
+
+    def disable(self, args):
+        ipc = Ipc()
+        logging.error("Thomas: osd controller disable function called")
+        ipc.sendCmd('osdBackground', 6002) #TODO: define port in config file
+
 
 class MenuOSD(StackLayout, Select):
     '''On Screen Display (fixed height 50px (button height) + 5px (status border))'''
@@ -46,6 +64,7 @@ class MenuOSD(StackLayout, Select):
     enableDone = False
     widgets = []
     isSelectable = True
+    osdCtrl = None
 
 
     #Empty functions for callbacks which need to be setup
@@ -98,48 +117,30 @@ class MenuOSD(StackLayout, Select):
         logging.debug("MenuOSD: thread called...")
 
         while True:
-            #logging.debug("MenuOSD: alive...")
             time.sleep(self.timeStep)
             self.idleCounter = self.idleCounter + self.timeStep
 
+            if self.volume.muteState:
+                continue
+
             #just limit the counter value
-            if self.idleCounter > includes.config['settings']['osdTime']:
-                self.idleCounter = includes.config['settings']['osdTime']
+            if self.idleCounter > includes.config['settings']['osdTime'] and self.isVisible:
+                self.idleCounter = includes.config['settings']['osdTime'] + 1
                 self.wId = 0
                 for wid in self.widgets:
-                    wid.opacity = 0
                     wid.disable(None)
 
-                self.runtime.opacity = 0
                 self.isVisible = False
+                self.osdCtrl.disable(None)
+
 
             if not self.ctrlQueue.empty():
 
                 cmd = self.ctrlQueue.get()
-
-                if cmd['cmd'] == 'visible':
+                if cmd['cmd'] == 'resetCnt':
                     self.idleCounter = 0
-                    logging.debug("MenuOSD: queue command has been received visible")
-
-
-                    for wid in self.widgets:
-                        wid.opacity = 1.0
-
-                    self.runtime.opacity = 1.0
-
-                    self.enableDone = True
                     self.isVisible = True
 
-                elif cmd['cmd'] == 'invisible':
-                    logging.debug("MenuOSD: queue command has been received invisble")
-
-                    for wid in self.widgets:
-                        wid.opacity = 0.0
-
-                    self.runtime.opacity = 0.0
-                    self.isVisible = False
-                elif cmd['cmd'] == 'resetCnt':
-                    self.idleCounter = 0
 
     def left(self, args):
         '''Logic to select next OSD element to the left from currently selected item'''
@@ -179,13 +180,10 @@ class MenuOSD(StackLayout, Select):
     def _resetCnt(self):
         self.ctrlQueue.put({'cmd':'resetCnt'})
 
+
     def enable(self, args):
-        #logging.debug("MenuOSD: enable function called")
-        self.ctrlQueue.put({'cmd':'visible'})
-        while not self.isVisible:
-            time.sleep(0.01)
-
-
+        self._resetCnt()
+        return
 
     def disable(self, args):
         self.ctrlQueue.put({'cmd':'invisible'})
@@ -217,14 +215,17 @@ class MenuOSD(StackLayout, Select):
 
     def volumeUp(self, args):
         '''Increase the audio volume'''
+        self._resetCnt()
         self.volume.volumeUp()
 
     def volumeDown(self, args):
         '''Decrease the audio volume'''
+        self._resetCnt()
         self.volume.volumeDown()
 
     def muteToggle(self, args):
         '''Mute/unmute the audio'''
+        self._resetCnt()
         self.volume.muteToggle()
 
     def _addAllWidgets(self):
@@ -236,10 +237,8 @@ class MenuOSD(StackLayout, Select):
         self.widgets.append(self.btnNext)
 
         for wid in self.widgets:
-            self.add_widget(wid)
-            wid.opacity = 0
+             self.add_widget(wid)
 
-        self.runtime.opacity = 0
 
         self.add_widget(self.gap0)
         self.add_widget(self.runtime)
@@ -376,16 +375,27 @@ class MenuOSD(StackLayout, Select):
         self.thread.start()
 
         self.wId = 0
+        self.osdCtrl = OsdController()
+
+
+
 #-------------------
 #
 from key_handler import KeyHandler
 class OSDMain(App):
     def onPress(self, args):
         scancode = args[1]
+        logging.error("dfgdghdfghdghdf: {}".format(scancode))
         if scancode == 'left':
             self.osd.left(None)
         elif scancode == 'right':
             self.osd.right(None)
+        elif scancode == '+':
+            self.osd.volumeUp(None)
+        elif scancode == '-':
+            self.osd.volumeDown(None)
+        elif scancode == 'm':
+            self.osd.muteToggle(None)
 
     '''This is just a Kivy app for testing the OSD on its own - do not rely on this!'''
     def build(self):

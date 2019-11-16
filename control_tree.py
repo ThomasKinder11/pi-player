@@ -193,14 +193,21 @@ CONTROL_TREE = {
         ],
     },
     selectId['osd']:{
-        "left": [{'func':'left', 'id':selectId['osd']}],
-        "right":[{'func':'right', 'id':selectId['osd']}],
-        "enter":[{'func':'enter', 'id':selectId['osd']}],
-        "browser back": [{'func':'disable', 'id':selectId['osd']}],
-        "volume up": [{'func':'volumeUp', 'id':selectId['osd']}],
-        "volume down": [{'func':'volumeDown', 'id':selectId['osd']}],
-        "volume mute": [{'func':'muteToggle', 'id':selectId['osd']}],
+        "left": [{'func':'enable', 'id':selectId['osd']}],
+        "right":[{'func':'enable', 'id':selectId['osd']}],
+        "+":[{'func':'enable', 'id':selectId['osd']}],
+        "-":[{'func':'enable', 'id':selectId['osd']}],
+        "m":[{'func':'enable', 'id':selectId['osd']}],
     },
+    # selectId['osd']:{
+    #     "left": [{'func':'left', 'id':selectId['osd']}],
+    #     "right":[{'func':'right', 'id':selectId['osd']}],
+    #     "enter":[{'func':'enter', 'id':selectId['osd']}],
+    #     "browser back": [{'func':'disable', 'id':selectId['osd']}],
+    #     "volume up": [{'func':'volumeUp', 'id':selectId['osd']}],
+    #     "volume down": [{'func':'volumeDown', 'id':selectId['osd']}],
+    #     "volume mute": [{'func':'muteToggle', 'id':selectId['osd']}],
+    # },
     selectId['vFile']:{
         "up":[{
             'func':'disable',

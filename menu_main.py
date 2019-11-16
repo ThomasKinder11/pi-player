@@ -17,7 +17,7 @@ from selectable_items import SelectableTabbedPanelHeader
 from screensaver import ScreenSaver
 from menu_settings import MenuSettings
 from menu_video import FileList
-from menu_osd import MenuOSD
+from menu_osd import MenuOSD, OsdController
 from menu_playlist import MenuPlaylist
 from key_handler import KeyHandler
 from dialog import DialogHandler
@@ -43,7 +43,7 @@ class IshaGui(StackLayout):
         self.screens.height = Window.height - self.osd.height
 
         self.add_widget(self.screens)
-        self.add_widget(self.osd)
+        #TODO add this back:: self.add_widget(self.osd)
 
         self.bind(height=self.resize)
 
@@ -165,7 +165,7 @@ class Menu(StackLayout, TabbedPanel):
     def osdEnable(self, args):
         '''Before switching to the OSD remember the current selected element'''
         self.lastId = self.curId
-        self.curId = 200
+        self.curId = selectId['osd']
 
     def _keyDown(self, keycode):
         '''Callback function for keyboard events. All key handling is done here.'''
@@ -316,7 +316,7 @@ class Menu(StackLayout, TabbedPanel):
         #Find all the children which are selectble and can be controlled by keyboard
         self._findSelectableChildren(self.selectableWidgets[selectId['settings']].content.children)
         self._findSelectableChildren(self.selectableWidgets[selectId['videos']].content.children)
-        self.selectableWidgets[200] = self.osd
+        self.selectableWidgets[selectId['osd']] = OsdController() #TODO: see if this ican be remover :: self.osd
 
         self.controlTree = control_tree.CONTROL_TREE
         self.curId = selectId['system'] # set start id
@@ -340,12 +340,12 @@ class Menu(StackLayout, TabbedPanel):
         includes.player._onUpdateRunTime = self._onUpdateRunTime
 
         #Setup OSD callback for passing enter command to playlist
-        self.osd.onPlaylistEnter = self.selectableWidgets[selectId['pFiles']].enter
-        self.osd.btnPlay.onEnter =  self.selectableWidgets[selectId['pFiles']].play
-        self.osd.btnPause.onEnter =  self.selectableWidgets[selectId['pFiles']].pause
-        self.osd.btnPrevious.onEnter =  self.selectableWidgets[selectId['pFiles']].previous
-        self.osd.btnNext.onEnter =  self.selectableWidgets[selectId['pFiles']].next
-        self.osd.btnStop.onEnter =  self.selectableWidgets[selectId['pFiles']].abort
+        # self.osd.onPlaylistEnter = self.selectableWidgets[selectId['pFiles']].enter
+        # self.osd.btnPlay.onEnter =  self.selectableWidgets[selectId['pFiles']].play
+        # self.osd.btnPause.onEnter =  self.selectableWidgets[selectId['pFiles']].pause
+        # self.osd.btnPrevious.onEnter =  self.selectableWidgets[selectId['pFiles']].previous
+        # self.osd.btnNext.onEnter =  self.selectableWidgets[selectId['pFiles']].next
+        # self.osd.btnStop.onEnter =  self.selectableWidgets[selectId['pFiles']].abort
 
         #Setup video/audio view callbacks
         tmp = self.selectableWidgets[selectId['pFiles']].startVirtualSingle
