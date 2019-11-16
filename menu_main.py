@@ -457,7 +457,9 @@ class Menu(StackLayout, TabbedPanel):
 
 
     def _jsonServer(self):
-        self.httpd = http.server.HTTPServer(('127.0.0.1', 12345), server.WebServer) #Todo: set port and ip from configuration file
+        ip = includes.config['httpServerIp']['ip']
+        port = includes.config['httpServerIp']['port']
+        self.httpd = http.server.HTTPServer((ip, int(port)), server.WebServer)
         server.cmdCallback = self._jsonCmdCallback
 
         try:

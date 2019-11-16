@@ -16,5 +16,9 @@
     "video": {
         "rootdir": "/home/thomas/multimedia/videos",
         "types": "mp4"
+    },
+    "httpServerIp":{
+        "ip":"127.0.0.1",
+        "port":"11111"
     }
 }
