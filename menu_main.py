@@ -8,6 +8,8 @@ import os
 import  http.server
 import threading
 import subprocess
+import requests
+import json
 
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.stacklayout import StackLayout
@@ -32,24 +34,20 @@ from ipc import Ipc
 
 class IshaGui(StackLayout):
     '''This is the top object of the Gui'''
-    osd = None
 
     def resize(self, widget, value):
         '''resize callback when width/height are chaning'''
-        self.screens.height = Window.height - self.osd.height
+        self.screens.height = Window.height - 55#TODO: the 55 should be replaced by height bottom menu (shadow OSD)self.osd.height
 
     def __init__(self, **kwargs):
         super(IshaGui, self).__init__(**kwargs)
 
-        self.osd = MenuOSD(id=str(selectId['osd']))
-        self.screens = IshaPiScreens(osd=self.osd)
+        self.screens = IshaPiScreens()
 
         self.screens.size_hint_y = None
-        self.screens.height = Window.height - self.osd.height
+        self.screens.height = Window.height - 55 #TODO: the 55 should be replaced by height bottom menu (shadow OSD)self.osd.height
 
         self.add_widget(self.screens)
-        #TODO add this back:: self.add_widget(self.osd)
-
         self.bind(height=self.resize)
 
 class IshaPiScreens(ScreenManager):
@@ -64,18 +62,16 @@ class IshaPiScreens(ScreenManager):
     menuScreen = None
     menuScreenSaver = None
     menuOSDScreen = None
-    osd = None
+
 
     def __init__(self, **kwargs):
-        self.osd = kwargs.pop('osd', None)
-
         super(IshaPiScreens, self).__init__(**kwargs)
 
         self.transition = NoTransition()
         self.menuScreenSaver = Screen(name="blackscreen")
         self.menuScreen = Screen(name="main_menu")
 
-        self.mainMenu = Menu(root=self, osd=self.osd)
+        self.mainMenu = Menu(root=self)
         self.menuScreen.add_widget(self.mainMenu)
         self.add_widget(self.menuScreen)
         self.add_widget(self.menuScreenSaver)
@@ -92,13 +88,21 @@ class Menu(StackLayout, TabbedPanel):
     screenSaver = None
     menuOSD = None
     serverSemaphore = threading.Semaphore()
+    ipc = None
 
     def _sendPostRequest(self, data):
         ip = includes.config['httpServerIp']['ip']
         port = includes.config['httpServerIp']['port']
 
-        url = 'http://{}:{}'.format(ip, port)
-        req = requests.post(url, data=json.dumps(data))
+        self.reqUrl  = 'http://{}:{}'.format(ip, port)
+        self.reqData = data
+
+        req = requests.post(self.reqUrl, data=json.dumps(data))
+
+        if req.status_code != 200:
+            logging.error("jsonCmdCallback: request error:: ret val = {}".format(req.status_code))
+
+
 
     def _globalKeyHandler(self, keycode):
         """Key handler for global keys like volume up / volume down /mute etc."""
@@ -117,7 +121,9 @@ class Menu(StackLayout, TabbedPanel):
 
         if keycode[1] == "m":
             #data = {}
+            logging.error("Test002: pressed m key going to execute local jsonCmdCallback")
             data = {"cmd": {"func": "muteToggle"}}
+            #self._sendPostRequest(data)
             self._jsonCmdCallback(data)
             return
 
@@ -224,7 +230,8 @@ class Menu(StackLayout, TabbedPanel):
 
 
     def _onUpdateRunTime(self, value):
-        self.osd.runtime.text = value
+        #TODO: needs to be implemented
+        pass
 
     def _warningPlay(self, args):
         logging.error("Warning: play somthing something something")
@@ -232,7 +239,6 @@ class Menu(StackLayout, TabbedPanel):
 
     def __init__(self, **kwargs):
         self.root = kwargs.pop('root', "None")
-        self.osd = kwargs.pop('osd', "None")
 
         kwargs["do_default_tab"] = False #always disable the default tab
         super(Menu, self).__init__(**kwargs)
@@ -322,7 +328,7 @@ class Menu(StackLayout, TabbedPanel):
         )
         self.selectableWidgets[selectId['pFiles']].osdEnable = self.osdEnable
         self.selectableWidgets[selectId['pFiles']].osdDisable = self.osdDisable
-        self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.osd.setColorIndicator
+        #TODO: this should be a callback for the sahdowOSD self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.osd.setColorIndicator
         self.selectableWidgets[selectId['playlist']].content = self.selectableWidgets[selectId['pFiles']]
 
         #Setup the menu for system notifications and system operations like shutdown
@@ -341,7 +347,7 @@ class Menu(StackLayout, TabbedPanel):
         #TODO: this OSD should be replaced by a different version of OSD wich
         #only shows the volume indicator. Maybe we can implement an option
         #which replaces all buttons with a label as a placeholder
-        self.selectableWidgets[selectId['osd']] = OsdController()#self.osd
+        self.selectableWidgets[selectId['osd']] = OsdController()
 
 
         #Get the globally defined controll tree used for processing keystrokes
@@ -383,40 +389,34 @@ class Menu(StackLayout, TabbedPanel):
         self.serverThread.setDaemon(True)
         self.serverThread.start()
 
-        #self.osd._jsonCmdCallback = self._jsonCmdCallback
-        self.osd.onPlaylistEnter = self.selectableWidgets[selectId['pFiles']].enter
-
 
         #Set default system values such as volume etc.
         data = {}
         data['cmd'] = {'func':'setVolume', 'args':'100'}
         self._jsonCmdCallback(data)
 
+        #setup ipc for communicating with osd and wm
+        self.ipc = Ipc()
+
+
     #---------------------------------------------------------------------------
     # Callback functions for contriling the system like the player etc.
     #---------------------------------------------------------------------------
     def _cmdMuteToggle(self, args):
         self.selectableWidgets[selectId['osd']].enable(None)
-        logging.error("_cmdMuteToggle: called")
-        ipc = Ipc()
-        ipc.sendCmd({'cmd':{'func':'muteToggle'}}, includes.config['ipcOsdPort'])
-
-        subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
+        logging.error("Test001: _cmdMuteToggle called, going to send commad to OSD")
+        self.ipc.sendCmd({'cmd':{'func':'muteToggle'}}, includes.config['ipcOsdPort'])
 
     def _cmdSetVolume(self, args):
-        try:
-            self.osd.volume.value = int(args)
-            subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
-        except TypeError as e:
-            logging.error("setVolume: " + str(e))
+        subprocess.run(['amixer', 'sset', '\'Master\'', str(args), '> /dev/null'])
 
     def _cmdVolumeUp(self, args):
-         self.osd.volumeUp(None) #TODO: This should not be in OSD as we have OSD and dummy osd....
-         subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
+        self.selectableWidgets[selectId['osd']].enable(None)
+        self.ipc.sendCmd({'cmd':{'func':'volumeUp'}}, includes.config['ipcOsdPort'])
 
     def _cmdVolumeDown(self, args):
-         self.osd.volumeDown(None) #TODO: This should not be in OSD as we have OSD and dummy osd....
-         subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
+        self.selectableWidgets[selectId['osd']].enable(None)
+        self.ipc.sendCmd({'cmd':{'func':'volumeDown'}}, includes.config['ipcOsdPort'])
 
     def _cmdInitCallbackHandler(self):
         self.funcList = {}
@@ -449,6 +449,8 @@ class Menu(StackLayout, TabbedPanel):
         TODO: Remove all OSD callbacks and implement the corresponding functionality
              with the webinterface.
          """
+
+        logging.error("Test001: _jsonCmdCallback executed with data = {}".format(data))
         self.serverSemaphore.acquire()
         if includes.isRemoteCtrlCmd(data): # check if valid command or not
             cmd = data['cmd']
@@ -457,6 +459,7 @@ class Menu(StackLayout, TabbedPanel):
                 args = cmd['args']
             else:
                 args = None
+
 
             self.funcList[cmd['func']]['call'](args)
 

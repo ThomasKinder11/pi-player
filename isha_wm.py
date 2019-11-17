@@ -75,14 +75,14 @@ class IshaWm():
 
     def osdTop(self):
         if self.osdWin is not None:
-            logging.error("Bring OSD to the top 1")
+            #logging.error("Bring OSD to the top 1")
             self.osdWin.configure(stack_mode=Xlib.X.Above)
             #self.osdWin.configure(stack_mode=Xlib.X.TopIf)
 
 
     def osdBackground(self):
         if self.osdWin is not None:
-            logging.error("Bring OSD to the bottom")
+            #logging.error("Bring OSD to the bottom")
             self.osdWin.configure(stack_mode=Xlib.X.BottomIf)
 
 
@@ -91,9 +91,9 @@ class IshaWm():
         listener = Listener(address, authkey=b'secret password')
 
         while True:
-            logging.error('before')
+            #logging.error('before')
             conn = listener.accept()
-            logging.error('connection accepted from {}'.format(listener.last_accepted))
+            #logging.error('connection accepted from {}'.format(listener.last_accepted))
 
             while True:
                 #logging.error('data =')

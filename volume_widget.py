@@ -3,6 +3,7 @@ import threading
 import time
 import queue
 import os
+import subprocess
 
 from kivy.graphics import Color, Line, Rectangle
 from kivy.app import App
@@ -137,7 +138,8 @@ class VolumeIndicator(RelativeLayout):
             self.indicator.value = value
 
         self.value = value
-        
+        subprocess.run(['amixer', 'sset', '\'Master\'', str(self.value), '> /dev/null'])
+
 
         return 0
 

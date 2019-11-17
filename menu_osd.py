@@ -35,16 +35,29 @@ from key_handler import KeyHandler
 
 class OsdController(Select):
     def enable(self, args):
-        ipc = Ipc()
-        ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort']) #TODO: define port in config file
-        ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort']) #TODO: define port in config file
-
-
+        self.ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort'])
+        self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
 
     def disable(self, args):
-        ipc = Ipc()
-        ipc.sendCmd({'cmd':'osdBackground'}, includes.config['ipcWmPort']) #TODO: define port in config file
+        self.ipc.sendCmd({'cmd':'osdBackground'}, includes.config['ipcWmPort'])
 
+    def left(self, args):
+        self.ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort'])
+        self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
+        self.ipc.sendCmd({'cmd':{'func':'left'}}, includes.config['ipcOsdPort'])
+
+    def right(self, args):
+        self.ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort'])
+        self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
+        self.ipc.sendCmd({'cmd':{'func':'right'}}, includes.config['ipcOsdPort'])
+
+    def enter(self, args):
+        self.ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort'])
+        self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
+        self.ipc.sendCmd({'cmd':{'func':'enter'}}, includes.config['ipcOsdPort'])
+
+    def __init__(self):
+        self.ipc = Ipc()
 
 class MenuOSD(StackLayout, Select):
     '''On Screen Display (fixed height 50px (button height) + 5px (status border))'''
@@ -73,16 +86,31 @@ class MenuOSD(StackLayout, Select):
 
     def _cmdServer(self):
         cmdServer = Ipc()
-        cmdServer.serverInit(includes.config['ipcOsdPort']) #TODO: put the port in the config file
+        cmdServer.serverInit(includes.config['ipcOsdPort'])
 
         while True:
             data = cmdServer.serverGetCmd()
-            logging.error("_cmdServer: data = {}".format(data))
+            logging.error("Test001: OSD_cmdServer: data = {}".format(data))
             if 'cmd' in data:
                 cmd = data['cmd']
 
                 if cmd['func'] == "muteToggle":
                     self.muteToggle(None)
+
+                elif cmd['func'] == "volumeUp":
+                    self.volumeUp(None)
+
+                elif cmd['func'] == "volumeDown":
+                    self.volumeDown(None)
+
+                elif cmd['func'] == "left":
+                    self.left(None)
+
+                elif cmd['func'] == "right":
+                    self.right(None)
+
+                elif cmd['func'] == "enter":
+                    self.enter(None)
 
                 elif cmd['func'] == "resetCnt":
                     self._resetCnt()
@@ -119,15 +147,8 @@ class MenuOSD(StackLayout, Select):
         '''This function is executed when we hit stop'''
         self.disable(None)
 
-        logging.error("THHHHHOOOOMMMAAS: on enter stop stop stop")
-
         data = {}
         data['cmd'] = {'func':'stop'}
-
-        if self._jsonCmdCallback is None:
-            logging.error("Thomas OSD: callback is none!")
-        else:
-            logging.error("Thomas OSD: callback is NOT none!")
 
         self._jsonCmdCallback(data)
 
@@ -204,7 +225,8 @@ class MenuOSD(StackLayout, Select):
         return
 
     def disable(self, args):
-        self.ctrlQueue.put({'cmd':'invisible'})
+        #self.ctrlQueue.put({'cmd':'invisible'})
+        self.osdCtrl.disable(None)
 
 
     def enter(self, args):
@@ -212,12 +234,10 @@ class MenuOSD(StackLayout, Select):
             If OSD is visible enter will activate button press, otherwise
             enter will be forwarded to playlist controller
         '''
-        logging.error("THHHHHOOOOMMMAAS: enter called in osd menu")
         if self.isVisible:
             logging.error("Thomas MenuOSD: wid = {}".format(self.wId))
             self.widgets[self.wId].onEnter(args)
         else:
-            logging.error("THHHHHOOOOMMMAAS: not visible!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             #when OSD is not active, enter button will be forwareded to the player
             #this is used to switch to the next media file in playlist mode
             if self.onPlaylistEnter is not None:
@@ -408,23 +428,31 @@ class MenuOSD(StackLayout, Select):
             self.serverTr.setDaemon(True)
             self.serverTr.start()
 
+        # logging.error("THOMAS: setup key handler")
+        # self.keyHandler = KeyHandler()
+        # self.keyHandler.onPress = self._onPress
+
+    #
+    # Keyboard management
+    # #
+    # def _onPress(self, args):
+    #     loggin.error("Key pressed menu osd.....")
+    #     #if self.keyboardEnabled:
+    #     scancode = args[1]
+    #
+    #     if scancode == 'left':
+    #         self.osd.left(None)
+    #
+    #     elif scancode == 'right':
+    #         self.osd.right(None)
+    #
+    #     elif scancode == 'enter':
+    #         self.osd.enter(None)
+
+
 class OSDMain(App):
 
-    def onPress(self, args):
-        scancode = args[1]
-        logging.error("dfgdghdfghdghdf: {}".format(scancode))
-        if scancode == 'left':
-            self.osd.left(None)
-        elif scancode == 'right':
-            self.osd.right(None)
-        elif scancode == '+':
-            self.osd.volumeUp(None)
-        elif scancode == '-':
-            self.osd.volumeDown(None)
-        elif scancode == 'm':
-            self.osd.muteToggle(None)
-        elif scancode == 'enter':
-            self.osd.enter(None)
+
 
     def jsonCmdCallback(self, data):
         ip = includes.config['httpServerIp']['ip']
@@ -446,12 +474,6 @@ class OSDMain(App):
 
 #If we start OSD as standalone we use http request to control functions
 if __name__ == "__main__":
-
-
-    handler = KeyHandler()
-
     main = OSDMain()
-    handler.onPress = main.onPress
-
     #Window.size = (Window.width, 50)
     main.run()

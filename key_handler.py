@@ -63,6 +63,8 @@ class KeyHandler():
 								logging.error("keyHandler: {}".format(e))
 							except KeyError as e:
 								logging.error("keyHandler: {}".format(e))
+							except NameError as e:
+								logging.error("keyHandler: {}".format(e))
 							except:
 								logging.debug("keyHandler: [unhandled exception] unsupported key code = {}".format(event.code))
 

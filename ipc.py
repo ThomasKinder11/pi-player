@@ -3,9 +3,14 @@ import pickle
 import json
 import sys
 import logging
+from threading import Semaphore
 
 class Ipc():
+    cmdSemaphore = Semaphore()
+
     def sendCmd(self, cmd, port):
+        self.cmdSemaphore.acquire()
+
         address = ('localhost', port)
 
         try:
@@ -15,6 +20,7 @@ class Ipc():
         except ConnectionRefusedError as e:
             logging.error(e)
 
+        self.cmdSemaphore.release()
 
     def serverInit(self, port):
         address = ('localhost', port)     # family is deduced to be 'AF_INET'

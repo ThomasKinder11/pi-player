@@ -8,7 +8,7 @@
         "types": "json"
     },
     "settings": {
-        "osdTime": 1,
+        "osdTime": 3,
         "runtimeInterval": 1,
         "screensaverTime": 7
     },
