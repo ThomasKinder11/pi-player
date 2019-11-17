@@ -11,6 +11,7 @@ playlist processing.
 '''
 import queue
 import threading
+import requests
 import time
 import os
 import logging
@@ -29,18 +30,20 @@ import includes
 from volume_widget import VolumeIndicator
 from ipc import Ipc
 from selectable_items import Select
+from key_handler import KeyHandler
 
 
 class OsdController(Select):
     def enable(self, args):
         ipc = Ipc()
-        logging.error("Thomas: osd controller enable function called")
-        ipc.sendCmd('osdTop', 6002) #TODO: define port in config file
+        ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort']) #TODO: define port in config file
+        ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort']) #TODO: define port in config file
+
+
 
     def disable(self, args):
         ipc = Ipc()
-        logging.error("Thomas: osd controller disable function called")
-        ipc.sendCmd('osdBackground', 6002) #TODO: define port in config file
+        ipc.sendCmd({'cmd':'osdBackground'}, includes.config['ipcWmPort']) #TODO: define port in config file
 
 
 class MenuOSD(StackLayout, Select):
@@ -66,6 +69,24 @@ class MenuOSD(StackLayout, Select):
     isSelectable = True
 
     _jsonCmdCallback = None
+    cmdServer = None
+
+    def _cmdServer(self):
+        cmdServer = Ipc()
+        cmdServer.serverInit(includes.config['ipcOsdPort']) #TODO: put the port in the config file
+
+        while True:
+            data = cmdServer.serverGetCmd()
+            logging.error("_cmdServer: data = {}".format(data))
+            if 'cmd' in data:
+                cmd = data['cmd']
+
+                if cmd['func'] == "muteToggle":
+                    self.muteToggle(None)
+
+                elif cmd['func'] == "resetCnt":
+                    self._resetCnt()
+
 
     def setColorIndicator(self, color):
         '''Set the color of the 5px high indicator border at the bottom of OSD'''
@@ -98,8 +119,16 @@ class MenuOSD(StackLayout, Select):
         '''This function is executed when we hit stop'''
         self.disable(None)
 
+        logging.error("THHHHHOOOOMMMAAS: on enter stop stop stop")
+
         data = {}
         data['cmd'] = {'func':'stop'}
+
+        if self._jsonCmdCallback is None:
+            logging.error("Thomas OSD: callback is none!")
+        else:
+            logging.error("Thomas OSD: callback is NOT none!")
+
         self._jsonCmdCallback(data)
 
     def _worker(self):
@@ -183,9 +212,12 @@ class MenuOSD(StackLayout, Select):
             If OSD is visible enter will activate button press, otherwise
             enter will be forwarded to playlist controller
         '''
+        logging.error("THHHHHOOOOMMMAAS: enter called in osd menu")
         if self.isVisible:
+            logging.error("Thomas MenuOSD: wid = {}".format(self.wId))
             self.widgets[self.wId].onEnter(args)
         else:
+            logging.error("THHHHHOOOOMMMAAS: not visible!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             #when OSD is not active, enter button will be forwareded to the player
             #this is used to switch to the next media file in playlist mode
             if self.onPlaylistEnter is not None:
@@ -370,7 +402,14 @@ class MenuOSD(StackLayout, Select):
         self.btnNext.onEnter = self.onEnterNext
         self.btnStop.onEnter =  self.onEnterStop
 
+        #Server setup to control GUI elements on the OSD such as the volume indicator
+        if int(self.id) < 0:
+            self.serverTr = threading.Thread(target=self._cmdServer)
+            self.serverTr.setDaemon(True)
+            self.serverTr.start()
+
 class OSDMain(App):
+
     def onPress(self, args):
         scancode = args[1]
         logging.error("dfgdghdfghdghdf: {}".format(scancode))
@@ -384,16 +423,35 @@ class OSDMain(App):
             self.osd.volumeDown(None)
         elif scancode == 'm':
             self.osd.muteToggle(None)
+        elif scancode == 'enter':
+            self.osd.enter(None)
+
+    def jsonCmdCallback(self, data):
+        ip = includes.config['httpServerIp']['ip']
+        port = includes.config['httpServerIp']['port']
+
+        url = 'http://{}:{}'.format(ip, port)
+        logging.error("Request: url = {}".format(url))
+        req = requests.post(url, data=json.dumps(data))
+
+        if req.status_code != 200:
+            logging.error("jsonCmdCallback: crequest error:: ret val = {}".format(req.status_code))
 
     '''This is just a Kivy app for testing the OSD on its own - do not rely on this!'''
     def build(self):
-        self.osd = MenuOSD(id="0")
+        self.osd = MenuOSD(id="-1")
+        self.osd._jsonCmdCallback = self.jsonCmdCallback
         return self.osd
 
+
+#If we start OSD as standalone we use http request to control functions
 if __name__ == "__main__":
+
+
     handler = KeyHandler()
 
     main = OSDMain()
     handler.onPress = main.onPress
+
     #Window.size = (Window.width, 50)
     main.run()

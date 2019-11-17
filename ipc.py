@@ -7,10 +7,14 @@ import logging
 class Ipc():
     def sendCmd(self, cmd, port):
         address = ('localhost', port)
-        conn = Client(address, authkey=b'secret password')
 
-        conn.send(json.dumps(cmd))
-        conn.close()
+        try:
+            conn = Client(address, authkey=b'secret password')
+            conn.send(json.dumps(cmd))
+            conn.close()
+        except ConnectionRefusedError as e:
+            logging.error(e)
+
 
     def serverInit(self, port):
         address = ('localhost', port)     # family is deduced to be 'AF_INET'

@@ -4,6 +4,8 @@ import logging
 import json
 import time
 
+import includes
+
 from  subprocess import Popen, threading
 from multiprocessing.connection import Listener
 
@@ -74,8 +76,8 @@ class IshaWm():
     def osdTop(self):
         if self.osdWin is not None:
             logging.error("Bring OSD to the top 1")
-            #self.osdWin.configure(stack_mode=Xlib.X.Above)
-            self.osdWin.configure(stack_mode=Xlib.X.TopIf)
+            self.osdWin.configure(stack_mode=Xlib.X.Above)
+            #self.osdWin.configure(stack_mode=Xlib.X.TopIf)
 
 
     def osdBackground(self):
@@ -85,7 +87,7 @@ class IshaWm():
 
 
     def server(self):
-        address = ('localhost', 6002)     # family is deduced to be 'AF_INET'
+        address = ('localhost', includes.config['ipcWmPort'])     # family is deduced to be 'AF_INET'
         listener = Listener(address, authkey=b'secret password')
 
         while True:
@@ -98,18 +100,18 @@ class IshaWm():
                 try:
                     msg = conn.recv()
                     data = json.loads(msg)
-                    logging.error('data = {}'.format(data))
+                    #logging.error('data = {}'.format(data))
 
                     if 'cmd' in data:
                         cmd = data['cmd']
 
                         if cmd == 'osdTop':
                             self.osdTop()
-                            logging.error("Bring OSD to the top")
+                            #logging.error("Bring OSD to the top")
 
                         elif cmd == 'osdBackground':
                             self.osdBackground()
-                            logging.error("Bring OSD to the bot")
+                            #logging.error("Bring OSD to the bot")
 
                 except EOFError as e:
                     break

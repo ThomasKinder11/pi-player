@@ -18,7 +18,9 @@
         "types": "mp4"
     },
     "httpServerIp":{
-        "ip":"127.0.0.1",
+        "ip":"192.168.2.110",
         "port":"11111"
-    }
+    },
+    "ipcOsdPort":40001,
+    "ipcWmPort":40002
 }

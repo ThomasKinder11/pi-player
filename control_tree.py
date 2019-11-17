@@ -198,6 +198,7 @@ CONTROL_TREE = {
         "+":[{'func':'enable', 'id':selectId['osd']}],
         "-":[{'func':'enable', 'id':selectId['osd']}],
         "m":[{'func':'enable', 'id':selectId['osd']}],
+        "enter":[{'func':'enable', 'id':selectId['osd']}],
     },
     # selectId['osd']:{
     #     "left": [{'func':'left', 'id':selectId['osd']}],

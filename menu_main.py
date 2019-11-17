@@ -28,6 +28,7 @@ from dialog import DialogHandler
 from menu_system import MenuSystem
 from control_tree import selectId as selectId
 import server
+from ipc import Ipc
 
 class IshaGui(StackLayout):
     '''This is the top object of the Gui'''
@@ -92,6 +93,12 @@ class Menu(StackLayout, TabbedPanel):
     menuOSD = None
     serverSemaphore = threading.Semaphore()
 
+    def _sendPostRequest(self, data):
+        ip = includes.config['httpServerIp']['ip']
+        port = includes.config['httpServerIp']['port']
+
+        url = 'http://{}:{}'.format(ip, port)
+        req = requests.post(url, data=json.dumps(data))
 
     def _globalKeyHandler(self, keycode):
         """Key handler for global keys like volume up / volume down /mute etc."""
@@ -109,8 +116,8 @@ class Menu(StackLayout, TabbedPanel):
             return
 
         if keycode[1] == "m":
-            data = {}
-            data['cmd'] = {'func':'muteToggle'}
+            #data = {}
+            data = {"cmd": {"func": "muteToggle"}}
             self._jsonCmdCallback(data)
             return
 
@@ -334,7 +341,7 @@ class Menu(StackLayout, TabbedPanel):
         #TODO: this OSD should be replaced by a different version of OSD wich
         #only shows the volume indicator. Maybe we can implement an option
         #which replaces all buttons with a label as a placeholder
-        self.selectableWidgets[selectId['osd']] = self.osd
+        self.selectableWidgets[selectId['osd']] = OsdController()#self.osd
 
 
         #Get the globally defined controll tree used for processing keystrokes
@@ -376,7 +383,7 @@ class Menu(StackLayout, TabbedPanel):
         self.serverThread.setDaemon(True)
         self.serverThread.start()
 
-        self.osd._jsonCmdCallback = self._jsonCmdCallback
+        #self.osd._jsonCmdCallback = self._jsonCmdCallback
         self.osd.onPlaylistEnter = self.selectableWidgets[selectId['pFiles']].enter
 
 
@@ -389,7 +396,11 @@ class Menu(StackLayout, TabbedPanel):
     # Callback functions for contriling the system like the player etc.
     #---------------------------------------------------------------------------
     def _cmdMuteToggle(self, args):
-        self.osd.volume.muteToggle() #TODO: This should not be in OSD as we have OSD and dummy osd....
+        self.selectableWidgets[selectId['osd']].enable(None)
+        logging.error("_cmdMuteToggle: called")
+        ipc = Ipc()
+        ipc.sendCmd({'cmd':{'func':'muteToggle'}}, includes.config['ipcOsdPort'])
+
         subprocess.run(['amixer', 'sset', '\'Master\'', str(self.osd.volume.value), '> /dev/null'])
 
     def _cmdSetVolume(self, args):
