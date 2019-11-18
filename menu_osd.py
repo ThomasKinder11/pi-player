@@ -52,8 +52,6 @@ class OsdController(Select):
         self.ipc.sendCmd({'cmd':{'func':'right'}}, includes.config['ipcOsdPort'])
 
     def enter(self, args):
-        #self.ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort']) #TODO: how to solve this!!!!?????
-        #self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
         self.ipc.sendCmd({'cmd':{'func':'enter'}}, includes.config['ipcOsdPort'])
 
     def __init__(self):
@@ -103,6 +101,10 @@ class MenuOSD(StackLayout, Select):
                 elif cmd['func'] == "volumeDown":
                     self.volumeDown(None)
 
+                elif cmd['func'] == "setRuntime":
+                    if 'value' in cmd:
+                        self.runtime.text = cmd['value']
+
                 elif cmd['func'] == "left":
                     self.left(None)
 
@@ -149,6 +151,7 @@ class MenuOSD(StackLayout, Select):
 
         data = {}
         data['cmd'] = {'func':'stop'}
+        self.runtime.text = "00:00:00"
 
         self._jsonCmdCallback(data)
 

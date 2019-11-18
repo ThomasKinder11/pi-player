@@ -237,8 +237,7 @@ class Menu(StackLayout, TabbedPanel):
 
 
     def _onUpdateRunTime(self, value):
-        #TODO: needs to be implemented
-        pass
+        self.ipc.sendCmd({'cmd':{'func':'setRuntime', 'value':value}}, includes.config['ipcOsdPort'])
 
     def _warningPlay(self, args):
         logging.error("Warning: play somthing something something")
