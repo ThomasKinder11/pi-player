@@ -12,13 +12,6 @@ class FileList(SelectListView):
     playerProcess = None
     topTextVisible = False
 
-    def delTopText(self):
-        if not self.topTextVisible:
-            return
-
-        super(FileList, self).delTopText()
-        self.topTextVisible = False
-
     def resize(self, widget, value):
         pass
 
@@ -54,16 +47,18 @@ class FileList(SelectListView):
                 args = {}
 
             args['path'] = path
+            args['supportedTypes'] = self.supportedTypes
 
-            if self.widgets[self.wId].user:
-                for item in self.widgets[self.wId].user:
-                    args[item] = self.widgets[self.wId].user[item]
+            if self.type == 'video' and includes.config['video']['autoplay'] == 'true':
+                args['autoplay'] = True
+            elif self.type == 'music' and  includes.config['audio']['autoplay'] == 'true':
+                args['autoplay'] = True
+            else:
+                args['autoplay'] = False
 
+            logging.debug("MenuVideo: called enter on audi mFile with args = {}".format(args))
             self._onEnterPlayer(args)
 
-            if 'isRerun' in args:
-                if args['isRerun']:
-                    self.delTopText()
 
         elif os.path.isdir(path):
             self.layout.clear_widgets()
@@ -138,6 +133,7 @@ class FileList(SelectListView):
         self.supportedTypes = tuple(self.supportedTypes.split(','))
         self.screenmanager = kwargs.pop('screenmanager', None)
         self.type = kwargs.pop('type', "unknown")
+        self.autoplay = kwargs.pop('Autoplay', False)
 
         if not self.screenmanager:
             logging.error("MenuVideo: screenmanager not set")

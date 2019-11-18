@@ -471,6 +471,49 @@ class MenuPlaylist(StackLayout, Select):
     def onPlayerEnd(self, args):
         self.ctrlQueue.put({'cmd':{'event':'end'}})
 
+
+    def startVirtual(self, args):
+        logging.debug("MenuPlayer: called startVirtual with args = {}".format(args))
+        autoplay = args.pop('autoplay', False)
+
+        if autoplay:
+            logging.debug("MenuPlayer: autoplay branch...")
+            path = args.pop('path', None)
+            supportedTypes = args.pop('supportedTypes', None)
+            dirname = os.path.dirname(path)
+            files = os.listdir(dirname)
+            files.sort()
+            logging.debug("MenuPlayer: autoplay branch: files in directory = {}...".format(files))
+
+            startFile = False
+            virtPlaylist = {}
+            i = 0
+
+            for f in files:
+                fDir = os.path.join(dirname, f)
+                if os.path.isdir(fDir) or not f.lower().endswith(supportedTypes):
+                    continue
+
+                if fDir == path:
+                    startFile = True
+
+                if startFile:
+                    tmp = createPlayListEntry(fDir, "VPL", i, 0)
+                    virtPlaylist.update(tmp)
+                    i = i + 1
+
+                cmd = {
+                    'cmd':{
+                        'playlist': virtPlaylist,
+                        'mode': 'virtual'
+                    }
+                }
+
+            self.ctrlQueue.put(cmd)
+
+        else:
+            self.startVirtualSingle(args)
+
     def startVirtualSingle(self, args):
         path = args.pop('path', None)
         start = args.pop('start', 0)
@@ -515,11 +558,6 @@ class MenuPlaylist(StackLayout, Select):
         headerText0 = "[b]Playlists[/b]"
         headerText1 = "[b]Media Files[/b]"
 
-        # headerColor0 = hexColor('#5a5560')#
-        # headerColor1 = hexColor('#2d4159')#(0.5,0.5,0,1)
-
-        #enaColor0 = includes.colors['blue']
-        #enaColor1 = includes.colors['orange']
 
 
         self.header0 = SelectLabelBg(

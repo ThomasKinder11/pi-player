@@ -322,7 +322,8 @@ class Menu(StackLayout, TabbedPanel):
             size=(Window.width, Window.height),
             supportedTypes=includes.config['audio']['types'],
             screenmanager=self.root,
-            selectFirst=False
+            selectFirst=False,
+            type='music'
         )
         self.selectableWidgets[selectId['music']].content = self.selectableWidgets[selectId['mFiles']]
 
@@ -384,7 +385,7 @@ class Menu(StackLayout, TabbedPanel):
         includes.player._onUpdateRunTime = self._onUpdateRunTime
 
         #Setup video/audio view callbacks
-        tmp = self.selectableWidgets[selectId['pFiles']].startVirtualSingle
+        tmp = self.selectableWidgets[selectId['pFiles']].startVirtual #self.selectableWidgets[selectId['pFiles']].startVirtualSingle
         self.selectableWidgets[selectId['vFile']]._onEnterPlayer = tmp
         self.selectableWidgets[selectId['mFiles']]._onEnterPlayer = tmp
 

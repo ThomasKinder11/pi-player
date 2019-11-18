@@ -1,7 +1,8 @@
 {
     "audio": {
         "rootdir": "/home/thomas/multimedia/audios",
-        "types": "mp3,wav"
+        "types": "mp3,wav",
+        "autoplay":"true"
     },
     "playlist": {
         "rootdir": "/home/thomas/multimedia/playlists",
@@ -15,7 +16,8 @@
     "tmpdir": "/home/thomas/tmp",
     "video": {
         "rootdir": "/home/thomas/multimedia/videos",
-        "types": "mp4"
+        "types": "mp4",
+        "autoplay":"false"
     },
     "httpServerIp":{
         "ip":"192.168.2.110",
