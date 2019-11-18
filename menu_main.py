@@ -121,7 +121,6 @@ class Menu(StackLayout, TabbedPanel):
 
         if keycode[1] == "m":
             #data = {}
-            logging.error("Test002: pressed m key going to execute local jsonCmdCallback")
             data = {"cmd": {"func": "muteToggle"}}
             #self._sendPostRequest(data)
             self._jsonCmdCallback(data)
@@ -410,7 +409,6 @@ class Menu(StackLayout, TabbedPanel):
     #---------------------------------------------------------------------------
     def _cmdMuteToggle(self, args):
         self.selectableWidgets[selectId['osd']].enable(None)
-        logging.error("Test001: _cmdMuteToggle called, going to send commad to OSD")
         self.ipc.sendCmd({'cmd':{'func':'muteToggle'}}, includes.config['ipcOsdPort'])
 
     def _cmdSetVolume(self, args):
@@ -457,8 +455,6 @@ class Menu(StackLayout, TabbedPanel):
         TODO: Remove all OSD callbacks and implement the corresponding functionality
              with the webinterface.
          """
-
-        logging.error("Test001: _jsonCmdCallback executed with data = {}".format(data))
         self.serverSemaphore.acquire()
         if includes.isRemoteCtrlCmd(data): # check if valid command or not
             cmd = data['cmd']

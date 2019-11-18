@@ -58,13 +58,13 @@ class KeyHandler():
 							try:
 								self.onPress((event.code, self.scancodes[event.code]))
 							except AttributeError as e:
-								logging.error("keyHandler: {}".format(e))
+								logging.error("keyHandler: [AttributeError] {}".format(e))
 							except TypeError as e:
-								logging.error("keyHandler: {}".format(e))
+								logging.error("keyHandler: [Type Error] {}".format(e))
 							except KeyError as e:
-								logging.error("keyHandler: {}".format(e))
+								logging.error("keyHandler: [KeyError] {}".format(e))
 							except NameError as e:
-								logging.error("keyHandler: {}".format(e))
+								logging.error("keyHandler: [NameError] {}".format(e))
 							except:
 								logging.debug("keyHandler: [unhandled exception] unsupported key code = {}".format(event.code))
 

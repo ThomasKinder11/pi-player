@@ -88,7 +88,6 @@ class MenuOSD(StackLayout, Select):
 
         while True:
             data = cmdServer.serverGetCmd()
-            logging.error("Test001: OSD_cmdServer: data = {}".format(data))
             if 'cmd' in data:
                 cmd = data['cmd']
 
@@ -238,10 +237,8 @@ class MenuOSD(StackLayout, Select):
             enter will be forwarded to playlist controller
         '''
         if self.isVisible:
-            logging.error("Thomas MenuOSD: wid = {}".format(self.wId))
             self.widgets[self.wId].onEnter(args)
         else:
-            logging.error("Thomas: osd.enter.notvisible")
             #when OSD is not active, enter button will be forwareded to the player
             #this is used to switch to the next media file in playlist mode
             data = {}
@@ -433,29 +430,7 @@ class MenuOSD(StackLayout, Select):
             self.serverTr = threading.Thread(target=self._cmdServer)
             self.serverTr.setDaemon(True)
             self.serverTr.start()
-
-        # logging.error("THOMAS: setup key handler")
-        # self.keyHandler = KeyHandler()
-        # self.keyHandler.onPress = self._onPress
-
-    #
-    # Keyboard management
-    # #
-    # def _onPress(self, args):
-    #     loggin.error("Key pressed menu osd.....")
-    #     #if self.keyboardEnabled:
-    #     scancode = args[1]
-    #
-    #     if scancode == 'left':
-    #         self.osd.left(None)
-    #
-    #     elif scancode == 'right':
-    #         self.osd.right(None)
-    #
-    #     elif scancode == 'enter':
-    #         self.osd.enter(None)
-
-
+            
 class OSDMain(App):
 
 

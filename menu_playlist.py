@@ -45,7 +45,7 @@ class MenuPlaylist(StackLayout, Select):
         self.header1.size = (columnWidth1, headerHeight)
 
         self.fileList.size = (columnWidth0, value[1])
-        self.files.size = (columnWidth1, value[1]) 
+        self.files.size = (columnWidth1, value[1])
 
 
     def pos_change(self, widget, value):
@@ -211,7 +211,6 @@ class MenuPlaylist(StackLayout, Select):
 
         for item in self.pList:
             self.files.add(self.pList[item]['name'], False)
-
 
 
     def _waitForCmd(self, key, value):

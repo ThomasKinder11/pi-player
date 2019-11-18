@@ -190,10 +190,8 @@ class Player():
         self.onPlayEnd(None)
 
 
-
-
     def start(self, path, tSeek):
-        logging.info("Player: start playing file... path = {}".format(path))
+        logging.debug("Player: start playing file... path = {}".format(path))
         self.path = path
 
 
