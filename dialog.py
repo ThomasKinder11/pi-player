@@ -194,7 +194,6 @@ class DialogButtons(GridLayout):
         self.callbackList = []
         for node in buttonDesc:
             if len(buttonDesc) > 0 and node is not None:
-                logging.error("THomas: noder found path = ./resources/img/{}".format(node['imgPath']))
                 self.callbackList.append(node['callback'])
                 self.btnList.append(
                     SelectButton(

@@ -104,11 +104,11 @@ class FileList(SelectListView):
         if len(self.widgets) > 0:
             if wId:
                 self.wId = wId
-
-                self.scroll_to(self.widgets[self.wId], animate=False)
-            else:
+            else:#in case wId is lower then zero which can happen
                 self.wId = 0
-        
+
+            self.scroll_to(self.widgets[self.wId], animate=False)
+
     def __init__(self, **kwargs):
         if 'rootdir' not in kwargs:
             logging.error("MenuVideo: root dir not give as parameter")
