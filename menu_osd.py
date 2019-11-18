@@ -52,8 +52,8 @@ class OsdController(Select):
         self.ipc.sendCmd({'cmd':{'func':'right'}}, includes.config['ipcOsdPort'])
 
     def enter(self, args):
-        self.ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort'])
-        self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
+        #self.ipc.sendCmd({'cmd':'osdTop'},  includes.config['ipcWmPort']) #TODO: how to solve this!!!!?????
+        #self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
         self.ipc.sendCmd({'cmd':{'func':'enter'}}, includes.config['ipcOsdPort'])
 
     def __init__(self):
@@ -238,10 +238,13 @@ class MenuOSD(StackLayout, Select):
             logging.error("Thomas MenuOSD: wid = {}".format(self.wId))
             self.widgets[self.wId].onEnter(args)
         else:
+            logging.error("Thomas: osd.enter.notvisible")
             #when OSD is not active, enter button will be forwareded to the player
             #this is used to switch to the next media file in playlist mode
-            if self.onPlaylistEnter is not None:
-                self.onPlaylistEnter(None)
+            data = {}
+            data['cmd'] = {'func':'playlistNext'}
+            self._jsonCmdCallback(data)
+
 
     def changeSize(self, widget, value):
         '''resize the child attributes if widht or height changes'''

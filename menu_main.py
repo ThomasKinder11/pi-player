@@ -202,6 +202,13 @@ class Menu(StackLayout, TabbedPanel):
 
         self.screenSaver.resetTime()
 
+        #When OSD is active we forward button presses to the playlist editor
+        # if self.curId == selectId['osd']:
+        #     if keycode[1] == "enter":
+        #         self.selectableWidgets[selectId['pFiles']].enter(None)
+        #     return 0
+
+
         msg = "Menu: Key Pressed [{}] ".format(keycode)
         msg = msg + "on element with curId = {}".format(self.curId)
         logging.debug(msg)
@@ -418,6 +425,7 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[selectId['osd']].enable(None)
         self.ipc.sendCmd({'cmd':{'func':'volumeDown'}}, includes.config['ipcOsdPort'])
 
+
     def _cmdInitCallbackHandler(self):
         self.funcList = {}
         self.funcList['muteToggle'] = {'call':self._cmdMuteToggle, 'args':None}
@@ -429,6 +437,7 @@ class Menu(StackLayout, TabbedPanel):
         self.funcList['previous'] = {'call':self.selectableWidgets[selectId['pFiles']].previous, 'args':None}
         self.funcList['next'] = {'call':self.selectableWidgets[selectId['pFiles']].next, 'args':None}
         self.funcList['stop'] = {'call':self.selectableWidgets[selectId['pFiles']].abort, 'args':None}
+        self.funcList['playlistNext'] = {'call':self.selectableWidgets[selectId['pFiles']].enter, 'args':None}
 
 
     def _jsonCmdCallback(self, data):
