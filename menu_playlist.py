@@ -460,7 +460,7 @@ class MenuPlaylist(StackLayout, Select):
 
     def abort(self, args):
         includes.player.stop()
-        #self.ctrlQueue.put({'cmd':{'abort':None}})
+        self.ctrlQueue.put({'cmd':{'abort':None}})
 
     def next(self, args):
         self.ctrlQueue.put({'cmd':{'next':None}})

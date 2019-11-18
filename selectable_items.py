@@ -449,54 +449,6 @@ class SelectListView(Select, ScrollView):
             return True
         return False
 
-    #TODO TK: remove this if not needed and everything still works 
-    # def delTopText(self):
-    #     logging.debug("FileList: remove first entry and enable it ")
-    #     self.widgets.pop(0)
-    #     self.layout.clear_widgets()
-    #
-    #     for wid in self.widgets:
-    #         self.layout.add_widget(wid)
-    #
-    #     self.wId = 0
-    #     self.widgets[self.wId].enable(None)
-
-
-    # def addTopText(self, text, user, bgColor):
-    #     """
-    #     This function can be used to add a widget to the top of the list. For this
-    #     we firts have to remove all the children, add the new entry and then re-add
-    #     the old children.
-    #     """
-    #     self.layout.clear_widgets()
-    #
-    #     self.widgets.insert(0, SelectListViewItem(
-    #         enaColor=self.enaColor,
-    #         source=None,
-    #         background_color=bgColor,
-    #         text=text,
-    #         id="-1",
-    #         imgWidth=0,
-    #         imgHeight=40,
-    #         widthParent=self.width,
-    #         fillerColor=self.fillerColor,
-    #         isDir=False,
-    #         user=user,
-    #         showIcon=self.showIcon,
-    #     ))
-    #
-    #     for wid in self.widgets:
-    #         self.layout.add_widget(wid)
-    #
-    #     self.topTextVisible = True
-    #
-    #     for wid in self.widgets:
-    #         wid.disable(None)
-    #
-    #     self.wId = 0
-    #     self.widgets[self.wId].enable(None)
-
-
     def add(self, text, isDir):
         tmpId = str(len(self.widgets) + self.startId)
 
