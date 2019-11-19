@@ -199,6 +199,8 @@ CONTROL_TREE = {
         "-":[{'func':'enable', 'id':selectId['osd']}],
         "m":[{'func':'enable', 'id':selectId['osd']}],
         "enter":[{'func':'enter', 'id':selectId['osd']}],
+        "esc":[{'func':'disable', 'id':selectId['osd']}],
+        "browser back":[{'func':'disable', 'id':selectId['osd']}],
     },
     # selectId['osd']:{
     #     "left": [{'func':'left', 'id':selectId['osd']}],

@@ -41,6 +41,7 @@ class KeyHandler():
 		self.scancodes[27] = "+"
 		self.scancodes[53] = "-"
 		self.scancodes[50] = "m"
+		self.scancodes[1] = "esc"
 
 
 	def _worker(self):
