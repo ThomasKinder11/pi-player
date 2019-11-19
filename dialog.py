@@ -135,6 +135,8 @@ class DialogButtons(GridLayout):
     user = None
 
     def enter(self, args):
+        #args = {}
+        #args['id'] = self.id
         self.callbackList[self.hId](args)
 
     def enable(self, args):
@@ -174,6 +176,7 @@ class DialogButtons(GridLayout):
 
         self.bgColor = kwargs.pop('bgColor', (1,1,1,1))
         buttonDesc = kwargs.pop('buttonDesc', [{}])
+        id = kwargs.pop('id', [{}])
 
         super(DialogButtons, self).__init__(**kwargs)
         self.rows = 1
@@ -361,7 +364,8 @@ class Dialog(GridLayout):
                 buttonDesc=self.buttonDesc,
                 bgColor=self.contentColor,
                 size_hint_y=None,
-                height=37.5
+                height=37.5,
+                id=self.id
             )
             self.add_widget(self.btn)
             self.height = self.headerHeight + self.contentHeight + self.border.height + self.sidebarBtn.height
@@ -435,15 +439,20 @@ class DialogHandler(StackLayout, Select):
 
         i = 0
         for widget in self.dialogList:
-            widget.id = i
-            i = i + 1
+            # widget.id = i #TODO: do we still needs this and the next line also?
+            # i = i + 1  TODO: is this really needed or can we renove this
             self.add_widget(widget.dialog)
 
     def _removeDialog(self, dialogId):
         if len(self.dialogList) <= 0:
             return
 
-        widget = self.dialogList.pop(dialogId)
+        #TODO: the dialog id migh not be corrospont witht the dialogList ID so
+        #we need to search for the right element in the list top pop and remove
+        for i in range(len(self.dialogList)):
+            if self.dialogList[i].id == dialogId:
+                widget = self.dialogList.pop(i)
+                break
 
         self._updateView()
         for item in self.dialogList:

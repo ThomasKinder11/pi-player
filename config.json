@@ -20,7 +20,7 @@
         "autoplay":"false"
     },
     "httpServerIp":{
-        "ip":"192.168.2.110",
+        "ip":"127.0.0.1",
         "port":"11111"
     },
     "ipcOsdPort":40001,

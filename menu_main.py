@@ -201,13 +201,6 @@ class Menu(StackLayout, TabbedPanel):
 
         self.screenSaver.resetTime()
 
-        #When OSD is active we forward button presses to the playlist editor
-        # if self.curId == selectId['osd']:
-        #     if keycode[1] == "enter":
-        #         self.selectableWidgets[selectId['pFiles']].enter(None)
-        #     return 0
-
-
         msg = "Menu: Key Pressed [{}] ".format(keycode)
         msg = msg + "on element with curId = {}".format(self.curId)
         logging.debug(msg)
@@ -339,6 +332,7 @@ class Menu(StackLayout, TabbedPanel):
 
         #Setup the menu for system notifications and system operations like shutdown
         self.menuSystem = MenuSystem()
+        self.menuSystem.callbackPlayfile = self.selectableWidgets[selectId['pFiles']].startVirtualSingle
         self.selectableWidgets[selectId['system']].content = self.menuSystem
         self.selectableWidgets[selectId['systemMsg']] = self.menuSystem.handler
         self.selectableWidgets[selectId['systemBtn']] = self.menuSystem.btn

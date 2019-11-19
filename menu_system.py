@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 import includes
 from kivy.uix.stacklayout import StackLayout
@@ -8,9 +9,20 @@ from selectable_items import SelectLabelBg
 
 
 class MenuSystem(StackLayout):
-    def _autoReplay(self,args):
-        logging.error("TODO: implement restaring of not proper shut down video")
+    def callbackPlayfile(self, args):
         pass
+
+    def _autoReplay(self, id):
+
+        logging.error("Thmasßßßßßßßßßßßßßß: id = {}".format(id))
+        tmp = {
+            'path':includes.db['mediaPath'],
+            'start':includes.db['runtime']
+        }
+        
+        self.callbackPlayfile(tmp)
+        self.handler._removeDialog(id)
+
 
     def _reboot(self, args):
         logging.error("TODO: reboot the system")
@@ -60,18 +72,31 @@ class MenuSystem(StackLayout):
         )
         self.add_widget(self.divider1)
 
+
         self.handler = DialogHandler()
-        btnDesc = [
-            {
-                'imgPath':'small_play',
-                'callback':self._autoReplay
-            }
-        ]
-        self.handler.addWarning(
-            text="This is the content for one",
-            headerText="First header",
-            height=90,btnDesc= btnDesc
-        )
-        self.handler.addInfo(text="This is the content for two", headerText="Second header", height=45)
-        self.handler.addError(text="This is the content for three", headerText="Third header", height=45)
+
+        if includes.db['runtime'] != 0:
+            btnDesc = [
+                {
+                    'imgPath':'small_play',
+                    'callback':self._autoReplay
+                }
+            ]
+
+            headerText = "System crashed"
+
+            timeText = time.strftime('%H:%M:%S', time.gmtime(includes.db['runtime']))
+            text = "System crashed while playing a video file\n"
+            text += "Timestamp = {}".format(timeText)
+
+            self.handler.addWarning(
+                text=text,
+                headerText=headerText,
+                height=90,
+                btnDesc= btnDesc
+            )
+
+
+        #self.handler.addInfo(text="This is the content for two", headerText="Second header", height=45)
+        #self.handler.addError(text="This is the content for three", headerText="Third header", height=45)
         self.add_widget(self.handler)

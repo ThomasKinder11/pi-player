@@ -110,7 +110,7 @@ def writeConfig():
 #Global instance of screen saver
 screenSaver = None #will be initialized by main-menu
 
-#Generic database, bsically a json file which we read and write
+#database, bsically a json file which we read and write
 dbPath = os.path.join(syspath, "resources", "database.json")
 db = None
 try:

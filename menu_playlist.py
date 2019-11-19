@@ -18,7 +18,7 @@ def createPlayListEntry(path, name, nodeId, start):
             'name': name,
             'pre' : "",
             'post' : "",
-            'start' : 0,
+            'start' : start,
             'end' : 0
         }
     }
@@ -522,7 +522,7 @@ class MenuPlaylist(StackLayout, Select):
             logging.error("startVirtualSingle: path was not specified in arguments!...")
             return
 
-        tmp = createPlayListEntry(path, "VPL", 0, 0)
+        tmp = createPlayListEntry(path, "VPL", 0, start)
 
         cmd = {
             'cmd':{
