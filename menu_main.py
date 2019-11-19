@@ -19,7 +19,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 import control_tree
 import includes
 
-from selectable_items import SelectableTabbedPanelHeader
+from selectable_items import SelectableTabbedPanelHeader, SelectLabelBg
 from screensaver import ScreenSaver
 from menu_settings import MenuSettings
 from menu_video import FileList
@@ -37,17 +37,27 @@ class IshaGui(StackLayout):
 
     def resize(self, widget, value):
         '''resize callback when width/height are chaning'''
-        self.screens.height = Window.height - 55#TODO: the 55 should be replaced by height bottom menu (shadow OSD)self.osd.height
+        self.screens.height = Window.height - self.bottomMenu.height#TODO: the 55 should be replaced by height bottom menu (shadow OSD)self.osd.height
+
+    def changeColorMenu(self, color):
+        self.bottomMenu.background_color = color
 
     def __init__(self, **kwargs):
         super(IshaGui, self).__init__(**kwargs)
 
-        self.screens = IshaPiScreens()
+        self.screens = IshaPiScreens(changeColorMenu=self.changeColorMenu)
+
+        self.bottomMenu = SelectLabelBg(
+            background_color=includes.colors['black'],
+            size_hint_y=None,
+            height=includes.styles['pListIndiactorHeight']
+        )
 
         self.screens.size_hint_y = None
-        self.screens.height = Window.height - 55 #TODO: the 55 should be replaced by height bottom menu (shadow OSD)self.osd.height
+        self.screens.height = Window.height - self.bottomMenu.height #TODO: the 55 should be replaced by height bottom menu (shadow OSD)self.osd.height
 
         self.add_widget(self.screens)
+        self.add_widget(self.bottomMenu)
         self.bind(height=self.resize)
 
 class IshaPiScreens(ScreenManager):
@@ -65,6 +75,7 @@ class IshaPiScreens(ScreenManager):
 
 
     def __init__(self, **kwargs):
+        self.changeColorMenu = kwargs.pop('changeColorMenu', None)
         super(IshaPiScreens, self).__init__(**kwargs)
 
         self.transition = NoTransition()
@@ -327,6 +338,7 @@ class Menu(StackLayout, TabbedPanel):
         )
         self.selectableWidgets[selectId['pFiles']].osdEnable = self.osdEnable
         self.selectableWidgets[selectId['pFiles']].osdDisable = self.osdDisable
+        self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.root.changeColorMenu
         #TODO: this should be a callback for the sahdowOSD self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.osd.setColorIndicator
         self.selectableWidgets[selectId['playlist']].content = self.selectableWidgets[selectId['pFiles']]
 

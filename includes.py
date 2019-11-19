@@ -80,8 +80,8 @@ styles = {
     #Dailogs
     'dialogBorderHeight': 5,
     #Playlist color Indicator
-    'pListIndiactorHeight':15,
-    'plistIndicatorColor':colors['oldblue']
+    'pListIndiactorHeight':25,
+    'plistIndicatorColor':colors['darkblue']
 }
 
 
