@@ -6,6 +6,7 @@ from kivy.core.window import Window
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.checkbox import CheckBox
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.uix.slider import Slider
 from kivy.uix.scrollview import ScrollView
@@ -24,12 +25,23 @@ class Select():
     isSelectable = True
     onEnter = None
     user = {}
+    hasLeftRight = False
 
     def enable(self, args):
-        logging.warning("I AM NOT IMPLEMENTED self = {}".format(self))
+        logging.warning("Enable NOT IMPLEMENTED self = {}".format(self))
 
     def disable(self, args):
-        logging.warning("I AM NOT IMPLEMENTED self = {}".format(self))
+        logging.warning("Disable  NOT IMPLEMENTED self = {}".format(self))
+
+
+    def enter(self, args):
+        pass
+
+    # def left(self, args):
+    #     logging.warning("Left NOT IMPLEMENTED self = {}".format(self))
+    #
+    # def right(self, args):
+    #     logging.warning("Right AM NOT IMPLEMENTED self = {}".format(self))
 
 
 class SelectableTabbedPanelHeader(Select, TabbedPanelHeader):
@@ -149,6 +161,12 @@ class SelectSlider(Select, GridLayout):
         self.label.color = self.defaultColor
         return True
 
+    def left(self, args):
+        self.decrement(None)
+
+    def right(self, args):
+        self.increment(None)
+
     def increment(self, args):
         val = self.slider.value
 
@@ -191,6 +209,7 @@ class SelectSlider(Select, GridLayout):
         #call super only after additional arguments have been popped
         super(SelectSlider, self).__init__(**kwargs)
 
+
         self.label = Label(
             text=text,
             halign='left',
@@ -214,7 +233,7 @@ class SelectSlider(Select, GridLayout):
         self.valLabel = Label(
             text=str(val)+'s',
             size_hint=(None, None),
-            width=10,
+            width=60,
             height=50,
             font_size=textSize
         )
@@ -229,6 +248,8 @@ class SelectSlider(Select, GridLayout):
         self.add_widget(self.label)
         self.add_widget(self.slider)
         self.add_widget(self.valLabel)
+
+        self.hasLeftRight = True
 
 
 class SelectLabelBg(SelectLabel):
@@ -563,3 +584,39 @@ class PlaylistJsonList(SelectListView):
 
             for item in data:
                 self.add(data[item]['name'], False)
+
+
+class SelectCheckBox(Select, StackLayout):
+    def enable(self, args):
+        self.label.enable(args)
+
+    def disable(self, args):
+        self.label.disable(args)
+
+    def enter(self, args):
+        self.checkbox.active = not self.checkbox.active
+
+    def __init__(self, **kwargs):
+        text = kwargs.pop('text', "undefined")
+        enaColor = kwargs.pop('enaColor')
+        super(SelectCheckBox, self).__init__(**kwargs)
+
+        self.label = SelectLabel(
+            text=text,
+            halign='left',
+            size_hint=(None, None),
+            width=400,#TODO: This should be defined based on the text length and fontSize
+            height=50,
+            font_size=includes.styles['fontSize'],
+            enaColor=enaColor,
+        )
+
+        self.checkbox = CheckBox()
+        self.checkbox.size_hint = (None, None)
+        self.checkbox.width = 50
+        self.checkbox.height = 50
+        self.label.text_size = (self.label.width - 60, self.label.height)
+
+
+        self.add_widget(self.label)
+        self.add_widget(self.checkbox)

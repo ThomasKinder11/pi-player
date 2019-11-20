@@ -353,7 +353,8 @@ class Menu(StackLayout, TabbedPanel):
         #window has been enought so far and we give the window itself the responsibility
         #Of selecting the right elements depending on key press. This makes the controll_tree
         #more simplistic and settings creen is anyway not proper
-        self._findSelectableChildren(self.selectableWidgets[selectId['settings']].content.children)
+        #self._findSelectableChildren(self.selectableWidgets[selectId['settings']].content.children)
+        self.selectableWidgets[selectId['settingsMenu']]= self.selectableWidgets[selectId['settings']].content
 
         #OSD controller instance using socket connection to controll OSD process
         self.selectableWidgets[selectId['osd']] = OsdController()

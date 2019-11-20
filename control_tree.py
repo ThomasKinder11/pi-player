@@ -28,6 +28,7 @@ meaning that this object will gain keyboard control
 
 selectId = {
     'settings':1,
+    'settingsMenu':100,
 
     'videos':2,
     'vFile':20000,
@@ -55,13 +56,11 @@ CONTROL_TREE = {
             {'func':'switch', 'id':selectId['playlist']},
             {'nextid':selectId['playlist']}
         ],
-        "up": None,
         "down":[
-            {'func':'enable', 'id':100},
+            {'func':'enable', 'id':selectId['settingsMenu']},
             {'func':'disable', 'id':selectId['settings']},
-            {'nextid':100}
+            {'nextid':selectId['settingsMenu']}
         ],
-        "info":"settings menu"
     },
     selectId['videos']:{
         "left":  [
@@ -135,63 +134,87 @@ CONTROL_TREE = {
         ],
         "note":"power control",
     },
-    100:{
-        "left":[{'func':'decrement', 'id':100}],
-        "right":[{'func':'increment', 'id':100}],
-        "up":[
-            {'func':'disable', 'id':100},
-            {'func':'enable', 'id':selectId['settings']},
-            {'nextid':selectId['settings']}
+    selectId['settingsMenu']:{
+        "up": [
+            {
+                'func':'disable',
+                'id':selectId['settingsMenu'],
+                'true':[
+                    {'func':'enable', 'id':selectId['settings']},
+                    {'nextid':selectId['settings']},
+                ],
+            },
         ],
         "down":[
-            {'func':'enable', 'id':101},
-            {'func':'disable', 'id':100},
-            {'nextid':101}
-        ]
-    },
-    101:{
-        "left":[{'func':'decrement', 'id':101}],
-        "right":[{'func':'increment', 'id':101}],
-        "up": [
-            {'func':'enable', 'id':100},
-            {'func':'disable', 'id':101},
-            {'nextid':100}
+            {'func':'enable', 'id':selectId['settingsMenu']},
         ],
-        "down":[
-            {'func':'enable', 'id':102},
-            {'func':'disable', 'id':101},
-            {'nextid':102}
+        "left":[
+            {'func':'left', 'id':selectId['settingsMenu']},
+        ],
+        "right":[
+            {'func':'right', 'id':selectId['settingsMenu']},
+        ],
+        "enter":[
+            {'func':'enter', 'id':selectId['settingsMenu']},
         ],
     },
-    102:{
-        "left":None,
-        "right":None,
-        "up": [
-            {'func':'enable', 'id':101},
-            {'func':'disable', 'id':102},
-            {'nextid':101}
-        ],
-        "down": [
-            {'func':'enable', 'id':103},
-            {'func':'disable', 'id':102},
-            {'nextid':103}
-        ],
-        "enter": [
-            {'func':'on_press', 'id':102},
-            {'nextid':102}
-        ],
-    },
-    103:{
-        "up": [
-            {'func':'enable', 'id':102},
-            {'func':'disable', 'id':103},
-            {'nextid':102}
-        ],
-        "enter": [
-            {'func':'on_press', 'id':103},
-            {'nextid':103}
-        ],
-    },
+    # 100:{
+    #     "left":[{'func':'decrement', 'id':100}],
+    #     "right":[{'func':'increment', 'id':100}],
+    #     "up":[
+    #         {'func':'disable', 'id':100},
+    #         {'func':'enable', 'id':selectId['settings']},
+    #         {'nextid':selectId['settings']}
+    #     ],
+    #     "down":[
+    #         {'func':'enable', 'id':101},
+    #         {'func':'disable', 'id':100},
+    #         {'nextid':101}
+    #     ]
+    # },
+    # 101:{
+    #     "left":[{'func':'decrement', 'id':101}],
+    #     "right":[{'func':'increment', 'id':101}],
+    #     "up": [
+    #         {'func':'enable', 'id':100},
+    #         {'func':'disable', 'id':101},
+    #         {'nextid':100}
+    #     ],
+    #     "down":[
+    #         {'func':'enable', 'id':102},
+    #         {'func':'disable', 'id':101},
+    #         {'nextid':102}
+    #     ],
+    # },
+    # 102:{
+    #     "left":None,
+    #     "right":None,
+    #     "up": [
+    #         {'func':'enable', 'id':101},
+    #         {'func':'disable', 'id':102},
+    #         {'nextid':101}
+    #     ],
+    #     "down": [
+    #         {'func':'enable', 'id':103},
+    #         {'func':'disable', 'id':102},
+    #         {'nextid':103}
+    #     ],
+    #     "enter": [
+    #         {'func':'on_press', 'id':102},
+    #         {'nextid':102}
+    #     ],
+    # },
+    # 103:{
+    #     "up": [
+    #         {'func':'enable', 'id':102},
+    #         {'func':'disable', 'id':103},
+    #         {'nextid':102}
+    #     ],
+    #     "enter": [
+    #         {'func':'on_press', 'id':103},
+    #         {'nextid':103}
+    #     ],
+    # },
     selectId['osd']:{
         "left": [{'func':'left', 'id':selectId['osd']}],
         "right":[{'func':'right', 'id':selectId['osd']}],
@@ -204,15 +227,6 @@ CONTROL_TREE = {
         "up":[{'func':'up', 'id':selectId['osd']}],
         "down":[{'func':'down', 'id':selectId['osd']}],
     },
-    # selectId['osd']:{
-    #     "left": [{'func':'left', 'id':selectId['osd']}],
-    #     "right":[{'func':'right', 'id':selectId['osd']}],
-    #     "enter":[{'func':'enter', 'id':selectId['osd']}],
-    #     "browser back": [{'func':'disable', 'id':selectId['osd']}],
-    #     "volume up": [{'func':'volumeUp', 'id':selectId['osd']}],
-    #     "volume down": [{'func':'volumeDown', 'id':selectId['osd']}],
-    #     "volume mute": [{'func':'muteToggle', 'id':selectId['osd']}],
-    # },
     selectId['vFile']:{
         "up":[{
             'func':'disable',
