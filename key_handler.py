@@ -99,7 +99,6 @@ class KeyHandler():
 		for kbd in self.keyboards:
 			self.selector.register(kbd, EVENT_READ)
 
-		#TODO: check if this still works it was under the for loop which does not make sense I think
 		self.thread = threading.Thread(target=self._worker)
 		self.thread.setDaemon(True)
 		self.thread.start()

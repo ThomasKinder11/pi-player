@@ -37,7 +37,7 @@ class IshaGui(StackLayout):
 
     def resize(self, widget, value):
         '''resize callback when width/height are chaning'''
-        self.screens.height = Window.height - self.bottomMenu.height#TODO: the 55 should be replaced by height bottom menu (shadow OSD)self.osd.height
+        self.screens.height = Window.height - self.bottomMenu.height
 
     def changeColorMenu(self, color):
         self.bottomMenu.background_color = color
@@ -54,7 +54,7 @@ class IshaGui(StackLayout):
         )
 
         self.screens.size_hint_y = None
-        self.screens.height = Window.height - self.bottomMenu.height #TODO: the 55 should be replaced by height bottom menu (shadow OSD)self.osd.height
+        self.screens.height = Window.height - self.bottomMenu.height
 
         self.add_widget(self.screens)
         self.add_widget(self.bottomMenu)
@@ -339,7 +339,6 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[selectId['pFiles']].osdEnable = self.osdEnable
         self.selectableWidgets[selectId['pFiles']].osdDisable = self.osdDisable
         self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.root.changeColorMenu
-        #TODO: this should be a callback for the sahdowOSD self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.osd.setColorIndicator
         self.selectableWidgets[selectId['playlist']].content = self.selectableWidgets[selectId['pFiles']]
 
         #Setup the menu for system notifications and system operations like shutdown
@@ -356,11 +355,8 @@ class Menu(StackLayout, TabbedPanel):
         #more simplistic and settings creen is anyway not proper
         self._findSelectableChildren(self.selectableWidgets[selectId['settings']].content.children)
 
-        #TODO: this OSD should be replaced by a different version of OSD wich
-        #only shows the volume indicator. Maybe we can implement an option
-        #which replaces all buttons with a label as a placeholder
+        #OSD controller instance using socket connection to controll OSD process
         self.selectableWidgets[selectId['osd']] = OsdController()
-
 
         #Get the globally defined controll tree used for processing keystrokes
         self.controlTree = control_tree.CONTROL_TREE
@@ -438,19 +434,18 @@ class Menu(StackLayout, TabbedPanel):
             return False
 
     def _cmdInitCallbackHandler(self):
-        #001: TODO is this args parameter really neede? Its all none any way...
         self.funcList = {}
-        self.funcList['muteToggle'] = {'call':self._cmdMuteToggle, 'args':None}
-        self.funcList['setVolume'] = {'call':self._cmdSetVolume, 'args':None}
-        self.funcList['volumeUp'] = {'call':self._cmdVolumeUp, 'args':None}
-        self.funcList['volumeDown'] = {'call':self._cmdVolumeDown, 'args':None}
-        self.funcList['play'] = {'call':self.selectableWidgets[selectId['pFiles']].play, 'args':None}
-        self.funcList['pause'] = {'call':self.selectableWidgets[selectId['pFiles']].pause, 'args':None}
-        self.funcList['previous'] = {'call':self.selectableWidgets[selectId['pFiles']].previous, 'args':None}
-        self.funcList['next'] = {'call':self.selectableWidgets[selectId['pFiles']].next, 'args':None}
-        self.funcList['stop'] = {'call':self.selectableWidgets[selectId['pFiles']].abort, 'args':None}
-        self.funcList['playlistNext'] = {'call':self.selectableWidgets[selectId['pFiles']].enter, 'args':None}
-        self.funcList['seek'] = {'call':self.selectableWidgets[selectId['pFiles']].seek, 'args':None}
+        self.funcList['muteToggle'] = self._cmdMuteToggle
+        self.funcList['setVolume'] = self._cmdSetVolume
+        self.funcList['volumeUp'] = self._cmdVolumeUp
+        self.funcList['volumeDown'] = self._cmdVolumeDown
+        self.funcList['play'] = self.selectableWidgets[selectId['pFiles']].play
+        self.funcList['pause'] = self.selectableWidgets[selectId['pFiles']].pause
+        self.funcList['previous'] = self.selectableWidgets[selectId['pFiles']].previous
+        self.funcList['next'] = self.selectableWidgets[selectId['pFiles']].next
+        self.funcList['stop'] = self.selectableWidgets[selectId['pFiles']].abort
+        self.funcList['playlistNext'] = self.selectableWidgets[selectId['pFiles']].enter
+        self.funcList['seek'] = self.selectableWidgets[selectId['pFiles']].seek
 
 
     def _jsonCmdCallback(self, data):
@@ -465,11 +460,6 @@ class Menu(StackLayout, TabbedPanel):
         all components within the main menu if they want to. For example "+", "-"
         and mute button are calling this function so volume can potentially be set with less
         latency.
-
-        TODO: The old OSD will be replaced by a shadow OSD which only contains the
-              volumen widget as of now.
-        TODO: Remove all OSD callbacks and implement the corresponding functionality
-             with the webinterface.
          """
         self.serverSemaphore.acquire()
         if includes.isRemoteCtrlCmd(data): # check if valid command or not
@@ -481,7 +471,7 @@ class Menu(StackLayout, TabbedPanel):
                 args = None
 
 
-            self.funcList[cmd['func']]['call'](args)
+            self.funcList[cmd['func']](args)
 
             ret = {}
             ret['status'] = "ok"

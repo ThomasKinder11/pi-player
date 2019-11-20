@@ -101,7 +101,7 @@ class SelectButton(Button, Select):
             self.color = self.enaColor
 
         elif self.btnType == "image":
-            self.background_normal = self.imgPath + "_select" #TODO:.png"
+            self.background_normal = self.imgPath + "_select"
 
         return True
 
@@ -112,7 +112,7 @@ class SelectButton(Button, Select):
             self.color = self.defaultColor
 
         elif self.btnType == "image":
-            self.background_normal = self.imgPath #TODO: + ".png"
+            self.background_normal = self.imgPath
 
         return True
 
@@ -127,7 +127,7 @@ class SelectButton(Button, Select):
 
         if self.imgPath:
             self.btnType = "image"
-            self.background_normal = self.imgPath #TODO: + ".png"
+            self.background_normal = self.imgPath
         else:
             self.btnType = "text"
 
@@ -235,7 +235,7 @@ class SelectLabelBg(SelectLabel):
     background_color = ObjectProperty(includes.styles['defaultBg'])
     isEnabled = False
 
-    def size_change(self, widget, value):  #TODO: we should use the value passed to the function not global parameters, this could be the reason why rescaling does not work properly. Separate pos and size change and update canvas like in the dialog
+    def size_change(self, widget, value):
         self.back.size = value
         self.text_size = (value[0], self.text_size[1])
 

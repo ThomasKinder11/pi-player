@@ -52,8 +52,7 @@ class TimeSelect(StackLayout, Select):
 
     def onEnter(self, args):
         pass #empty callback can be set by top level module
-        #TODO: call seek function via json interface to seek to specific time
-
+        
     def up(self, args):
         value = int(self.widgets[self.wId].text)
         value = includes.clipInt(value + 1, 0 , 9)

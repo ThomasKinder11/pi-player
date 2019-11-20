@@ -34,11 +34,7 @@ class ScreenSaver():
                     self.idleCounter = 0
                     self.screenManager.current = self.menuName
                     self.active = False
-
-                # elif cmd['cmd'] == 'stop':
-                #     logging.debug("ScreenSaver: thread stopped...")
-                #     break TODO: is this needed ??
-
+                    
                 elif cmd['cmd'] == 'disable':
                     self.ena = False
                     self.screenManager.current = self.menuName

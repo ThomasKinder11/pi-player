@@ -439,16 +439,12 @@ class DialogHandler(StackLayout, Select):
 
         i = 0
         for widget in self.dialogList:
-            # widget.id = i #TODO: do we still needs this and the next line also?
-            # i = i + 1  TODO: is this really needed or can we renove this
             self.add_widget(widget.dialog)
 
     def _removeDialog(self, dialogId):
         if len(self.dialogList) <= 0:
             return
 
-        #TODO: the dialog id migh not be corrospont witht the dialogList ID so
-        #we need to search for the right element in the list top pop and remove
         for i in range(len(self.dialogList)):
             if self.dialogList[i].id == dialogId:
                 widget = self.dialogList.pop(i)
