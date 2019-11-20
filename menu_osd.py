@@ -31,6 +31,7 @@ from volume_widget import VolumeIndicator
 from ipc import Ipc
 from selectable_items import Select
 from key_handler import KeyHandler
+from time_selector import TimeSelect
 
 
 class OsdController(Select):
@@ -53,6 +54,14 @@ class OsdController(Select):
 
     def enter(self, args):
         self.ipc.sendCmd({'cmd':{'func':'enter'}}, includes.config['ipcOsdPort'])
+
+    def up(self, args):
+        self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
+        self.ipc.sendCmd({'cmd':{'func':'up'}}, includes.config['ipcOsdPort'])
+
+    def down(self, args):
+        self.ipc.sendCmd({'cmd':{'func':'resetCnt'}}, includes.config['ipcOsdPort'])
+        self.ipc.sendCmd({'cmd':{'func':'down'}}, includes.config['ipcOsdPort'])
 
     def __init__(self):
         self.ipc = Ipc()
@@ -116,6 +125,15 @@ class MenuOSD(StackLayout, Select):
                 elif cmd['func'] == "resetCnt":
                     self._resetCnt()
 
+                elif cmd['func'] == "up":
+
+                    if self.wId == self.timeSelectId:
+                        self.runtime.up(None)
+
+                elif cmd['func'] == "down":
+                    if self.wId == self.timeSelectId:
+                        self.runtime.down(None)
+
 
     def setColorIndicator(self, color):
         '''Set the color of the 5px high indicator border at the bottom of OSD'''
@@ -154,6 +172,29 @@ class MenuOSD(StackLayout, Select):
 
         self._jsonCmdCallback(data)
 
+    def onEnterTimeselect(self, args):
+        logging.debug("MenuOsd: onEnterTimeselect: called")
+
+        t = self.runtime.getTimeInSec()
+        data = {
+            'cmd':{
+                'func':'seek',
+                'args':{
+                    'value':t
+                }
+            }
+        }
+        self._jsonCmdCallback(data)
+        self.osdCtrl.disable(None)
+
+        #reset OSD so we start on first button agian
+        for i in range(len(self.widgets)):
+            if i == self.timeSelectId:
+                self.runtime.clear(None)
+            else:
+                self.widgets[i].disable(None)
+
+
     def _worker(self):
         logging.debug("MenuOSD: thread called...")
 
@@ -168,8 +209,13 @@ class MenuOSD(StackLayout, Select):
             if self.idleCounter > includes.config['settings']['osdTime'] and self.isVisible:
                 self.idleCounter = includes.config['settings']['osdTime'] + 1
                 self.wId = 0
-                for wid in self.widgets:
-                    wid.disable(None)
+
+                for i in range(len(self.widgets)):
+                    if i == self.timeSelectId:
+                        self.runtime.clear(None)
+                    else:
+                        self.widgets[i].disable(None)
+
 
                 self.isVisible = False
                 self.osdCtrl.disable(None)
@@ -194,15 +240,26 @@ class MenuOSD(StackLayout, Select):
 
         self._resetCnt()
 
-        if self.wId < len(self.widgets) and self.wId >= 0:
+        if self.wId !=self.timeSelectId and self.wId >= 0:
+    #    if self.wId < len(self.widgets) and self.wId >= 0:
             if self.wId > 0:
                 self.widgets[self.wId].disable(None)
 
-            self.wId = includes.clipInt(self.wId - 1, min=0, max=4)
+
+            self.wId = includes.clipInt(self.wId - 1, 0, len(self.widgets)-1)
             self.widgets[self.wId].enable(None)
+
+        elif self.wId == self.timeSelectId:#when we selecte the time selector widget
+            ret = self.widgets[self.wId].disable(None)
+            logging.warning("Thomas Left: selector id ret val = {}".format(ret))
+            if ret:
+                logging.error("Thomas: disable ret value is True")
+                self.wId = includes.clipInt(self.wId - 1, 0, len(self.widgets)-1)
+                self.widgets[self.wId].enable(None)
 
     def right(self, args):
         '''Logic to select next OSD element to the right from currently selected item'''
+        logging.debug("MenuOSD: right: length of widget list = {}".format(len(self.widgets)))
         if not self.isVisible:
             self.enable(None)
             self.wId = 0
@@ -213,10 +270,14 @@ class MenuOSD(StackLayout, Select):
         self._resetCnt()
 
         if self.wId < len(self.widgets):
-            self.widgets[self.wId].disable(None)
+            logging.error("Thomas: right called ... ß0ß0ß0")
 
-            self.wId = includes.clipInt(self.wId + 1, min=0, max=4)
+            if self.wId != self.timeSelectId:
+                self.widgets[self.wId].disable(None)
+
+            self.wId = includes.clipInt(self.wId + 1, 0, len(self.widgets)-1)
             self.widgets[self.wId].enable(None)
+
 
     def _resetCnt(self):
         self.ctrlQueue.put({'cmd':'resetCnt'})
@@ -278,12 +339,16 @@ class MenuOSD(StackLayout, Select):
         self.widgets.append(self.btnPrevious)
         self.widgets.append(self.btnNext)
 
+
         for wid in self.widgets:
              self.add_widget(wid)
 
-
         self.add_widget(self.gap0)
+
+        self.timeSelectId = len(self.widgets)
+        self.widgets.append(self.runtime)
         self.add_widget(self.runtime)
+
         self.add_widget(self.gap)
         self.add_widget(self.volume)
 
@@ -346,13 +411,20 @@ class MenuOSD(StackLayout, Select):
         )
 
 
-        self.runtime = SelectLabel(
-            size_hint_y=None,
-            size_hint_x=None,
+        # self.runtime = SelectLabel(
+        #     size_hint_y=None,
+        #     size_hint_x=None,
+        #     height=50,
+        #     width=200,
+        #     id=str(3),
+        #     text="00:00:23"
+        # )
+        self.runtime = TimeSelect(
+            text="00:00:00",
+            id=str(3),
             height=50,
             width=200,
-            id=str(3),
-            text="00:00:23"
+            size_hint=(None, None)
         )
 
         winCenter = int(Window.width / 2)
@@ -424,13 +496,14 @@ class MenuOSD(StackLayout, Select):
         self.btnPrevious.onEnter =  self.onEnterPrevious
         self.btnNext.onEnter = self.onEnterNext
         self.btnStop.onEnter =  self.onEnterStop
+        self.runtime.onEnter = self.onEnterTimeselect
 
         #Server setup to control GUI elements on the OSD such as the volume indicator
         if int(self.id) < 0:
             self.serverTr = threading.Thread(target=self._cmdServer)
             self.serverTr.setDaemon(True)
             self.serverTr.start()
-            
+
 class OSDMain(App):
 
 

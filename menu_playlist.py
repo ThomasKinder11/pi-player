@@ -85,6 +85,9 @@ class MenuPlaylist(StackLayout, Select):
     def play(self, args):
         includes.player.play()
 
+    def seek(self, time):
+        includes.player.seek(time)
+
     def enable(self, args):#down
         if self.fileList.widgets is None or len(self.fileList.widgets) <= 0:
             return True

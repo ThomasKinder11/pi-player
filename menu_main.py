@@ -429,8 +429,16 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[selectId['osd']].enable(None)
         self.ipc.sendCmd({'cmd':{'func':'volumeDown'}}, includes.config['ipcOsdPort'])
 
+    def _seek(self, args):
+        if 'time' in args:
+            self.selectableWidgets[selectId['pFiles']].seek(args['time'])
+            return True
+        else:
+            logging.warning("MenuMain: _seek argument does not have time paramter")
+            return False
 
     def _cmdInitCallbackHandler(self):
+        #001: TODO is this args parameter really neede? Its all none any way...
         self.funcList = {}
         self.funcList['muteToggle'] = {'call':self._cmdMuteToggle, 'args':None}
         self.funcList['setVolume'] = {'call':self._cmdSetVolume, 'args':None}
@@ -442,6 +450,7 @@ class Menu(StackLayout, TabbedPanel):
         self.funcList['next'] = {'call':self.selectableWidgets[selectId['pFiles']].next, 'args':None}
         self.funcList['stop'] = {'call':self.selectableWidgets[selectId['pFiles']].abort, 'args':None}
         self.funcList['playlistNext'] = {'call':self.selectableWidgets[selectId['pFiles']].enter, 'args':None}
+        self.funcList['seek'] = {'call':self.selectableWidgets[selectId['pFiles']].seek, 'args':None}
 
 
     def _jsonCmdCallback(self, data):

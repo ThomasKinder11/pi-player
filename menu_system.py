@@ -14,12 +14,11 @@ class MenuSystem(StackLayout):
 
     def _autoReplay(self, id):
 
-        logging.error("Thmasßßßßßßßßßßßßßß: id = {}".format(id))
         tmp = {
             'path':includes.db['mediaPath'],
             'start':includes.db['runtime']
         }
-        
+
         self.callbackPlayfile(tmp)
         self.handler._removeDialog(id)
 
