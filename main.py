@@ -146,7 +146,7 @@ if __name__ == "__main__":
         time.sleep(0.1)
 
 
-    guiPro = Popen(["python3", "main.py"])
+    guiPro = Popen(["python3", "main_gui.py"])
 
     while not wm.mainGuiMapped:
         time.sleep(0.1) #Wait so that everything opens in order
