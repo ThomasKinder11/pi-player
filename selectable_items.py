@@ -265,15 +265,16 @@ class SelectLabelBg(SelectLabel):
         self.back.pos = value
 
     def enable(self, args):
-        self.tmpColor = self.background_color
-        self.background_color = self.enaColor# includes.colors['darkblue']
-        #super(SelectListViewItem, self).enable(args)
-        self.isEnabled = True
+        if not self.isEnabled:
+            self.tmpColor = self.background_color
+            self.background_color = self.enaColor# includes.colors['darkblue']
+            self.isEnabled = True
 
     def disable(self, args):
-        self.background_color = self.tmpColor
-        self.isEnabled = False
-        #super(SelectListViewItem, self).disable(args)
+        if self.isEnabled:
+            self.background_color = self.tmpColor
+            self.isEnabled = False
+
 
     def updateBg(self, widget, value):
         with self.canvas.before:
