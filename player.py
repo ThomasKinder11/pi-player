@@ -74,10 +74,9 @@ class Player():
         # os.system(cmd)
         self._execute({'command': ["set_property", "pause", False]})
 
-    def seek(self, time):
-        logging.warning("Player: Seek executed but not implemented yet! time = {}".format(time))
-        #TODO: we need to implement the seek function here
-
+    def seek(self, args):
+        self._execute({'command': ["seek", int(args['value']), "absolute"]})
+        
     def isPaused(self):
         ret = self._execute({'command': ["get_property", "pause"]})
         if ret is None:

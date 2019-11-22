@@ -599,22 +599,24 @@ class SelectCheckBox(Select, StackLayout):
     def __init__(self, **kwargs):
         text = kwargs.pop('text', "undefined")
         enaColor = kwargs.pop('enaColor')
+        height = kwargs.pop('height')
         super(SelectCheckBox, self).__init__(**kwargs)
 
         self.label = SelectLabel(
             text=text,
             halign='left',
+            valign='middle',
             size_hint=(None, None),
             width=400,#TODO: This should be defined based on the text length and fontSize
-            height=50,
+            height=height,
             font_size=includes.styles['fontSize'],
             enaColor=enaColor,
         )
 
-        self.checkbox = CheckBox()
+        self.checkbox = CheckBox(height=height)
         self.checkbox.size_hint = (None, None)
         self.checkbox.width = 50
-        self.checkbox.height = 50
+        #self.checkbox.height = height
         self.label.text_size = (self.label.width - 60, self.label.height)
 
 

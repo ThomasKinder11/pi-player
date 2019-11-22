@@ -24,8 +24,6 @@ class MenuSettings(GridLayout, Select):
         return False
 
     def disable(self, args):
-
-
         logging.debug("MenuSettings: disable fct called")
         self.widgets[self.wId].disable(None)
 
@@ -56,6 +54,8 @@ class MenuSettings(GridLayout, Select):
     def _saveSettings(self, args):
         includes.config['settings']['screensaverTime'] = self.widgets[0].slider.value
         includes.config['settings']['osdTime'] = self.widgets[1].slider.value
+        includes.config['video']['autoplay'] = str(self.videoAutoplay.checkbox.active).lower()
+        includes.config['audio']['autoplay'] = str(self.musicAutoplay.checkbox.active).lower()
         includes.writeConfig()
 
     def myexit(self, args):
@@ -67,6 +67,7 @@ class MenuSettings(GridLayout, Select):
         super(MenuSettings, self).__init__(**kwargs)
 
         self.cols = 1
+
         #self.rows = 2
 
         screensaverTime = includes.config['settings']['screensaverTime']
@@ -101,23 +102,23 @@ class MenuSettings(GridLayout, Select):
 
         self.musicAutoplay = SelectCheckBox(
             text="Autostart Music",
-            enaColor=includes.styles['enaColor0']
+            enaColor=includes.styles['enaColor0'],
+            height=50
         )
 
         self.musicAutoplay.checkbox.active = includes.config['audio']['autoplay'] == 'true'
 
         self.musicAutoplay.size_hint_y = None
-        self.musicAutoplay.height = 50
         self.widgets.append(self.musicAutoplay)
 
         self.videoAutoplay = SelectCheckBox(
             text="Autostart Video",
-            enaColor=includes.styles['enaColor0']
+            enaColor=includes.styles['enaColor0'],
+            height=30
         )
         self.videoAutoplay.checkbox.active = includes.config['video']['autoplay'] == 'true'
 
         self.videoAutoplay.size_hint_y = None
-        self.videoAutoplay.height = 50
         self.widgets.append(self.videoAutoplay)
 
         self.headVideoAudio = SelectLabelBg(
@@ -138,7 +139,7 @@ class MenuSettings(GridLayout, Select):
             text="Settings Controls",
             background_color=includes.colors['gray'],
             size_hint_y=None,
-            height=35
+            height=35,
         )
 
 
@@ -146,6 +147,7 @@ class MenuSettings(GridLayout, Select):
         self.btnSave.size_hint_y = None
         self.btnSave.height = 50
         self.widgets.append(self.btnSave)
+
 
         for item in self.widgets:
             if item == self.musicAutoplay:
