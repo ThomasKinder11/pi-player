@@ -158,63 +158,6 @@ CONTROL_TREE = {
             {'func':'enter', 'id':selectId['settingsMenu']},
         ],
     },
-    # 100:{
-    #     "left":[{'func':'decrement', 'id':100}],
-    #     "right":[{'func':'increment', 'id':100}],
-    #     "up":[
-    #         {'func':'disable', 'id':100},
-    #         {'func':'enable', 'id':selectId['settings']},
-    #         {'nextid':selectId['settings']}
-    #     ],
-    #     "down":[
-    #         {'func':'enable', 'id':101},
-    #         {'func':'disable', 'id':100},
-    #         {'nextid':101}
-    #     ]
-    # },
-    # 101:{
-    #     "left":[{'func':'decrement', 'id':101}],
-    #     "right":[{'func':'increment', 'id':101}],
-    #     "up": [
-    #         {'func':'enable', 'id':100},
-    #         {'func':'disable', 'id':101},
-    #         {'nextid':100}
-    #     ],
-    #     "down":[
-    #         {'func':'enable', 'id':102},
-    #         {'func':'disable', 'id':101},
-    #         {'nextid':102}
-    #     ],
-    # },
-    # 102:{
-    #     "left":None,
-    #     "right":None,
-    #     "up": [
-    #         {'func':'enable', 'id':101},
-    #         {'func':'disable', 'id':102},
-    #         {'nextid':101}
-    #     ],
-    #     "down": [
-    #         {'func':'enable', 'id':103},
-    #         {'func':'disable', 'id':102},
-    #         {'nextid':103}
-    #     ],
-    #     "enter": [
-    #         {'func':'on_press', 'id':102},
-    #         {'nextid':102}
-    #     ],
-    # },
-    # 103:{
-    #     "up": [
-    #         {'func':'enable', 'id':102},
-    #         {'func':'disable', 'id':103},
-    #         {'nextid':102}
-    #     ],
-    #     "enter": [
-    #         {'func':'on_press', 'id':103},
-    #         {'nextid':103}
-    #     ],
-    # },
     selectId['osd']:{
         "left": [{'func':'left', 'id':selectId['osd']}],
         "right":[{'func':'right', 'id':selectId['osd']}],
