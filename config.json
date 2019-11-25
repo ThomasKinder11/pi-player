@@ -1,23 +1,23 @@
 {
+    "tmpdir": "/tmp",
     "audio": {
-        "rootdir": "/home/thomas/multimedia/audios",
+        "rootdir": "/mnt/Ishamedia",
         "types": "mp3,wav",
-        "autoplay":"true"
+        "autoplay": "false"
     },
     "playlist": {
-        "rootdir": "/home/thomas/multimedia/playlists",
+        "rootdir": "/mnt/Ishamedia",
         "types": "json"
     },
-    "settings": {
-        "osdTime": 3,
-        "runtimeInterval": 1,
-        "screensaverTime": 7
-    },
-    "tmpdir": "/home/thomas/tmp",
     "video": {
-        "rootdir": "/home/thomas/multimedia/videos",
+        "rootdir": "/mnt/Ishamedia",
         "types": "mp4",
-        "autoplay":"false"
+        "autoplay": "false"
+    },
+    "settings": {
+        "osdTime": 10,
+        "runtimeInterval": 1,
+        "screensaverTime": 90
     },
     "httpServerIp":{
         "ip":"127.0.0.1",
@@ -26,3 +26,4 @@
     "ipcOsdPort":40001,
     "ipcWmPort":40002
 }
+

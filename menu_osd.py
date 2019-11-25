@@ -527,7 +527,11 @@ class OSDMain(App):
 
 
 #If we start OSD as standalone we use http request to control functions
-if __name__ == "__main__":
+def run():
     main = OSDMain()
     #Window.size = (Window.width, 50)
     main.run()
+
+#if __name__ == "__main__":
+#    run()
+

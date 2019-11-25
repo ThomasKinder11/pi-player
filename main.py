@@ -5,6 +5,8 @@ import json
 import time
 
 import includes
+import main_gui
+import menu_osd
 
 from  subprocess import Popen, threading
 from multiprocessing.connection import Listener
@@ -38,10 +40,11 @@ class IshaWm():
 
         if event.type == Xlib.X.MapRequest:
             xClass = event.window.get_wm_class()
+            print(event.type, xClass[0])
 
             #The first map request that comes from python is considered kivy root window
             #We start this window maximized always
-            if self.state == 0 and 'python' in xClass[0]:
+            if self.state == 0 and 'main_gui' in xClass[0]:
                 event.window.configure(
                     width=self.displayWidth,
                     height=self.displayHeight,
@@ -55,7 +58,7 @@ class IshaWm():
             elif self.state == 1:
                 #the second pyton app that is started is considered to be the OSD
                 # and osd should be drawn on bottom of page with 50px fixed height
-                if 'python' in xClass[0]:
+                if 'menu_osd' in xClass[0]:
                     osdHeight = 55
                     event.window.configure(
                         width=self.displayWidth,
@@ -137,6 +140,14 @@ def guiWorker():
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 2 and sys.argv[1] == "main_gui":
+        print("Starting main_gui")
+        main_gui.run()
+        sys.exit(0)
+    if len(sys.argv) == 2 and sys.argv[1] == "menu_osd":
+        print("Starting menu_osd")
+        menu_osd.run()
+        sys.exit(0)
     wm = IshaWm()
     wmThread = threading.Thread(target=wm.main)
     wmThread.setDaemon(True)
@@ -146,19 +157,27 @@ if __name__ == "__main__":
         time.sleep(0.1)
 
 
-    guiPro = Popen(["python3", "main_gui.py"])
+    guiPath = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "main_gui")
+    guiPro = Popen([guiPath, "main_gui"], stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stdout)
 
+    print("Started guiPro", sys.argv, guiPro, guiPath)
     while not wm.mainGuiMapped:
         time.sleep(0.1) #Wait so that everything opens in order
+    print("Completed guiPro")
 
-    osdPro = Popen(["python3", "menu_osd.py"])
+    osdPath = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "menu_osd")
+    osdPro = Popen([osdPath, "menu_osd"])
+    print("Started osdPro")
     while wm.osdWin == None:
         time.sleep(0.1)
+    print("Completed osdPro")
 
 
+    print("Sleep check")
     time.sleep(5)
     while guiPro.poll() == None and osdPro.poll() == None:
         time.sleep(1)
+    print("Sleep check done")
 
     if osdPro.poll() == None:
         osdPro.kill()
