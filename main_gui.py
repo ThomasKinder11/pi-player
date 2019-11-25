@@ -13,7 +13,7 @@ class Main(App):
 
         return IshaGui()
 
-if __name__ == "__main__":
+def run():
     #Window.size = (100, 100)
     from kivy.config import Config
     Config.set('graphics', 'left', '0')
@@ -21,3 +21,7 @@ if __name__ == "__main__":
 
 
     Main().run()
+
+#if __name__ == "__main__":
+#    run()
+
