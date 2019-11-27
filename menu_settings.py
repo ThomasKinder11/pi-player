@@ -55,7 +55,7 @@ class MenuSettings(GridLayout, Select):
         includes.config['settings']['screensaverTime'] = self.widgets[0].slider.value
         includes.config['settings']['osdTime'] = self.widgets[1].slider.value
         includes.config['video']['autoplay'] = str(self.videoAutoplay.checkbox.active).lower()
-        includes.config['audio']['autoplay'] = str(self.musicAutoplay.checkbox.active).lower()
+        includes.config['music']['autoplay'] = str(self.musicAutoplay.checkbox.active).lower()
         includes.writeConfig()
 
     def myexit(self, args):
@@ -106,7 +106,7 @@ class MenuSettings(GridLayout, Select):
             height=50
         )
 
-        self.musicAutoplay.checkbox.active = includes.config['audio']['autoplay'] == 'true'
+        self.musicAutoplay.checkbox.active = includes.config['music']['autoplay'] == 'true'
 
         self.musicAutoplay.size_hint_y = None
         self.widgets.append(self.musicAutoplay)

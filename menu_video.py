@@ -51,7 +51,7 @@ class FileList(SelectListView):
 
             if self.type == 'video' and includes.config['video']['autoplay'] == 'true':
                 args['autoplay'] = True
-            elif self.type == 'music' and  includes.config['audio']['autoplay'] == 'true':
+            elif self.type == 'music' and  includes.config['music']['autoplay'] == 'true':
                 args['autoplay'] = True
             else:
                 args['autoplay'] = False

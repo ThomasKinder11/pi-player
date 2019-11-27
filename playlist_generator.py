@@ -55,7 +55,7 @@ if __name__ == "__main__":
     files = os.listdir(dir)
 
     videoFormats =  tuple(includes.config['video']['types'].split(','))
-    audioFormats = tuple(includes.config['audio']['types'].split(','))
+    audioFormats = tuple(includes.config['music']['types'].split(','))
 
     playlistFiles = []
     for file in files:

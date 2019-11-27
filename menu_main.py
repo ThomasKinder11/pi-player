@@ -319,12 +319,12 @@ class Menu(StackLayout, TabbedPanel):
         #Setup Audio menu
         self.selectableWidgets[selectId['mFiles']] = FileList(
             id=str(selectId['mFiles']),
-            rootdir=includes.config['audio']['rootdir'],
+            rootdir=includes.config['music']['rootdir'],
             enaColor=includes.styles['enaColor0'],
             bar_width=10,
             size_hint=(1, None),
             size=(Window.width, Window.height),
-            supportedTypes=includes.config['audio']['types'],
+            supportedTypes=includes.config['music']['types'],
             screenmanager=self.root,
             selectFirst=False,
             type='music'

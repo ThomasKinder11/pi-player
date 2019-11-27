@@ -76,7 +76,7 @@ class Player():
 
     def seek(self, args):
         self._execute({'command': ["seek", int(args['value']), "absolute"]})
-        
+
     def isPaused(self):
         ret = self._execute({'command': ["get_property", "pause"]})
         if ret is None:
@@ -203,7 +203,7 @@ class Player():
             return
 
         videoFormats =  tuple(includes.config['video']['types'].split(','))
-        audioFormats = tuple(includes.config['audio']['types'].split(','))
+        audioFormats = tuple(includes.config['music']['types'].split(','))
 
         logging.debug("Player: videoFormats = {} / audioFormats = {}".format(videoFormats, audioFormats))
         mode = "nothing"
