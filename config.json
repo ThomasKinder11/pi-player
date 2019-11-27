@@ -1,6 +1,6 @@
 {
     "tmpdir": "/tmp",
-    "audio": {
+    "music": {
         "rootdir": "/mnt/Ishamedia",
         "types": "mp3,wav",
         "autoplay": "false"
@@ -26,4 +26,3 @@
     "ipcOsdPort":40001,
     "ipcWmPort":40002
 }
-

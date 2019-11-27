@@ -84,56 +84,11 @@ styles = {
     'plistIndicatorColor':colors['darkblue']
 }
 
-
-
-
-#Media player instance we can use in all modules
-player = Player()
-
-#configuration file
-syspath = os.path.dirname(os.path.realpath(__file__))
-cfgPath = os.path.join(syspath,'config.json')
-config = None
-with open(cfgPath) as config_file:
-    config = json.load(config_file)
-
-#logging.error(config)
-
-def writeJson(path, dict):
-        f = open(path, "w")
-        f.write(json.dumps(dict, sort_keys=True, indent=4))
-        f.close()
-
-def writeConfig():
-    writeJson(cfgPath, config)
-
-#Global instance of screen saver
-screenSaver = None #will be initialized by main-menu
-
-#database, bsically a json file which we read and write
-dbPath = os.path.join(syspath, "resources", "database.json")
-db = None
-try:
-    with open(dbPath) as dbFile:
-        db = json.load(dbFile)
-except:
-    f = open(dbPath, "w")
-    f.write('''{
-                "runtime":0
-                }''')
-    f.close()
-
-    with open(dbPath) as dbFile:
-        db = json.load(dbFile)
-
-
-def writeDb():
-    writeJson(dbPath, db)
-
 #
 # Some utilities and helpers
 #
 def clipInt(value, min, max):
+    '''Set lower and uper limits of integer values'''
     if value > max:
         return max
 
@@ -142,9 +97,110 @@ def clipInt(value, min, max):
 
     return value
 
-
 def isRemoteCtrlCmd(cmd):
+    '''check if cmd is a valid json command, TODO: we might remove this'''
     if not 'cmd' in cmd:
         return False
 
     return True
+
+def writeJson(path, dict):
+    '''write the configuration into a json file'''
+    try:
+        f = open(path, "w")
+    except FileNotFoundError as e:
+        try:
+            os.makedirs(os.path.dirname(path))
+        except PermissionError as e:
+            logging.error("Includes: writeJson: No permissions to write JSON file")
+            return
+    except PermissionError as e:
+        logging.error("Includes: writeJson: No permissions to write JSON file")
+        return
+
+    f.write(json.dumps(dict, sort_keys=True, indent=4))
+    f.close()
+
+def openDb(dbPath):
+    try:
+        with open(dbPath) as dbFile:
+            db = json.load(dbFile)
+    except FileNotFoundError as e:
+        try:
+            f = open(dbPath, "w+")
+            f.write('''{
+                        "runtime":0
+                        }''')
+            f.close()
+        except PermissionError as e:
+            logging.error("Includes: openDb: No permissions to write database file")
+            return None
+        except:
+            logging.error("Includes: openDb: database error")
+            return None
+
+        with open(dbPath) as dbFile:
+            db = json.load(dbFile)
+
+        return db
+
+
+
+
+#Media player instance we can use in all modules
+player = Player()
+
+#configuration file and defualt config
+cfgPath = "/opt/config/imc_config.json"
+
+defaultCfg = {}
+defaultCfg['tmpdir'] = "/tmp"
+defaultCfg['music'] = {
+    "rootdir": "/mnt/Ishamedia",
+    "types": "mp3,wav",
+    "autoplay": "false"
+}
+defaultCfg["video"] = {
+    "rootdir": "/mnt/Ishamedia",
+    "types": "mp4",
+    "autoplay": "false"
+}
+defaultCfg["settings"] = {
+    "osdTime": 10,
+    "runtimeInterval": 1,
+    "screensaverTime": 90
+}
+defaultCfg["httpServerIp"] = {
+    "ip":"127.0.0.1",
+    "port":"11111"
+}
+defaultCfg["ipcOsdPort"] = 40001
+defaultCfg["ipcWmPort"] = 40002
+
+if not os.path.exists(cfgPath):
+    writeJson(cfgPath, defaultCfg)
+    config = defaultCfg
+else:
+    try:
+        with open(cfgPath) as cfgFile:
+            tmp = json.load(cfgFile)
+            config = defaultCfg.update(tmp)
+    except:
+        logging.warning("IncludesConfig: could not load config file. Use default config")
+        config = defaultCfg
+
+def writeConfig():
+    writeJson(cfgPath, config)
+
+#Global instance of screen saver
+screenSaver = None #will be initialized by main-menu
+
+#database, bsically a json file which we read and write
+dbPath = "/opt/config/imc_database.json"
+db = None
+db = openDb(dbPath)
+
+
+
+def writeDb():
+    writeJson(dbPath, db)
