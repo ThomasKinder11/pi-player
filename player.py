@@ -294,6 +294,7 @@ class Player():
         if self.process is None or self.process.poll() is not None:
             logging.error("Thomas: process started")
             self.process = Popen(["mpv",
+                             "--geometry={}+{}+{}".format(1920, 0, 50),
                             "--no-border",
                             "--no-input-default-bindings",
                             "--really-quiet",
