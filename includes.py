@@ -148,7 +148,7 @@ def openDb(dbPath):
 
 
 #Media player instance we can use in all modules
-player = Player()
+#player = Player()
 
 #configuration file and defualt config
 cfgPath = "/opt/config/imc_config.json"
@@ -177,9 +177,13 @@ defaultCfg["httpServerIp"] = {
 defaultCfg["ipcOsdPort"] = 40001
 defaultCfg["ipcWmPort"] = 40002
 
+logging.error("THomas: cfgPath check existing")
+
 if not os.path.exists(cfgPath):
+    logging.error("THomas: cfgPath not existing")
     writeJson(cfgPath, defaultCfg)
     config = defaultCfg
+    logging.error("THomas: {}".format(config))
 else:
     try:
         with open(cfgPath) as cfgFile:

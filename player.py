@@ -7,7 +7,7 @@ import json
 from functools import partial
 
 from  subprocess import Popen, threading
-from kivy.core.window import Window
+#from kivy.core.window import Window
 import time
 import includes
 from  pymediainfo import MediaInfo
@@ -118,40 +118,41 @@ class Player():
 
 
     def _execute(self, command):
-        self.semaExec.acquire()
-        data = json.dumps(command) + "\r\n"
-        data = bytes(data, encoding='utf-8')
-
-        try:
-            if self.socket:
-                self.socket.send(data)
-                buf = self.socket.recv(1024)
-                if "error" not in str(buf):#we got event see read again... retry
-                     buf = self.socket.recv(1024)
-            else:
-                logging.error("No socket in commmand")
-                self.semaExec.release()
-                return None
-        except:
-            logging.error("Problems in socket....")
-            self.semaExec.release()
-            return None
-
-        tmp = buf.decode('utf-8').split('\n')
-
-        for item in tmp:
-            result = json.loads(item)
-            if not 'error' in result:
-                self.semaExec.release()
-                return None
-
-            status = result['error']
-            if status == 'success':
-                self.semaExec.release()
-                return tmp
-
-        logging.error("Player: error value returned from player...")
-        self.semaExec.release()
+        pass
+        # self.semaExec.acquire()
+        # data = json.dumps(command) + "\r\n"
+        # data = bytes(data, encoding='utf-8')
+        #
+        # try:
+        #     if self.socket:
+        #         self.socket.send(data)
+        #         buf = self.socket.recv(1024)
+        #         if "error" not in str(buf):#we got event see read again... retry
+        #              buf = self.socket.recv(1024)
+        #     else:
+        #         logging.error("No socket in commmand")
+        #         self.semaExec.release()
+        #         return None
+        # except:
+        #     logging.error("Problems in socket....")
+        #     self.semaExec.release()
+        #     return None
+        #
+        # tmp = buf.decode('utf-8').split('\n')
+        #
+        # for item in tmp:
+        #     result = json.loads(item)
+        #     if not 'error' in result:
+        #         self.semaExec.release()
+        #         return None
+        #
+        #     status = result['error']
+        #     if status == 'success':
+        #         self.semaExec.release()
+        #         return tmp
+        #
+        # logging.error("Player: error value returned from player...")
+        # self.semaExec.release()
 
     def _command(self, command, *args):
         return self._execute({'command': [command, *args]})
@@ -216,33 +217,37 @@ class Player():
                 if track.track_type == 'Video':
                     videoWidth, videoHeight = track.width, track.height
 
-            osdHeight = 50
-            playerHeight = Window.height - (2*osdHeight)#videoHeight - osdHeight
-            playerWidth = int(playerHeight * (videoWidth / videoHeight))
+            #osdHeight = 50
+            #playerHeight = Window.height - (2*osdHeight)#videoHeight - osdHeight
+            #playerWidth = int(playerHeight * (videoWidth / videoHeight))
 
 
-            posx = int((Window.width - playerWidth) / 2)
-            posy = int((Window.height - playerHeight) / 2)
+            #posx = int((Window.width - playerWidth) / 2)
+            #posy = int((Window.height - playerHeight) / 2)
 
-            logging.error("Player: playerWidth: {} / playerHeight: {} / videoWidth: {} / videoHeight: {} / posx: {} / posy: {}".format(
-                playerWidth, playerHeight, videoWidth, videoHeight, posx, posy))
+        #    logging.error("Player: playerWidth: {} / playerHeight: {} / videoWidth: {} / videoHeight: {} / posx: {} / posy: {}".format(
+        #        playerWidth, playerHeight, videoWidth, videoHeight, posx, posy))
 
 
             self.isPlaying = True
             self.runtime = tSeek
 
-            self.process = Popen(["mpv",
-                            #"--geometry={}+{}+{}".format(playerWidth, posx, posy),
-                            "--start=+{}".format(tSeek),
-                            "--no-border",
-                            "--no-input-default-bindings",
-                            path,
-                            "--really-quiet",
-                            "--no-osc",
-                            "--no-input-terminal",
-                            "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
+            cmd = 'echo "loadfile {path}" > {fifo}'.format(path=path, fifo=self.fifoPath)
+            os.system(cmd)
 
-                            ])
+            #
+            # self.process = Popen(["mpv",
+            #                 #"--geometry={}+{}+{}".format(playerWidth, posx, posy),
+            #                 "--start=+{}".format(tSeek),
+            #                 "--no-border",
+            #                 "--no-input-default-bindings",
+            #                 path,
+            #                 "--really-quiet",
+            #                 "--no-osc",
+            #                 "--no-input-terminal",
+            #                 "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
+            #
+            #                 ])
 
 
 
@@ -252,16 +257,16 @@ class Player():
             logging.debug("Player: start playing audio")
 
             self.isPlaying = True
-            self.process = Popen(["mpv",
-                            "--start=+{}".format(tSeek),
-                            "--no-border",
-                            "--no-input-default-bindings",
-                            path,
-                            "--really-quiet",
-                            "--no-osc",
-                            "--no-input-terminal",
-                            "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
-                            ])
+            # self.process = Popen(["mpv",
+            #                 "--start=+{}".format(tSeek),
+            #                 "--no-border",
+            #                 "--no-input-default-bindings",
+            #                 path,
+            #                 "--really-quiet",
+            #                 "--no-osc",
+            #                 "--no-input-terminal",
+            #                 "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
+            #                 ])
         else:
             logging.debug("Player: no video nor audio file... {}".format(path))
 
@@ -283,3 +288,45 @@ class Player():
         #reset the runtime value
         self.runtime = 0
         self._onUpdateRunTime(time.strftime('%H:%M:%S', time.gmtime(self.runtime)))
+
+
+    def _startPlayerIdle(self):
+        if self.process is None or self.process.poll() is not None:
+            logging.error("Thomas: process started")
+            self.process = Popen(["mpv",
+                            "--no-border",
+                            "--no-input-default-bindings",
+                            "--really-quiet",
+                            #TODO: this is only disable for debugging"--no-osc",
+                            "--no-input-terminal",
+                            "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket")),
+                            "--input-file={}".format(self.fifoPath),
+                            "--idle"
+                            ])
+
+
+    def __init__(self):
+        #Create input fifo to interact with mpv player without getting any status
+        self.fifoPath = os.path.join(includes.config['tmpdir'],"fifo")
+        if not os.path.exists(self.fifoPath):
+            os.mkfifo(self.fifoPath)
+
+        self.process = None
+        self._startPlayerIdle()
+
+        pass
+
+        #Start the player in --idle mode which will run it in background
+        #before each playback check if process is runnig, if not run it, it should stay open after each video
+        #
+
+
+if __name__ == "__main__":
+    import sys
+    player = Player()
+    player.start(sys.argv[1], 0)
+
+
+    while True:
+        import time
+        time.sleep(1)
