@@ -125,6 +125,7 @@ def openDb(dbPath):
     try:
         with open(dbPath) as dbFile:
             db = json.load(dbFile)
+
     except FileNotFoundError as e:
         try:
             f = open(dbPath, "w+")
@@ -147,13 +148,13 @@ def openDb(dbPath):
 
 
 
-#Media player instance we can use in all modules
-#player = Player()
+
 
 #configuration file and defualt config
 cfgPath = "/opt/config/imc_config.json"
 
 defaultCfg = {}
+
 defaultCfg['tmpdir'] = "/tmp"
 defaultCfg['music'] = {
     "rootdir": "/mnt/Ishamedia",
@@ -164,6 +165,10 @@ defaultCfg["video"] = {
     "rootdir": "/mnt/Ishamedia",
     "types": "mp4",
     "autoplay": "false"
+}
+defaultCfg["playlist"] = {
+    "rootdir": "/mnt/Ishamedia",
+    "types": "json"
 }
 defaultCfg["settings"] = {
     "osdTime": 10,
@@ -177,18 +182,15 @@ defaultCfg["httpServerIp"] = {
 defaultCfg["ipcOsdPort"] = 40001
 defaultCfg["ipcWmPort"] = 40002
 
-logging.error("THomas: cfgPath check existing")
-
 if not os.path.exists(cfgPath):
-    logging.error("THomas: cfgPath not existing")
     writeJson(cfgPath, defaultCfg)
     config = defaultCfg
-    logging.error("THomas: {}".format(config))
 else:
     try:
         with open(cfgPath) as cfgFile:
             tmp = json.load(cfgFile)
-            config = defaultCfg.update(tmp)
+            defaultCfg.update(tmp)
+            config = defaultCfg
     except:
         logging.warning("IncludesConfig: could not load config file. Use default config")
         config = defaultCfg
@@ -204,7 +206,17 @@ dbPath = "/opt/config/imc_database.json"
 db = None
 db = openDb(dbPath)
 
+if db is None:
+    logging.warning("Included: could not open database file. Restart timepoint will not work")
+    db = {}
+    db['runtime'] = 0
 
 
 def writeDb():
     writeJson(dbPath, db)
+
+
+
+
+#Media player instance we can use in all modules
+player = Player()
