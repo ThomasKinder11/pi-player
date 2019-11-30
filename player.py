@@ -232,7 +232,7 @@ class Player():
             self.runtime = tSeek
 
             self.process = Popen(["mpv",
-                            #"--geometry={}+{}+{}".format(playerWidth, posx, posy),
+                            "--geometry={}+{}+{}".format(playerWidth, posx, posy),
                             "--start=+{}".format(tSeek),
                             "--no-border",
                             "--no-input-default-bindings",

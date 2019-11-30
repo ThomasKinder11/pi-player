@@ -7,6 +7,8 @@ import time
 import includes
 import main_gui
 import menu_osd
+import os
+import sys
 
 from  subprocess import Popen, threading
 from multiprocessing.connection import Listener
@@ -21,14 +23,14 @@ class IshaWm():
 
 
     def __init__(self):
-            self.display = Xlib.display.Display()
-            self.root = self.display.screen().root
-            self.displayWidth = self.root.get_geometry().width
-            self.displayHeight = self.root.get_geometry().height
-            self.root.change_attributes(event_mask = Xlib.X.SubstructureRedirectMask)
-            self.handleActive = False
-            self.mainGuiMapped = False
-            self.state = 0
+        self.display = Xlib.display.Display()
+        self.root = self.display.screen().root
+        self.displayWidth = self.root.get_geometry().width
+        self.displayHeight = self.root.get_geometry().height
+        self.root.change_attributes(event_mask = Xlib.X.SubstructureRedirectMask)
+        self.handleActive = False
+        self.mainGuiMapped = False
+        self.state = 0
 
     first = True
     mainWin = None
@@ -37,6 +39,25 @@ class IshaWm():
             event = self.display.next_event()
         else:
             return
+
+        if event.type == Xlib.X.ConfigureRequest:
+            window = event.window
+            args = { 'border_width': 3 }
+            if event.value_mask & Xlib.X.CWX:
+                args['x'] = event.x
+            if event.value_mask & Xlib.X.CWY:
+                args['y'] = event.y
+            if event.value_mask & Xlib.X.CWWidth:
+                args['width'] = event.width
+            if event.value_mask & Xlib.X.CWHeight:
+                args['height'] = event.height
+            if event.value_mask & Xlib.X.CWSibling:
+                args['sibling'] = event.above
+            if event.value_mask & Xlib.X.CWStackMode:
+                args['stack_mode'] = event.stack_mode
+            print("configure request", args)
+            window.configure(**args)
+
 
         if event.type == Xlib.X.MapRequest:
             xClass = event.window.get_wm_class()
