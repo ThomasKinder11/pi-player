@@ -531,5 +531,5 @@ def run():
     #Window.size = (Window.width, 50)
     main.run()
 
-if __name__ == "__main__":
-   run()
+# if __name__ == "__main__":
+#    run()
