@@ -15,9 +15,11 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.stacklayout import StackLayout
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
+from menu_container import ImcTabView
 
 import control_tree
 import includes
+
 
 from selectable_items import SelectableTabbedPanelHeader, SelectLabelBg
 from screensaver import ScreenSaver
@@ -82,14 +84,24 @@ class IshaPiScreens(ScreenManager):
         self.menuScreenSaver = Screen(name="blackscreen")
         self.menuScreen = Screen(name="main_menu")
 
-        self.mainMenu = Menu(root=self)
+        tabIds = [
+            control_tree.selectId['system'],
+            control_tree.selectId['videos'],
+            control_tree.selectId['music'],
+            control_tree.selectId['playlist'],
+            control_tree.selectId['settings'],
+        ]
+        self.mainMenu = Menu(root=self, idList=tabIds)
+
+
         self.menuScreen.add_widget(self.mainMenu)
         self.add_widget(self.menuScreen)
         self.add_widget(self.menuScreenSaver)
         self.current = "main_menu"
 
 
-class Menu(StackLayout, TabbedPanel):
+# class Menu(StackLayout, TabbedPanel):
+class Menu(ImcTabView):
     '''This is the tab view pannel which will show all gui lements except the OSD'''
     selectableWidgets = {}
     tbHeads = []
@@ -247,59 +259,29 @@ class Menu(StackLayout, TabbedPanel):
 
 
     def __init__(self, **kwargs):
-        self.root = kwargs.pop('root', "None")
-
-        kwargs["do_default_tab"] = False #always disable the default tab
         super(Menu, self).__init__(**kwargs)
 
         tmp = KeyHandler()
         tmp.onPress = self._keyDown
 
-        #Setup tabview for main menu
-        self.tab_width = 150 + 10
-        self.tab_height = 60
+        tabIds = [
+            control_tree.selectId['system'],
+            control_tree.selectId['videos'],
+            control_tree.selectId['music'],
+            control_tree.selectId['playlist'],
+            control_tree.selectId['settings'],
+        ]
+
+        self.selectableWidgets[selectId['settings']] = self.getMenuBtn(selectId['settings'])
+        self.selectableWidgets[selectId['videos']] = self.getMenuBtn(selectId['videos'])
+        self.selectableWidgets[selectId['music']] = self.getMenuBtn(selectId['music'])
+        self.selectableWidgets[selectId['playlist']] = self.getMenuBtn(selectId['playlist'])
+        self.selectableWidgets[selectId['system']] = self.getMenuBtn(selectId['system'])
+        self.selectableWidgets[selectId['root']] = self
+        self.selectableWidgets[selectId['settingsMenu']] = MenuSettings()
 
 
-        self.selectableWidgets[selectId['settings']] = SelectableTabbedPanelHeader(
-            id=str(selectId['settings']),
-        )
-        self.selectableWidgets[selectId['settings']].background_normal = "atlas://resources/img/pi-player/settings"
-        self.selectableWidgets[selectId['settings']].background_down = "atlas://resources/img/pi-player/settings_select"
-
-        self.selectableWidgets[selectId['videos']] = SelectableTabbedPanelHeader(
-            id=str(selectId['videos']),
-        )
-        self.selectableWidgets[selectId['videos']].background_normal = "atlas://resources/img/pi-player/video"
-        self.selectableWidgets[selectId['videos']].background_down = "atlas://resources/img/pi-player/video_select"
-
-
-        self.selectableWidgets[selectId['music']] = SelectableTabbedPanelHeader(
-            id=str(selectId['music']),
-        )
-        self.selectableWidgets[selectId['music']].background_normal = "atlas://resources/img/pi-player/music"
-        self.selectableWidgets[selectId['music']].background_down = "atlas://resources/img/pi-player/music_select"
-
-
-        self.selectableWidgets[selectId['playlist']] = SelectableTabbedPanelHeader(
-            id=str(selectId['playlist']),
-        )
-        self.selectableWidgets[selectId['playlist']].background_normal = "atlas://resources/img/pi-player/playlist"
-        self.selectableWidgets[selectId['playlist']].background_down = "atlas://resources/img/pi-player/playlist_select"
-
-        self.selectableWidgets[selectId['system']] = SelectableTabbedPanelHeader(id=str(selectId['system']))
-
-        self.selectableWidgets[selectId['system']].background_normal = "atlas://resources/img/pi-player/power"
-        self.selectableWidgets[selectId['system']].background_down = "atlas://resources/img/pi-player/power_select"
-
-
-        #for i in range(len(self.selectableWidgets)):
-        self.add_widget(self.selectableWidgets[selectId['system']])
-        self.add_widget(self.selectableWidgets[selectId['videos']])
-        self.add_widget(self.selectableWidgets[selectId['music']])
-        self.add_widget(self.selectableWidgets[selectId['playlist']])
-        self.add_widget(self.selectableWidgets[selectId['settings']])
-
-        self.selectableWidgets[selectId['settings']].content = MenuSettings()
+        self.setContent(selectId['settings'], self.selectableWidgets[selectId['settingsMenu']])
 
         #Setup Video menu
         self.selectableWidgets[selectId['vFile']] = FileList(
@@ -307,14 +289,15 @@ class Menu(StackLayout, TabbedPanel):
             rootdir=includes.config['video']['rootdir'],
             enaColor=includes.styles['enaColor0'],
             bar_width=10,
-            size_hint=(1, None),
-            size=(Window.width, Window.height),
+            #size_hint=(1, None),
+            #size=(Window.width, Window.height),
             supportedTypes=includes.config['video']['types'],
-            screenmanager=self.root,
+            #screenmanager=self.root,
             selectFirst=False,
             type="video"
         )
-        self.selectableWidgets[selectId['videos']].content = self.selectableWidgets[selectId['vFile']]
+        # self.selectableWidgets[selectId['videos']].content = self.selectableWidgets[selectId['vFile']]
+        self.setContent(selectId['videos'], self.selectableWidgets[selectId['vFile']])
 
         #Setup Audio menu
         self.selectableWidgets[selectId['mFiles']] = FileList(
@@ -322,14 +305,16 @@ class Menu(StackLayout, TabbedPanel):
             rootdir=includes.config['audio']['rootdir'],
             enaColor=includes.styles['enaColor0'],
             bar_width=10,
-            size_hint=(1, None),
-            size=(Window.width, Window.height),
+            #size_hint=(1, None),
+            #size=(Window.width, Window.height),
             supportedTypes=includes.config['audio']['types'],
-            screenmanager=self.root,
+            #screenmanager=self.root,
             selectFirst=False,
             type='music'
         )
-        self.selectableWidgets[selectId['music']].content = self.selectableWidgets[selectId['mFiles']]
+        #self.selectableWidgets[selectId['music']].content = self.selectableWidgets[selectId['mFiles']]
+        self.setContent(selectId['music'], self.selectableWidgets[selectId['mFiles']])
+
 
         #Setup Playlist menu
         self.selectableWidgets[selectId['pFiles']] = MenuPlaylist(
@@ -339,22 +324,19 @@ class Menu(StackLayout, TabbedPanel):
         self.selectableWidgets[selectId['pFiles']].osdEnable = self.osdEnable
         self.selectableWidgets[selectId['pFiles']].osdDisable = self.osdDisable
         self.selectableWidgets[selectId['pFiles']].osdColorIndicator = self.root.changeColorMenu
-        self.selectableWidgets[selectId['playlist']].content = self.selectableWidgets[selectId['pFiles']]
+        #self.selectableWidgets[selectId['playlist']].content = self.selectableWidgets[selectId['pFiles']]
+        self.setContent(selectId['playlist'], self.selectableWidgets[selectId['pFiles']])
+
 
         #Setup the menu for system notifications and system operations like shutdown
         self.menuSystem = MenuSystem()
         self.menuSystem.callbackPlayfile = self.selectableWidgets[selectId['pFiles']].startVirtualSingle
-        self.selectableWidgets[selectId['system']].content = self.menuSystem
         self.selectableWidgets[selectId['systemMsg']] = self.menuSystem.handler
         self.selectableWidgets[selectId['systemBtn']] = self.menuSystem.btn
+        #self.selectableWidgets[selectId['system']].content = self.menuSystem
+        self.setContent(selectId['system'], self.menuSystem)
 
-        #Find all the children which are selectble and can be controlled by keyboard
-        #TODO: If we simplify the settings menu then we can remove this. One ID per
-        #window has been enought so far and we give the window itself the responsibility
-        #Of selecting the right elements depending on key press. This makes the controll_tree
-        #more simplistic and settings creen is anyway not proper
-        #self._findSelectableChildren(self.selectableWidgets[selectId['settings']].content.children)
-        self.selectableWidgets[selectId['settingsMenu']]= self.selectableWidgets[selectId['settings']].content
+        self.update(None)
 
         #OSD controller instance using socket connection to controll OSD process
         self.selectableWidgets[selectId['osd']] = OsdController()

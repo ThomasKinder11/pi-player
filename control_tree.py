@@ -44,118 +44,132 @@ selectId = {
     'systemMsg':50000,
 
     'osd':200,
+    'root': 300
 
 }
 
 
-
-
 CONTROL_TREE = {
-    selectId['settings']:{
-        "left": [
-            {'func':'switch', 'id':selectId['playlist']},
-            {'nextid':selectId['playlist']}
-        ],
-        "down":[
-            {'func':'enable', 'id':selectId['settingsMenu']},
-            {'func':'disable', 'id':selectId['settings']},
-            {'nextid':selectId['settingsMenu']}
-        ],
-    },
-    selectId['videos']:{
-        "left":  [
-            {'func':'switch', 'id':selectId['system']},
-            {'nextid':selectId['system']}
-        ],
-        "right": [
-            {'func':'switch', 'id':selectId['music']},
-            {'nextid':selectId['music']}
-        ],
-        "up": [
-            {'func':'disable', 'id':selectId['vFile']},
+    selectId['system']:{
+        "down": [
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['videos']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['system']},
             {'nextid':selectId['videos']}
         ],
-        "down": [
-            {'func':'enable', 'id':selectId['vFile']},
-            {'func':'disable', 'id':selectId['videos']},
-            {'nextid':selectId['vFile']}
-        ],
-        "info":"video menu",
-    },
-    selectId['music']:{
-        "left":  [
-            {'func':'switch', 'id':selectId['videos']},
-            {'nextid':selectId['videos']}
-        ],
-        "right": [
-            {'func':'switch', 'id':selectId['playlist']},
-            {'nextid':selectId['playlist']}
-        ],
-        "down": [
-            {'func':'enable', 'id':selectId['mFiles']},
-            {'func':'disable', 'id':selectId['music']},
-            {'nextid':selectId['mFiles']}
-        ],
-        "note":"audio menu",
-    },
-    selectId['playlist']:{
-        "left":  [
-            {'func':'switch', 'id':selectId['music']},
-            {'nextid':selectId['music']}
-        ],
-        "right": [
-            {'func':'switch', 'id':selectId['settings']},
+        "up":[
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['system']},
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['settings']},
             {'nextid':selectId['settings']}
         ],
-        "down": [
-             {'func':'disable', 'id':selectId['playlist']},
-             {
-                 'func':'enable',
-                 'id':selectId['pFiles'],
-                 'true':[
-                     {'func':'disable', 'id':selectId['pFiles']},
-                     {'func':'enable', 'id':selectId['playlist']},
-                     {'nextid':selectId['playlist']}
-                 ]
-             },
-             {'nextid':selectId['pFiles']},
-        ],
-        "note":"pFiles",
-    },
-    selectId['system']:{
-        "right": [
-            {'func':'switch', 'id':selectId['videos']},
-            {'nextid':selectId['videos']}
-        ],
-        "down":[
-            {'func':'disable', 'id':selectId['system']},
+        "right":[
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['system']},
             {'func':'enable', 'id':selectId['systemBtn']},
             {'nextid':selectId['systemBtn']}
         ],
         "note":"power control",
     },
-    selectId['settingsMenu']:{
+    selectId['videos']:{
+        "right": [
+            {'func':'activate', 'id':selectId['vFile']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['videos']},
+            {'nextid':selectId['vFile']}
+        ],
+        "down": [
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['music']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['videos']},
+            {'nextid':selectId['music']}
+        ],
+        "up":[
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['videos']},
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+            {'nextid':selectId['system']}
+        ],
+        "home":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['videos']},
+            {'nextid':selectId['system']}
+        ],
+        "info":"video menu",
+    },
+    selectId['music']:{
+        "right": [
+            {'func':'activate', 'id':selectId['mFiles']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['music']},
+            {'nextid':selectId['mFiles']}
+        ],
+        "down": [
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['playlist']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['music']},
+            {'nextid':selectId['playlist']}
+        ],
+        "up":[
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['music']},
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['videos']},
+            {'nextid':selectId['videos']}
+        ],
+        "home":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['music']},
+            {'nextid':selectId['system']}
+        ],
+        "note":"audio menu",
+    },
+    selectId['playlist']:{
+        "down": [
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['settings']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['playlist']},
+            {'nextid':selectId['settings']}
+        ],
+        "up":[
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['playlist']},
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['music']},
+            {'nextid':selectId['music']}
+        ],
+        "home":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['playlist']},
+            {'nextid':selectId['system']}
+        ],
+        "note":"pFiles",
+    },
+    selectId['settings']:{
         "up": [
-            {
-                'func':'disable',
-                'id':selectId['settingsMenu'],
-                'true':[
-                    {'func':'enable', 'id':selectId['settings']},
-                    {'nextid':selectId['settings']},
-                ],
-            },
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['playlist']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['settings']},
+            {'nextid':selectId['playlist']}
         ],
         "down":[
-            {'func':'enable', 'id':selectId['settingsMenu']},
-        ],
-        "left":[
-            {'func':'left', 'id':selectId['settingsMenu']},
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['settings']},
+            {'nextid':selectId['system']}
         ],
         "right":[
-            {'func':'right', 'id':selectId['settingsMenu']},
+            {'func':'activate', 'id':selectId['settingsMenu']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['settings']},
+            {'nextid':selectId['settingsMenu']}
         ],
-        "enter":[
-            {'func':'enter', 'id':selectId['settingsMenu']},
+        "home":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+            {'func':'disable', 'id':selectId['root'], 'args':selectId['settings']},
+            {'nextid':selectId['system']}
+        ],
+
+    },
+    selectId['settingsMenu']:{
+        "up": [{'func':'disable', 'id':selectId['settingsMenu']}],
+        "down":[{'func':'enable', 'id':selectId['settingsMenu']}],
+        "left":[{'func':'left', 'id':selectId['settingsMenu']}],
+        "right":[{'func':'right', 'id':selectId['settingsMenu']}],
+        "enter":[{'func':'enter', 'id':selectId['settingsMenu']}],
+        "home":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+            {'func':'deactivate', 'id':selectId['settingsMenu']},
+            {'nextid':selectId['system']}
+        ],
+        "back":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['settings']},
+            {'func':'deactivate', 'id':selectId['settingsMenu']},
+            {'nextid':selectId['settings']}
         ],
     },
     selectId['osd']:{
@@ -164,39 +178,73 @@ CONTROL_TREE = {
         "+":[{'func':'enable', 'id':selectId['osd']}],
         "-":[{'func':'enable', 'id':selectId['osd']}],
         "m":[{'func':'enable', 'id':selectId['osd']}],
+        "home":[{'func':'enable', 'id':selectId['osd']}],
         "enter":[{'func':'enter', 'id':selectId['osd']}],
         "esc":[{'func':'disable', 'id':selectId['osd']}],
-        "browser back":[{'func':'disable', 'id':selectId['osd']}],
+        "back":[{'func':'disable', 'id':selectId['osd']}],
         "up":[{'func':'up', 'id':selectId['osd']}],
         "down":[{'func':'down', 'id':selectId['osd']}],
     },
     selectId['vFile']:{
-        "up":[{
-            'func':'disable',
-            'id':selectId['vFile'],
-            'true':[
-                {'func':'enable', 'id':selectId['videos']},
-                {'nextid':selectId['videos']}]
-            }],
+        "up":[{'func':'disable', 'id':selectId['vFile']}],
         "down":[{'func':'enable', 'id':selectId['vFile']}],
+        "left":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['videos']},
+            {'func':'left', 'id':selectId['vFile']},
+            {'nextid':selectId['videos']}
+        ],
         "enter":[{'func':'enter', 'id':selectId['vFile']}],
-        },
-    selectId['mFiles']:{
-        "up":[
+        "back": [
             {
-                'func':'disable',
+                'func':'back',
+                'id':selectId['vFile'],
+                'true':[
+                    {'func':'enable', 'id':selectId['root'], 'args':selectId['videos']},
+                    {'func':'left', 'id':selectId['vFile']},
+                    {'nextid':selectId['videos']}
+                 ]
+            },
+            ],
+        "home": [
+            {'func':'home',
+             'id':selectId['vFile'],
+             'true':[
+                     {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+                     {'func':'left', 'id':selectId['vFile']},
+                     {'nextid':selectId['system']}
+                 ]
+             }],
+    },
+    selectId['mFiles']:{
+        "up":[{'func':'disable', 'id':selectId['mFiles']}],
+        "down":[{'func':'enable', 'id':selectId['mFiles']}],
+        "left":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['music']},
+            {'func':'left', 'id':selectId['mFiles']},
+            {'nextid':selectId['music']}
+        ],
+        "enter":[{'func':'enter', 'id':selectId['mFiles']}],
+        "back": [{'func':'back', 'id':selectId['mFiles']}],
+        "back": [
+            {
+                'func':'back',
                 'id':selectId['mFiles'],
                 'true':[
-                    {'func':'enable', 'id':selectId['music']},
+                    {'func':'enable', 'id':selectId['root'], 'args':selectId['music']},
+                    {'func':'left', 'id':selectId['mFiles']},
                     {'nextid':selectId['music']}
-                ]
-            }
-        ],
-        "down":[{'func':'enable', 'id':selectId['mFiles']}],
-        "enter":[
-            {'func':'enter', 'id':selectId['mFiles']},
-            {'nextid':selectId['mFiles']}
-        ],
+                 ]
+            },
+            ],
+        "home": [
+            {'func':'home',
+             'id':selectId['mFiles'],
+             'true':[
+                     {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+                     {'func':'left', 'id':selectId['mFiles']},
+                     {'nextid':selectId['system']}
+                 ]
+         }],
     },
     selectId['pFiles']:{
         "left":  [
@@ -218,9 +266,9 @@ CONTROL_TREE = {
             {'func':'right', 'id':selectId['pFiles']},
             {'nextid':selectId['pFiles']}
         ],
-        "enter": [
-            {'func':'enter', 'id':selectId['pFiles']}
-        ],
+        "enter": [{'func':'enter', 'id':selectId['pFiles']}],
+        "back": [{'func':'back', 'id':selectId['pFiles']}],
+        "home": [{'func':'home', 'id':selectId['pFiles']}],
         "type":"pFiless",
         },
     selectId['systemMsg']:{
@@ -274,13 +322,27 @@ CONTROL_TREE = {
                 ]
             }
         ],
-        "left":[{'func':'left', 'id':selectId['systemBtn']}],
+        "left":[
+            {
+                'func':'left',
+                'id':selectId['systemBtn'],
+                'true':[
+                     {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+                     {'func':'disable', 'id':selectId['systemBtn']},
+                     {'nextid':selectId['system']}
+                ],
+            }],
         "right":[{'func':'right', 'id':selectId['systemBtn']}],
         "up":[
             {'func':'disable', 'id':selectId['systemBtn']},
             {'func':'enable', 'id':selectId['system']},
             {'nextid':selectId['system']}
         ],
-        "enter":[{'func':'enter', 'id':selectId['systemBtn']}]
+        "enter":[{'func':'enter', 'id':selectId['systemBtn']}],
+        "home":[
+            {'func':'enable', 'id':selectId['root'], 'args':selectId['system']},
+            {'func':'disable', 'id':selectId['systemBtn']},
+            {'nextid':selectId['system']}
+        ],
     },
 }

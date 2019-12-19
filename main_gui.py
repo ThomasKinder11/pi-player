@@ -18,10 +18,11 @@ def run():
     from kivy.config import Config
     Config.set('graphics', 'left', '0')
     Config.set('graphics', 'top', '0')
+    Config.set('graphics', 'show_cursor',1)
+
 
 
     Main().run()
 
-#if __name__ == "__main__":
-#    run()
-
+if __name__ == "__main__":
+    run()

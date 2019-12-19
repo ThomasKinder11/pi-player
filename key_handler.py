@@ -29,19 +29,21 @@ class KeyHandler():
 
 	def _setScancodes(self):
 		self.scancodes = {}
-		self.scancodes[106] = "right"
-		self.scancodes[105] = "left"
-		self.scancodes[103] = "up"
-		self.scancodes[108] = "down"
-		self.scancodes[158] = "browser back"
-		self.scancodes[115] = "volume up"
-		self.scancodes[114] = "volume down"
-		self.scancodes[113] = "volume mute"
-		self.scancodes[28] = "enter"
-		self.scancodes[27] = "+"
-		self.scancodes[53] = "-"
-		self.scancodes[50] = "m"
 		self.scancodes[1] = "esc"
+		self.scancodes[14] = "back"
+		self.scancodes[27] = "+"
+		self.scancodes[28] = "enter"
+		self.scancodes[50] = "m"
+		self.scancodes[53] = "-"
+		self.scancodes[88] = "home"
+		self.scancodes[103] = "up"
+		self.scancodes[105] = "left"
+		self.scancodes[106] = "right"
+		self.scancodes[108] = "down"
+		self.scancodes[113] = "volume mute"
+		self.scancodes[114] = "volume down"
+		self.scancodes[115] = "volume up"
+		self.scancodes[158] = "back" #browser back
 
 
 	def _worker(self):

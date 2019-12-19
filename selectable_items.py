@@ -426,12 +426,21 @@ class SelectListView(Select, ScrollView):
     def enter(self, args):
         logging.info("SelectListView: enter callback triggered")
 
+    def left(self, args):
+        self.widgets[self.wId].disable(None)
+        self.wId = 0
+
+    def activate(self, args):
+        self.wId = 0
+        self.widgets[0].enable(None)      
+
     def enable(self, args):
         if isinstance(args, dict):
             increment = args.pop('inc', True)
         else:
             increment = True
 
+        logging.error("Thomas:wid = {}".format(self.wId))
         if self.wId < len(self.widgets) - 1:
             if increment:
                 self.wId = self.wId + 1
@@ -441,6 +450,14 @@ class SelectListView(Select, ScrollView):
 
             if self.wId > 0:
                 self.widgets[self.wId-1].disable(args)
+
+        elif self.wId == len(self.widgets)-1:
+            self.widgets[self.wId].disable(args)
+            self.wId = 0
+            self.widgets[self.wId].enable(None)
+            self.scroll_to(self.widgets[self.wId])
+
+
 
         return False # never returns true as there nothing we need to do when we come to end of list
 
@@ -463,13 +480,18 @@ class SelectListView(Select, ScrollView):
             self.scroll_to(self.widgets[self.wId])
 
         else:
-            if disTop:
-                self.widgets[self.wId].disable(None)
+            # if disTop:
+            #     self.widgets[self.wId].disable(None)
+            #
+            #     if self.selectFirst:
+            #         self.wId = 0
+            #     else:
+            #         self.wId = -1
+            self.widgets[self.wId].disable(args)
+            self.wId = len(self.widgets)-1
+            self.widgets[self.wId].enable(None)
+            self.scroll_to(self.widgets[self.wId])
 
-                if self.selectFirst:
-                    self.wId = 0
-                else:
-                    self.wId = -1
 
             return True
         return False
@@ -556,11 +578,21 @@ class SelectListView(Select, ScrollView):
 
         self.layout = GridLayout(cols=1, spacing=0, size_hint_y=None)
         self.layout.bind(minimum_height=self.layout.setter('height'))
-        self.size_hint_y = None
-        self.height = Window.height-100
+
+        #TODO: this causes not all files to be displayed is this needed for anything?
+        #self.size_hint_y = None
+        #self.height = Window.height-100
 
         self.add_widget(self.layout)
         self.bind(enaColor=self.changeColor)
+        self.bind(width=self._changeSize)
+        self.bind(pos=self._changePos)
+
+    def _changeSize(self, wid, size):
+        self.height = Window.height-100
+
+    def _changePos(self, wid, pos):
+        self.pos = pos
 
     def changeColor(self, wid, value):
         self.widgets[self.wId].label.color = value

@@ -66,6 +66,7 @@ class OsdController(Select):
     def __init__(self):
         self.ipc = Ipc()
 
+
 class MenuOSD(StackLayout, Select):
     '''On Screen Display (fixed height 50px (button height) + 5px (status border))'''
     btnPrevious = None
@@ -81,7 +82,6 @@ class MenuOSD(StackLayout, Select):
     thread = None
     idleCounter = 0
     #ena = True
-    active = False
     ctrlQueue = None
     wId = 0
     enableDone = False
@@ -504,10 +504,9 @@ class MenuOSD(StackLayout, Select):
             self.serverTr.setDaemon(True)
             self.serverTr.start()
 
+
+
 class OSDMain(App):
-
-
-
     def jsonCmdCallback(self, data):
         ip = includes.config['httpServerIp']['ip']
         port = includes.config['httpServerIp']['port']
@@ -532,6 +531,5 @@ def run():
     #Window.size = (Window.width, 50)
     main.run()
 
-#if __name__ == "__main__":
-#    run()
-
+if __name__ == "__main__":
+   run()

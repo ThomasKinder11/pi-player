@@ -14,6 +14,7 @@ colors = {
     'darkgray': (0.2,0.2,0.2,1),
     'darkestgray': (0.1,0.1,0.1,1),
     'defaultGray': hexColor('#303030'),
+    'btngray': hexColor('#575757'),
     'red': (0.5,0.0,0.0,0.8),
     'lightred': (0.8,0.2,0.2,0.3),
     'black' : (0, 0, 0, 1),
@@ -60,14 +61,14 @@ colors = {
 styles = {
     #colors
     'defaultEnaColor': colors['oldblue'],
-    'defaultBg': colors['black'],
+    'defaultBg': colors['black'], #TODO: still used?
     'enaColor0': colors['oldblue'],
     'enaColor1': colors['orange'],
     'warning': colors['lightred'],
     'defaultFiller': colors['lightblue'],
     #'itemColor0': colors['darkgray'],
-    'itemColor0': colors['defaultGray'],
-    'itemColor1': colors['defaultGray'],
+    'itemColor0': colors['black'],
+    'itemColor1': colors['black'],
     #'itemColor1': colors['darkestgray'],
     'volumeIndicatorBG': colors['gray'],
     'volumeIndicatorColor': colors['blue'],
@@ -84,20 +85,64 @@ styles = {
     'plistIndicatorColor':colors['darkblue']
 }
 
-
-
-
 #Media player instance we can use in all modules
 player = Player()
 
 #configuration file
+defaultConf = {
+    "tmpdir": "/tmp",
+    "audio": {
+        "rootdir": "/mnt/Ishamedia",
+        "types": "mp3,wav",
+        "autoplay": "false"
+    },
+    "playlist": {
+        "rootdir": "/mnt/Ishamedia",
+        "types": "json"
+    },
+    "video": {
+        "rootdir": "/mnt/Ishamedia",
+        "types": "mp4",
+        "autoplay": "false"
+    },
+    "settings": {
+        "osdTime": 10,
+        "runtimeInterval": 1,
+        "screensaverTime": 90
+    },
+    "httpServerIp":{
+        "ip":"127.0.0.1",
+        "port":"11111"
+    },
+    "mpv":{
+        "parameters":[
+            "mpv",
+            "--fs",
+            "--start=+{start}",
+            "--no-border",
+            "--no-input-default-bindings",
+            "{path}",
+            "--really-quiet",
+            "--no-osc",
+            "--no-input-terminal",
+            "-config={config}",
+            "-input-ipc-server=socket"
+        ]
+    },
+    "ipcOsdPort":40001,
+    "ipcWmPort":40002
+}
+
 syspath = os.path.dirname(os.path.realpath(__file__))
 cfgPath = os.path.join(syspath,'config.json')
-config = None
-with open(cfgPath) as config_file:
-    config = json.load(config_file)
+configFile = {}
 
-#logging.error(config)
+if os.path.exists(cfgPath):
+    with open(cfgPath) as config_file:
+        configFile = json.load(config_file)
+
+config = defaultConf
+config.update(configFile)
 
 def writeJson(path, dict):
         f = open(path, "w")
@@ -142,9 +187,39 @@ def clipInt(value, min, max):
 
     return value
 
+def rotateInt(value, min, max):
+    if value > max:
+        return min
+
+    if value < min:
+        return max
+
+    return value
+
 
 def isRemoteCtrlCmd(cmd):
     if not 'cmd' in cmd:
         return False
 
     return True
+
+
+def mpvParams(start, path):
+    tmp = []
+    mpvParams = config['mpv']['parameters']
+    logging.error("Thomas: mpvParams {}".format(mpvParams))
+    for item in mpvParams:
+        logging.error("Thomas: item = {}".format(item))
+        if "{start}" in item:
+            item = item.format(start=start)
+
+        if "{path}" in item:
+            item = item.format(path=path)
+
+        # if "{configFile}" in item:
+        #     item = item.format(configFile=config)
+
+        tmp.append(item)
+
+
+    return tmp

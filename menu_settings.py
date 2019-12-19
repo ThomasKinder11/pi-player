@@ -9,31 +9,36 @@ import includes
 
 class MenuSettings(GridLayout, Select):
     widgets = []
-    wId = -1
+    wId = 0
     widName = []
     btnOff = None
 
-    def enable(self, args):
-        self.wId = includes.clipInt(self.wId + 1, 0, len(self.widgets)-1)
-        logging.debug("MenuSettings: enable fct called")
+
+    def activate(self, args):
+        self.wId = 0
         self.widgets[self.wId].enable(None)
 
-        if self.wId >= 1:
-            self.widgets[self.wId-1].disable(None)
+    def deactivate(self, args):
+        for widg in self.widgets:
+            widg.disable(None)
+
+    def enable(self, args):
+        self.wId = includes.rotateInt(self.wId + 1, 0, len(self.widgets)-1)
+        self.widgets[self.wId].enable(None)
+        self.widgets[self.wId-1].disable(None)
 
         return False
 
     def disable(self, args):
-        logging.debug("MenuSettings: disable fct called")
-        self.widgets[self.wId].disable(None)
+        self.wId = includes.rotateInt(self.wId - 1, 0, len(self.widgets)-1)
 
-        if self.wId >= 1:
-            self.widgets[self.wId-1].enable(None)
+        if self.wId + 1 < len(self.widgets):
+            self.widgets[self.wId+1].disable(None)
         else:
-            self.wId = -1
-            return True
+            self.widgets[0].disable(None)
 
-        self.wId = includes.clipInt(self.wId - 1, 0, len(self.widgets))
+        self.widgets[self.wId].enable(None)
+
         return False
 
     def right(self, args):
@@ -52,8 +57,8 @@ class MenuSettings(GridLayout, Select):
         self.widgets[self.wId].enter(args)
 
     def _saveSettings(self, args):
-        includes.config['settings']['screensaverTime'] = self.widgets[0].slider.value
-        includes.config['settings']['osdTime'] = self.widgets[1].slider.value
+        includes.config['settings']['screensaverTime'] = self.sliderSaver.slider.value
+        includes.config['settings']['osdTime'] = self.sliderOsd.slider.value
         includes.config['video']['autoplay'] = str(self.videoAutoplay.checkbox.active).lower()
         includes.config['audio']['autoplay'] = str(self.musicAutoplay.checkbox.active).lower()
         includes.writeConfig()
@@ -72,34 +77,7 @@ class MenuSettings(GridLayout, Select):
 
         screensaverTime = includes.config['settings']['screensaverTime']
         osdTime = includes.config['settings']['osdTime']
-
-        self.widgets.append(SelectSlider(
-            value=screensaverTime,
-            size_hint=(1, None),
-            text="Screensaver time",
-            enaColor=includes.styles['enaColor0'],
-            id="-1",
-            fontSize=includes.styles['fontSize']
-        ))
-
-        self.widgets.append(SelectSlider(
-            value=osdTime,
-            size_hint=(1, None),
-            text="OSD auto turnoff time",
-            enaColor=includes.styles['enaColor0'],
-            id="-1",
-            fontSize=includes.styles['fontSize']
-        ))
-
-        self.btnSave = SelectButton(
-            text="Save",
-            size_hint=(None, None),
-            enaColor=includes.styles['enaColor0'],
-            id="-1",
-            font_size=includes.styles['fontSize']
-        )
-
-
+        #Audio / Video settings
         self.musicAutoplay = SelectCheckBox(
             text="Autostart Music",
             enaColor=includes.styles['enaColor0'],
@@ -121,6 +99,42 @@ class MenuSettings(GridLayout, Select):
         self.videoAutoplay.size_hint_y = None
         self.widgets.append(self.videoAutoplay)
 
+
+        #Sliders
+        self.sliderSaver = SelectSlider(
+            value=screensaverTime,
+            size_hint=(1, None),
+            text="Screensaver time",
+            enaColor=includes.styles['enaColor0'],
+            id="-1",
+            fontSize=includes.styles['fontSize']
+        )
+        self.widgets.append(self.sliderSaver)
+
+        self.sliderOsd = SelectSlider(
+            value=osdTime,
+            size_hint=(1, None),
+            text="OSD auto turnoff time",
+            enaColor=includes.styles['enaColor0'],
+            id="-1",
+            fontSize=includes.styles['fontSize']
+        )
+        self.widgets.append(self.sliderOsd)
+
+        self.btnSave = SelectButton(
+            text="Save",
+            size_hint=(None, None),
+            enaColor=includes.styles['enaColor0'],
+            id="-1",
+            font_size=includes.styles['fontSize']
+        )
+
+        self.btnSave.enter = self._saveSettings
+        self.btnSave.size_hint_y = None
+        self.btnSave.height = 50
+        self.widgets.append(self.btnSave)
+
+        #Headers
         self.headVideoAudio = SelectLabelBg(
             text="Video/Audio Settings",
             background_color=includes.colors['gray'],
@@ -142,18 +156,11 @@ class MenuSettings(GridLayout, Select):
             height=35,
         )
 
-
-        self.btnSave.enter = self._saveSettings
-        self.btnSave.size_hint_y = None
-        self.btnSave.height = 50
-        self.widgets.append(self.btnSave)
-
-
         for item in self.widgets:
             if item == self.musicAutoplay:
                 self.add_widget(self.headVideoAudio)
 
-            if item == self.widgets[0]:#first slider
+            if item == self.sliderSaver:#first slider
                 self.add_widget(self.headSystemSettings)
 
             if item == self.btnSave:
@@ -162,7 +169,4 @@ class MenuSettings(GridLayout, Select):
             self.add_widget(item)
 
 
-
-
-
-        self.wId = -1
+        self.wId = 0

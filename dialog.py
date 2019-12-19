@@ -151,11 +151,17 @@ class DialogButtons(GridLayout):
 
 
     def left(self, args):
+        if self.hId <= 0:
+            return True
+
         if self.hId != -1:
             self.btnList[self.hId].disable(None)
 
             self.hId = includes.clipInt(self.hId - 1, 0, len(self.btnList)-1)
             self.btnList[self.hId].enable(None)
+
+        return False
+
 
     def right(self, args):
         if self.hId != -1:

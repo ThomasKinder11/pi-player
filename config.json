@@ -1,29 +1,42 @@
 {
-    "tmpdir": "/tmp",
     "audio": {
+        "autoplay": "true",
         "rootdir": "/mnt/Ishamedia",
-        "types": "mp3,wav",
-        "autoplay": "false"
+        "types": "mp3,wav"
+    },
+    "httpServerIp": {
+        "ip": "127.0.0.1",
+        "port": "11111"
+    },
+    "ipcOsdPort": 40001,
+    "ipcWmPort": 40002,
+    "mpv": {
+        "parameters": [
+            "mpv",
+            "--fs",
+            "--start=+{start}",
+            "--no-border",
+            "--no-input-default-bindings",
+            "{path}",
+            "--really-quiet",
+            "--no-osc",
+            "--no-input-terminal",
+            "-input-ipc-server=socket"
+        ]
     },
     "playlist": {
         "rootdir": "/mnt/Ishamedia",
         "types": "json"
     },
-    "video": {
-        "rootdir": "/mnt/Ishamedia",
-        "types": "mp4",
-        "autoplay": "false"
-    },
     "settings": {
-        "osdTime": 10,
+        "osdTime": 5,
         "runtimeInterval": 1,
-        "screensaverTime": 90
+        "screensaverTime": 5
     },
-    "httpServerIp":{
-        "ip":"127.0.0.1",
-        "port":"11111"
-    },
-    "ipcOsdPort":40001,
-    "ipcWmPort":40002
+    "tmpdir": "/tmp",
+    "video": {
+        "autoplay": "false",
+        "rootdir": "/mnt/Ishamedia",
+        "types": "mp4"
+    }
 }
-

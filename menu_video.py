@@ -8,22 +8,61 @@ class FileList(SelectListView):
     rootdir = ""
     dirTree = []
     supportedTypes = None
-    screenmanager = None
+    #screenmanager = None
     playerProcess = None
     topTextVisible = False
 
-    def resize(self, widget, value):
-        pass
+    # def resize(self, widget, value):
+    #     #self.size = value
+    #     logging.error("thomas: resize called")
+    #     pass
+
+    # def position(self, widget, value):
+    #     self.pos = value
 
     def _onEnterPlayer(self, args):
         pass
 
-    def enter(self, args):
+    def back(self, args):
+        logging.error("BrowserBack: called")
+        if len(self.dirTree) >= 1:
+            tmp = self.dirTree.pop(len(self.dirTree)-1)
+            path = self._getCurPath()
+
+            self.layout.clear_widgets()
+            self.widgets = []
+
+            isSubdir = len(self.dirTree) > 0
+            self._addFile(path, isSubdir, 0)
+            self.widgets[self.wId].enable(None) #TODO: should we not alwys enable the wId = 0? Is this line actually needed?
+            return False
+        else:
+            return True
+
+    def home(self, args):
+        if len(self.dirTree) == 0:
+            return True
+
+        self.dirTree = []
+        self.layout.clear_widgets()
+        self.widgets = []
+        self._addFile(self.rootdir, False, 0)
+
+        return False
+
+    def _getCurPath(self):
         path = self.rootdir
 
         for item in self.dirTree:
             tmp = item[0]
             path = os.path.join(path, tmp)
+
+
+        return path
+
+
+    def enter(self, args):
+        path = self._getCurPath()
 
         path = os.path.join(path, self.widgets[self.wId].text)
 
@@ -103,6 +142,8 @@ class FileList(SelectListView):
                 self.wId = 0
 
             self.scroll_to(self.widgets[self.wId], animate=False)
+            #self.widgets[self.wId].enable(None) #TODO: should we not alwys enable the wId = 0? Is this line actually needed?
+
 
     def __init__(self, **kwargs):
         if 'rootdir' not in kwargs:
@@ -131,17 +172,117 @@ class FileList(SelectListView):
             return
 
         self.supportedTypes = tuple(self.supportedTypes.split(','))
-        self.screenmanager = kwargs.pop('screenmanager', None)
+        #self.screenmanager = kwargs.pop('screenmanager', None)
         self.type = kwargs.pop('type', "unknown")
         self.autoplay = kwargs.pop('Autoplay', False)
 
-        if not self.screenmanager:
-            logging.error("MenuVideo: screenmanager not set")
-            return
+        # if not self.screenmanager:
+        #     logging.error("MenuVideo: screenmanager not set")
+        #     return
 
         super(FileList, self).__init__(**kwargs)
 
         self.widgets = []
         self._addFile(self.rootdir, False, None)
         self.wId = -1
-        self.bind(width=self.resize)
+        #self.bind(width=self.resize)
+        #self.bind(size=self.resize)
+
+
+
+
+if __name__ == "__main__":
+    from menu_video import FileList
+    from kivy.core.window import Window
+    from kivy.app import App
+
+
+
+    class Main(App):
+        def testFunc(self):
+            import time
+            time.sleep(2)
+
+            #Select first element which should be a directory
+            self.fList.enable(None)
+            time.sleep(1)
+
+            for i in range(55):
+                self.fList.enable(None)
+                time.sleep(0.1)
+
+            return
+
+            for k in range(3):
+                for i in range(2):
+
+                    #enter in that directory
+                    self.fList.enter(None)
+                    time.sleep(1)
+
+                    #select in the second sub dir
+                    self.fList.enable(None)
+                    time.sleep(1)
+
+                    #enter in second sub dir
+                    self.fList.enter(None)
+                    time.sleep(1)
+
+                    #go up one directory
+                    self.fList.browserBack(None)
+                    time.sleep(1)
+
+                    #go up one directory
+                    self.fList.browserBack(None)
+                    time.sleep(1)
+
+                #enter in that directory
+                self.fList.enter(None)
+                time.sleep(1)
+
+                #select in the second sub dir
+                self.fList.enable(None)
+                time.sleep(1)
+
+                #enter in second sub dir
+                self.fList.enter(None)
+                time.sleep(1)
+
+                #go back to root
+                self.fList.home(None)
+                time.sleep(1)
+
+
+
+        def build(self):
+            self.fList = FileList(
+                id="0",
+                rootdir="/mnt/Ishamedia/",
+                enaColor=includes.styles['enaColor0'],
+                bar_width=10,
+                #size_hint_x=(1, 1),
+                #size=(Window.width, Window.height),
+                supportedTypes="mp3,mp4,txt",
+                selectFirst=False,
+                type="video"
+            )
+
+            from  subprocess import threading
+
+            workThread = threading.Thread(target=self.testFunc)
+            workThread.setDaemon(True)
+            workThread.start()
+
+            from kivy.uix.stacklayout import StackLayout
+
+            lay = StackLayout()
+            lay.add_widget(self.fList)
+            return lay
+
+            return self.fList
+
+
+
+
+
+    Main().run()

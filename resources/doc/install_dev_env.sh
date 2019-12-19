@@ -8,8 +8,9 @@ apt-get install coreutils quilt parted qemu-user-static debootstrap zerofree zip
 
 ROOT_DIR=/root/root
 mkdir -p $ROOT_DIR
-debootstrap --arch armhf --components main,contrib,non-free --keyring /home/rsm/rpi4/raspberrypi.gpg buster $ROOT_DIR http://raspbian.raspberrypi.org/raspbian
+#debootstrap --arch armhf --components main,contrib,non-free --keyring /home/rsm/rpi4/raspberrypi.gpg buster $ROOT_DIR http://raspbian.raspberrypi.org/raspbian
 # The above command takes a lot of time
+debootstrap --arch armhf buster $ROOT_DIR http://raspbian.raspberrypi.org/raspbian
 
 mount -t proc proc $ROOT_DIR/proc/
 mount -t sysfs sys $ROOT_DIR/sys/
@@ -28,6 +29,7 @@ pip3 install pipenv
 git clone -b window-manager https://github.com/rsmoorthy/pi-player.git
 cd pi-player
 pipenv install
+#pipenv install --skip-lock
 
 pipenv shell
 pyinstaller main.py
@@ -35,9 +37,3 @@ du -sch dist/
 bash -x deploy.sh
 
 ls -l /tmp/imc.tgz # file to be extracted in /opt/imc in Raspberry Pi
-
-
-
-
-
-

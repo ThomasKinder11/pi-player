@@ -36,16 +36,18 @@ class MenuPlaylist(StackLayout, Select):
     pListStartId = 0
     prevTimestamp = None
 
-    def size_change(self, widget, value):
-        columnWidth0 = Window.width * 0.3
-        columnWidth1 = Window.width - columnWidth0
+    def size_change(self, widget, size):
+        columnWidth0 = size[0] * 0.3
+        columnWidth1 = size[0] - columnWidth0
+        # columnWidth0 = Window.width * 0.3
+        # columnWidth1 = Window.width - columnWidth0
         headerHeight = includes.styles['playlistHeadHeight']
 
         self.header0.size = (columnWidth0, headerHeight)
         self.header1.size = (columnWidth1, headerHeight)
 
-        self.fileList.size = (columnWidth0, value[1])
-        self.files.size = (columnWidth1, value[1])
+        self.fileList.size = (columnWidth0, size[1])
+        self.files.size = (columnWidth1, size[1])
 
 
     def pos_change(self, widget, value):
@@ -602,7 +604,7 @@ class MenuPlaylist(StackLayout, Select):
             size_hint_x=None,
             width=columnWidth0,
             supportedTypes=includes.config['playlist']['types'],
-            screenmanager=self.screenmanager,
+            #screenmanager=self.screenmanager,
             fillerColor=includes.styles['headerColor0'],
             showDirs=False,
             selectFirst=False,

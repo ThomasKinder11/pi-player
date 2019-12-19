@@ -76,7 +76,7 @@ class Player():
 
     def seek(self, args):
         self._execute({'command': ["seek", int(args['value']), "absolute"]})
-        
+
     def isPaused(self):
         ret = self._execute({'command': ["get_property", "pause"]})
         if ret is None:
@@ -211,38 +211,42 @@ class Player():
             mode = "video"
             mediaInfo = MediaInfo.parse(path)
 
-            videoWidth, videoHeight = 0, 0
-            for track in mediaInfo.tracks:
-                if track.track_type == 'Video':
-                    videoWidth, videoHeight = track.width, track.height
-
-            osdHeight = 50
-            playerHeight = Window.height - (2*osdHeight)#videoHeight - osdHeight
-            playerWidth = int(playerHeight * (videoWidth / videoHeight))
-
-
-            posx = int((Window.width - playerWidth) / 2)
-            posy = int((Window.height - playerHeight) / 2)
-
-            logging.error("Player: playerWidth: {} / playerHeight: {} / videoWidth: {} / videoHeight: {} / posx: {} / posy: {}".format(
-                playerWidth, playerHeight, videoWidth, videoHeight, posx, posy))
+            # videoWidth, videoHeight = 0, 0
+            # for track in mediaInfo.tracks:
+            #     if track.track_type == 'Video':
+            #         videoWidth, videoHeight = track.width, track.height
+            #
+            #
+            # # osdHeight = 50
+            # # playerHeight = Window.height - (2*osdHeight)#videoHeight - osdHeight
+            # # playerWidth = int(playerHeight * (videoWidth / videoHeight))
+            # #
+            # # posx = int((Window.width - playerWidth) / 2)
+            # # posy = int((Window.height - playerHeight) / 2)
+            # #
+            # # logging.error("Player: playerWidth: {} / playerHeight: {} / videoWidth: {} / videoHeight: {} / posx: {} / posy: {}".format(
+            # #     playerWidth, playerHeight, videoWidth, videoHeight, posx, posy))
 
 
             self.isPlaying = True
             self.runtime = tSeek
 
-            self.process = Popen(["mpv",
-                            "--geometry={}+{}+{}".format(playerWidth, posx, posy),
-                            "--start=+{}".format(tSeek),
-                            "--no-border",
-                            "--no-input-default-bindings",
-                            path,
-                            "--really-quiet",
-                            "--no-osc",
-                            "--no-input-terminal",
-                            "--input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
-
-                            ])
+            params = includes.mpvParams(tSeek, path)
+            logging.error("Thomas: prams = {}".format(params))
+            self.process = Popen(params)
+            # self.process = Popen(["mpv",
+            #                 #"--geometry={}+{}+{}".format(playerWidth, posx, posy),
+            #                 "--fs",
+            #                 "--start=+{}".format(tSeek),
+            #                 "--no-border",
+            #                 "--no-input-default-bindings",
+            #                 path,
+            #                 "--really-quiet",
+            #                 "--no-osc",
+            #                 "--no-input-terminal",
+            #                 "-config = {}-input-ipc-server={}".format(os.path.join(includes.config['tmpdir'],"socket"))
+            #
+            #                 ])
 
 
 
