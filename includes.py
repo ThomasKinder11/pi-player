@@ -156,13 +156,13 @@ def writeConfig():
 screenSaver = None #will be initialized by main-menu
 
 #database, bsically a json file which we read and write
-dbPath = os.path.join(syspath, "resources", "database.json")
+dbPath = os.path.join(syspath, "resources", "database.json") #TODO: must be in the /opt/ somewhere as it is non volatile
 db = None
 try:
     with open(dbPath) as dbFile:
         db = json.load(dbFile)
 except:
-    f = open(dbPath, "w")
+    f = open(dbPath, "w+")
     f.write('''{
                 "runtime":0
                 }''')
