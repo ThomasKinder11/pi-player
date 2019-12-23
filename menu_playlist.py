@@ -343,8 +343,8 @@ class MenuPlaylist(StackLayout, Select):
                 ret = self._previousNextContrl(mode, ret, i, plistStart, False)
                 stat, i, plistStart, skipFirst = ret
 
-                if includes.player.process:
-                    includes.player.process.kill()
+                # if includes.player.process:
+                #     includes.player.process.kill() TODO: not compatible with vlc player() implementation
 
                 if stat:
                     skipPre = True

@@ -1,4 +1,5 @@
-from player import *
+#from player import *
+from vlc_player import Player
 from screensaver import *
 import os
 import logging

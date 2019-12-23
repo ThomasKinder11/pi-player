@@ -51,6 +51,7 @@ class FileList(SelectListView):
         return False
 
     def _getCurPath(self):
+        logging.error("thomas: dirtree = {}".format(self.dirTree))
         path = self.rootdir
 
         for item in self.dirTree:
@@ -62,11 +63,16 @@ class FileList(SelectListView):
 
 
     def enter(self, args):
+        logging.error("Thomas: enter pressed")
         path = self._getCurPath()
+        logging.error("Thomas: path = {}".format(path))
 
         path = os.path.join(path, self.widgets[self.wId].text)
+        logging.error("Thomas: path = {}".format(path))
+
 
         if self.widgets[self.wId].text == "...": #jump to previous directory
+            logging.error("Thomas: in ...")
             tmp = self.dirTree.pop(len(self.dirTree)-1)
             path = self.rootdir
 
@@ -82,6 +88,7 @@ class FileList(SelectListView):
 
 
         elif os.path.isfile(path): #We hit enter on a video file so play it
+            logging.error("Thomas: is file")
             if args is None:
                 args = {}
 
@@ -100,6 +107,7 @@ class FileList(SelectListView):
 
 
         elif os.path.isdir(path):
+            logging.error("Thomas: isdir type={}".format(self.type))
             self.layout.clear_widgets()
 
             self.dirTree.append((self.widgets[self.wId].text, self.wId))
@@ -108,6 +116,8 @@ class FileList(SelectListView):
 
             if len(self.widgets) > 0:
                 self.widgets[0].enable(None)
+
+        logging.error("Thomas: type={}".format(self.type))
 
     def _addFile(self, path, isSubdir, wId):
 
