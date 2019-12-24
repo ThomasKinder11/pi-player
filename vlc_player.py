@@ -2,7 +2,11 @@ import vlc
 from time import sleep
 import queue
 from subprocess import threading
+import sys
+import time
 
+from Xlib import X, display
+import Xlib.Xutil
 
 test = True
 
@@ -16,7 +20,7 @@ class Player():
     def onPlayEnd(self,args):
         global test
         test = False
-        '''Callbakc function called when playback finished'''
+        '''Callbac function called when playback finished'''
         return
 
     def _mediaPlayerEnd(self, event):
@@ -90,7 +94,7 @@ class Player():
         return None
 
     def __init__(self):
-        self.vlcInst = vlc.Instance(['-f'])
+        self.vlcInst = vlc.Instance(['--width=100'])
         self.vlcPlayer = self.vlcInst.media_player_new()
 
         self.evManager = self.vlcPlayer.event_manager()
@@ -105,24 +109,80 @@ class Player():
 
 
 if __name__ == "__main__":
+    import Xlib
+    import Xlib.display
+    from Xlib import  Xutil
 
     pl = Player()
 
-    for i in range(2):
-        pl.start("/tmp/a.mp4", 0)
-        pl.vlcPlayer.toggle_fullscreen()
-        sleep(4)
-        print(pl.isPaused())
-        print(pl.vlcPlayer.get_xwindow())
-        #pl.togglePause()
 
-        pl.vlcPlayer.toggle_fullscreen()
+    display = Xlib.display.Display()
+    screen = display.screen()
+    window = screen.root.create_window(
+        x=600,
+        y=100,
+        width=400,
+        height=300,
+        border_width=0,
+        depth=screen.root_depth,
+    )
 
-        while test:
-            sleep(2)
-            print(pl.getRuntime())
-            print(pl.isPaused())
+    window.set_wm_normal_hints(
+        flags = (Xutil.PPosition | Xutil.PSize | Xutil.PMinSize)
+    )
 
-            #pl.stop()
+    window.map()
 
-        sleep(4)
+
+
+    def ev():
+        started = False
+
+        while True:
+            try:
+                e = display.next_event()
+
+
+
+            except Xlib.error.ConnectionClosedError:
+                sys.exit()
+
+
+    th = threading.Thread(target = ev)
+    th.setDaemon(True)
+    th.start()
+
+    time.sleep(3)
+    pl.vlcPlayer.set_xwindow(0x5c00000)
+    pl.start("/tmp/a.mp4", 0)
+
+
+
+    while True:
+        time.sleep(1)
+
+
+
+
+
+
+    # pl = Player()
+    #
+    # for i in range(2):
+    #     pl.start("/tmp/a.mp4", 0)
+    #     pl.vlcPlayer.toggle_fullscreen()
+    #     sleep(4)
+    #     print(pl.isPaused())
+    #     print(pl.vlcPlayer.get_xwindow())
+    #     #pl.togglePause()
+    #
+    #     pl.vlcPlayer.toggle_fullscreen()
+    #
+    #     while test:
+    #         sleep(2)
+    #         print(pl.getRuntime())
+    #         print(pl.isPaused())
+    #
+    #         #pl.stop()
+    #
+    #     sleep(4)
