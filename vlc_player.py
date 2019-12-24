@@ -5,10 +5,9 @@ from subprocess import threading
 import sys
 import time
 
-from Xlib import X, display
-import Xlib.Xutil
-
-test = True
+import Xlib
+import Xlib.display
+from Xlib import  Xutil
 
 
 class Player():
@@ -65,7 +64,7 @@ class Player():
         media = self.vlcInst.media_new(path)
         self.vlcPlayer.set_media(media)
 
-
+        self.vlcPlayer.set_xwindow(self.window.id)
         self.vlcPlayer.play()
         #self.vlcPlayer.set_fullscreen(True)
 
@@ -93,8 +92,39 @@ class Player():
 
         return None
 
+    def _xEventHandler(self, event):
+        while True:
+            try:
+                e = display.next_event()
+            except Xlib.error.ConnectionClosedError:
+                break #TODO: is this enough or does it need to be more sophisticated?
+
+    def _createXwindow(self):
+        self.display = Xlib.display.Display()
+        self.screen = self.display.screen()
+        self.window = self.screen.root.create_window(
+            x=600,
+            y=100,
+            width=400,
+            height=300,
+            border_width=0,
+            depth=self.screen.root_depth,
+        )
+
+        self.window.set_wm_normal_hints(
+            flags = (Xutil.PPosition | Xutil.PSize | Xutil.PMinSize)
+        )
+
+        self.window.map()
+
+        self.eventThread = threading.Thread(target = self._xEventHandler)
+        self.eventThread.setDaemon(True)
+        self.eventThread.start()
+
+
+
     def __init__(self):
-        self.vlcInst = vlc.Instance(['--width=100'])
+        self.vlcInst = vlc.Instance()
         self.vlcPlayer = self.vlcInst.media_player_new()
 
         self.evManager = self.vlcPlayer.event_manager()
