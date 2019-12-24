@@ -4,6 +4,7 @@ import queue
 from subprocess import threading
 import sys
 import time
+import logging
 
 import Xlib
 import Xlib.display
@@ -36,8 +37,11 @@ class Player():
 
             #event manager callbacs cannot call vlc functions so this is why this...
             if cmd == "mediaPlayerEnd":
+                logging.error("Thomas: media player end called. ")
                 #self.vlcPlayer.release()
                 self.vlcPlayer.stop()
+                self.window.unmap()
+
                 self.onPlayEnd(None)
 
 
@@ -64,17 +68,20 @@ class Player():
         media = self.vlcInst.media_new(path)
         self.vlcPlayer.set_media(media)
 
+        self._createXwindow()
         self.vlcPlayer.set_xwindow(self.window.id)
+
         self.vlcPlayer.play()
         #self.vlcPlayer.set_fullscreen(True)
 
         #seek must come after file is started
         self.vlcPlayer.set_time(tSeek*1000)
-        self.vlcPlayer.toggle_fullscreen()
+        #self.vlcPlayer.toggle_fullscreen()
 
     def killPlayer(self):
         if self.vlcPlayer.is_playing:
             self.vlcPlayer.stop()
+            self.window.destroy()
 
     #player status
     def getRuntime(self):
@@ -92,10 +99,16 @@ class Player():
 
         return None
 
-    def _xEventHandler(self, event):
+    def isPlaying(self):
+        return self.vlcPlayer.is_playing() == 1
+
+    def _xEventHandler(self):
         while True:
             try:
-                e = display.next_event()
+                if self.display.pending_events() > 0:
+                    e = self.display.next_event()
+                    logging.error("Thomas: event = {}".format(e))
+                #Handle event for destoy
             except Xlib.error.ConnectionClosedError:
                 break #TODO: is this enough or does it need to be more sophisticated?
 
@@ -103,7 +116,7 @@ class Player():
         self.display = Xlib.display.Display()
         self.screen = self.display.screen()
         self.window = self.screen.root.create_window(
-            x=600,
+            x=400,
             y=100,
             width=400,
             height=300,
@@ -139,53 +152,54 @@ class Player():
 
 
 if __name__ == "__main__":
-    import Xlib
-    import Xlib.display
-    from Xlib import  Xutil
+    # import Xlib
+    # import Xlib.display
+    # from Xlib import  Xutil
+    logging.error("Thomas: in main")
 
     pl = Player()
 
+    #
+    # display = Xlib.display.Display()
+    # screen = display.screen()
+    # window = screen.root.create_window(
+    #     x=600,
+    #     y=100,
+    #     width=400,
+    #     height=300,
+    #     border_width=0,
+    #     depth=screen.root_depth,
+    # )
+    #
+    # window.set_wm_normal_hints(
+    #     flags = (Xutil.PPosition | Xutil.PSize | Xutil.PMinSize)
+    # )
+    #
+    # window.map()
+    #
+    # print(window.id)
+    #
+    #
+    #
+    # def ev():
+    #     started = False
+    #
+    #     while True:
+    #         try:
+    #             e = display.next_event()
+    #
+    #
+    #
+    #         except Xlib.error.ConnectionClosedError:
+    #             sys.exit()
+    #
+    #
+    # th = threading.Thread(target = ev)
+    # th.setDaemon(True)
+    # th.start()
 
-    display = Xlib.display.Display()
-    screen = display.screen()
-    window = screen.root.create_window(
-        x=600,
-        y=100,
-        width=400,
-        height=300,
-        border_width=0,
-        depth=screen.root_depth,
-    )
-
-    window.set_wm_normal_hints(
-        flags = (Xutil.PPosition | Xutil.PSize | Xutil.PMinSize)
-    )
-
-    window.map()
-
-    print(window.id)
-
-
-
-    def ev():
-        started = False
-
-        while True:
-            try:
-                e = display.next_event()
-
-
-
-            except Xlib.error.ConnectionClosedError:
-                sys.exit()
-
-
-    th = threading.Thread(target = ev)
-    th.setDaemon(True)
-    th.start()
-
-    time.sleep(3)
-    pl.vlcPlayer.set_xwindow(window.id)
+    #time.sleep(3)
+    #pl.vlcPlayer.set_xwindow(window.id)
     # pl.vlcPlayer.set_xwindow(0x5c00000)
     pl.start("/tmp/a.mp4", 0)
 
@@ -193,6 +207,9 @@ if __name__ == "__main__":
 
     while True:
         time.sleep(1)
+        if pl.vlcPlayer.is_playing() != 1:
+            break
+
 
 
 
