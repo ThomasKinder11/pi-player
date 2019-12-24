@@ -133,6 +133,8 @@ if __name__ == "__main__":
 
     window.map()
 
+    print(window.id)
+
 
 
     def ev():
@@ -153,7 +155,8 @@ if __name__ == "__main__":
     th.start()
 
     time.sleep(3)
-    pl.vlcPlayer.set_xwindow(0x5c00000)
+    pl.vlcPlayer.set_xwindow(window.id)
+    # pl.vlcPlayer.set_xwindow(0x5c00000)
     pl.start("/tmp/a.mp4", 0)
 
 
